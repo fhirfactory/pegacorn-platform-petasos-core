@@ -26,7 +26,6 @@ import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -37,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_CLUSTERED;
+import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_MULTISITE;
+import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_STANDALONE;
 
 /**
  * @author Mark A. Hunter
@@ -50,15 +52,13 @@ public class WUPContainerEgressProcessor {
     PetasosServicesBroker petasosServicesBroker;
 
     @Inject
-    TopologyIM moduleIM;
+    TopologyIM topologyServer;
 
-    @Inject
-    ServiceModuleProperties moduleProperties;
 
     public WorkUnitTransportPacket egressContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
         LOG.debug(".egressContentProcessor(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresPacket, wupTypeID, wupInstanceID);
         WorkUnitTransportPacket egressPacket;
-        switch (moduleProperties.getDeploymentMode()) {
+        switch (topologyServer.getDeploymentResilienceMode(wupInstanceID)) {
             case RESILIENCE_MODE_MULTISITE:
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_MULTISITE");
             case RESILIENCE_MODE_CLUSTERED:

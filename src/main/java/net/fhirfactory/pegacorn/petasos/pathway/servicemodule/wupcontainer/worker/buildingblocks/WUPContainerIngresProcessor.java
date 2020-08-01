@@ -24,8 +24,8 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.work
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
-import net.fhirfactory.pegacorn.petasos.model.resilience.mode.ConcurrencyMode;
-import net.fhirfactory.pegacorn.petasos.model.resilience.mode.DeploymentResilienceMode;
+import net.fhirfactory.pegacorn.petasos.model.resilience.mode.ConcurrencyModeEnum;
+import net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
+import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConstants;
 
 /**
  * @author Mark A. Hunter
@@ -58,8 +58,6 @@ public class WUPContainerIngresProcessor {
     @Inject
     TopologyIM moduleIM;
     
-    @Inject
-    ServiceModuleProperties propertiesIM;
     
     
     /**
@@ -99,7 +97,7 @@ public class WUPContainerIngresProcessor {
             LOG.trace(".ingresContentProcessor(): This is the 1st time this UoW is being processed, so send to .standardIngresContentProcessor()");
             newTransportPacket = standardIngresContentProcessor(ingresPacket, camelExchange, wupTypeID, wupInstanceID);
         }
-        int waitTime = propertiesIM.getWorkUnitActivitySleepInterval();
+        long waitTime = PetasosPropertyConstants.WUP_SLEEP_INTERVAL_MILLISECONDS;
         boolean waitState = true;
         WUPJobCard jobCard = newTransportPacket.getCurrentJobCard();
         ParcelStatusElement statusElement = newTransportPacket.getCurrentParcelStatus();
@@ -165,7 +163,7 @@ public class WUPContainerIngresProcessor {
         newActivityID.setPresentWUPTypeID(localWUPTypeID);
         newActivityID.setPresentWUPInstanceID(localWUPInstanceID);
         LOG.trace(".standardIngresContentProcessor(): Creating new JobCard");
-        WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_WAITING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, ConcurrencyMode.CONCURRENCY_MODE_STANDALONE, DeploymentResilienceMode.RESILIENCE_MODE_STANDALONE, Date.from(Instant.now()));
+        WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_WAITING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, ConcurrencyModeEnum.CONCURRENCY_MODE_STANDALONE, ResilienceModeEnum.RESILIENCE_MODE_STANDALONE, Date.from(Instant.now()));
         LOG.trace(".standardIngresContentProcessor(): Registering the Work Unit Activity using the ContinuityID --> {} and UoW --> {}", newActivityID, theUoW);
         ParcelStatusElement statusElement = petasosServicesBroker.registerStandardWorkUnitActivity(activityJobCard, theUoW);
         LOG.trace(".standardIngresContentProcessor(): Let's check the status of everything");

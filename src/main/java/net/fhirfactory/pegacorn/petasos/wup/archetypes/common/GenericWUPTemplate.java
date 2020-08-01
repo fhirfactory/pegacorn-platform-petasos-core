@@ -21,29 +21,25 @@
  */
 package net.fhirfactory.pegacorn.petasos.wup.archetypes.common;
 
-import net.fhirfactory.pegacorn.common.model.FDN;
+import java.util.Set;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Date;
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementInstanceTypeEnum;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 
 public abstract class GenericWUPTemplate extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericWUPTemplate.class);
 
-    private FDNToken wupTypeID;
+    private FDNToken wupFunctionID;
     private FDNToken wupInstanceID;
     private WUPJobCard wupInstanceJobCard;
     private NodeElement wupTopologyElement;
@@ -51,97 +47,45 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
     private String wupIngresPoint = null;
 
     @Inject
-    TopologyIM topologyIM;
+    protected ServiceModuleTopologyProxy topologyServer;
 
     @Inject
-    public PetasosServicesBroker servicesBroker;
+    protected PetasosServicesBroker servicesBroker;
 
     public GenericWUPTemplate() {
         super();
         LOG.debug(".GenericWUPTemplate(): Entry, Default constructor");
-        buildTypeID();
-        buildInstanceID();
-        registerTopologyElement();
+        getInstanceID();
+        getFunctionTypeID();
         buildWUPFramework();
     }
 
-    private void buildTypeID() {
-        LOG.debug(".buildTypeID(): Entry");
-        RDN serviceModuleTypeRDN = getServiceModuleTypeRDN();
-        FDNToken serviceModuleTypeFDN = topologyIM.getServiceModuleContext(serviceModuleTypeRDN.getNameValue());
-        FDN wupTypeFDN = new FDN(serviceModuleTypeFDN);
-        wupTypeFDN.appendRDN(getProcessingPlantRDN());
-        wupTypeFDN.appendRDN(getWorkUnitProcessorRDN());
-        this.wupTypeID = wupTypeFDN.getToken();
-        LOG.debug(".buildTypeID(): Exit, created wupTypeID --> ", this.wupTypeID);
+    public void getFunctionTypeID() {
+        LOG.debug(".getFunctionTypeID(): Entry");
+        this.wupFunctionID = topologyServer.getWUPFunctionID(this.wupInstanceID);
+        LOG.debug(".getFunctionTypeID(): Exit, created wupTypeID --> ", this.wupFunctionID);
     }
 
-    private void buildInstanceID() {
+    private void getInstanceID() {
         LOG.debug(".buildInstanceID(): Entry");
-        RDN processingPlantRDN = getProcessingPlantRDN();
-        RDN workUnitProcessorRDN = getWorkUnitProcessorRDN();
-        RDN applicationServerRDN = getApplicationServerRDN();
-        RDN siteRDN = getSiteRDN();
-        RDN serviceRDN = getServiceRDN();
-        RDN subsystemRDN = getSubSystemRDN();
-        RDN serviceModuleTypeRDN = getServiceModuleTypeRDN();
-        FDNToken solutionDeploymentID = topologyIM.getSolutionID();
-        FDN wupInstanceFDN = new FDN(solutionDeploymentID);
-        wupInstanceFDN.appendRDN(subsystemRDN);
-        wupInstanceFDN.appendRDN(serviceRDN);
-        wupInstanceFDN.appendRDN(siteRDN);
-        wupInstanceFDN.appendRDN(applicationServerRDN);
-        wupInstanceFDN.appendRDN(serviceModuleTypeRDN);
-        wupInstanceFDN.appendRDN(processingPlantRDN);
-        wupInstanceFDN.appendRDN(workUnitProcessorRDN);
-        RDN instanceQualifier = new RDN("InstanceQualifier", Date.from(Instant.now()).toString());
-        wupInstanceFDN.appendRDN(instanceQualifier);
-        this.wupInstanceID = wupInstanceFDN.getToken();
+        this.wupInstanceID = topologyServer.getWUPInstanceID(getWUPInstanceName());
         LOG.debug(".buildInstanceID(): Exit, created wupInstanceID --> {}", this.wupInstanceID);
     }
     
-    private void registerTopologyElement(){
-        LOG.debug(".registerTopologyElement(): Entry");
-        NodeElement newElement = new NodeElement();
-        newElement.setElementInstanceID(this.wupInstanceID);
-        newElement.setElementFunctionTypeID(this.wupTypeID);
-        newElement.setElementVersion(getVersion());
-        newElement.setTopologyElementType(NodeElementInstanceTypeEnum.WUP_INSTANCE);
-        FDN wupInstanceFDN = new FDN(this.wupInstanceID);
-        FDN wupInstanceFDNWithoutInstanceQualifier = wupInstanceFDN.getParentFDN();
-        FDN parentFDN = wupInstanceFDNWithoutInstanceQualifier.getParentFDN();
-        newElement.setContainingElementID(parentFDN.getToken());
-        wupTopologyElement = newElement;
-        topologyIM.registerNode(newElement);
-        LOG.debug(".registerTopologyElement(): Exit, newElement --> {}", newElement);
+    private void registerTopologyElementInstantiation(){
+        LOG.debug(".registerTopologyElementInstantiation(): Entry");
+        topologyServer.setInstanceInPlace(wupInstanceID, true);
+        LOG.debug(".registerTopologyElementInstantiation(): Exit");
     }
 
     private void buildWUPFramework() {
         LOG.debug(".buildWUPFramework(): Entry");
-        servicesBroker.registerWorkUnitProcessor(this.wupTopologyElement, this.getSubscribedTopics(), this.getWUPArchetype());
+        servicesBroker.registerWorkUnitProcessor(this.wupTopologyElement, this.getSubscribedTopics(), this.getWUPArchitype());
         LOG.debug(".buildWUPFramework(): Exit");
     }
 
-    public abstract RDN getProcessingPlantRDN();
-
-    public abstract RDN getWorkUnitProcessorRDN();
-
-    public abstract RDN getApplicationServerRDN();
-
-    public abstract RDN getSiteRDN();
-
-    public abstract RDN getServiceModuleTypeRDN();
-
-    public abstract RDN getServiceRDN();
-
-    public abstract RDN getSubSystemRDN();
-
-    public abstract String getVersion();
-    
-    public abstract WUPArchetypeEnum getWUPArchetype();
-
-    public FDNToken getWupTypeID() {
-        return (this.wupTypeID);
+    public FDNToken getWupFunctionID() {
+        return (this.wupFunctionID);
     }
 
     public FDNToken getWupInstanceID() {
@@ -156,6 +100,10 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         return (this.wupEgressPoint);
     }
 
-    public abstract FDNTokenSet getSubscribedTopics();
-
+    // To be implemented methods (in Specialisations)
+    
+    public abstract Set<TopicToken> getSubscribedTopics();
+    public abstract String getWUPInstanceName();
+    public abstract WUPArchetypeEnum getWUPArchitype();
+   
 }

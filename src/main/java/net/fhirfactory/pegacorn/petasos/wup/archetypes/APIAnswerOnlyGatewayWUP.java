@@ -37,14 +37,14 @@ public abstract class APIAnswerOnlyGatewayWUP extends GenericWUPTemplate {
     }
 
     @Override
-    public WUPArchetypeEnum getWUPArchetype(){
+    public WUPArchetypeEnum getWUPArchitype(){
         return(WUPArchetypeEnum.WUP_NATURE_API_ANSWER);
     }
 
      public void registerActivityStart(UoW unitOfWork, WUPClusterModeEnum clusterMode, WUPSystemModeEnum systemMode){
         LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}", unitOfWork);
         ContinuityID newContinuityID = new ContinuityID();
-        newContinuityID.setPresentWUPTypeID(this.getWupTypeID());
+        newContinuityID.setPresentWUPTypeID(this.getWupFunctionID());
         newContinuityID.setPresentWUPInstanceID(this.getWupInstanceID());
      }
 

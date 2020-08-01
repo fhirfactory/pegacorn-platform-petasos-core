@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@ package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.tasks.RegisterNewWorkUnitActivity;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.tasks.SynchroniseWorkUnitActivityJobCard;
@@ -36,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 
 
 @ApplicationScoped
@@ -46,7 +46,7 @@ public class ResilienceActivityServicesController {
     ServiceModuleActivityMatrixDM activityMatrixDM;
 
     @Inject
-    ServiceModuleProperties moduleProperties;
+    TopologyIM topologyServer;
 
     @Inject
     ServiceModuleWUAEpisodeFinalisationCacheDM finalisationCacheDM;

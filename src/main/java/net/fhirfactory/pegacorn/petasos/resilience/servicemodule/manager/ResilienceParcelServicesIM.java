@@ -38,6 +38,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
+import javax.transaction.Transactional;
 
 /**
  * @author Mark A. Hunter
@@ -60,6 +61,7 @@ public class ResilienceParcelServicesIM {
         this.nodeInstanceFDN = new FDN();
     }
 
+    @Transactional
     public ResilienceParcel registerParcel(ContinuityID activityID, UoW unitOfWork, boolean synchronousWriteToAudit) {
         LOG.debug(".registerParcel(): Entry, activityID --> {}, unitOfWork --> {}, synchronousWriteToAudit -->{}", activityID, unitOfWork, synchronousWriteToAudit);
         if ((unitOfWork == null) || (activityID == null)) {
@@ -91,6 +93,7 @@ public class ResilienceParcelServicesIM {
         return(parcelInstance);
     }
 
+    @Transactional
     public ResilienceParcel notifyParcelProcessingStart(FDNToken parcelID) {
         LOG.debug(".notifyParcelProcessingStart(): Entry, parcelID --> {}", parcelID);
         if (parcelID == null) {
@@ -112,6 +115,7 @@ public class ResilienceParcelServicesIM {
         return(currentParcel);
     }
 
+    @Transactional
     public ResilienceParcel notifyParcelProcessingFinish(FDNToken parcelID, UoW unitOfWork) {
         LOG.debug(".notifyParcelProcessingFinish(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID, unitOfWork);
         if ((unitOfWork == null) || (parcelID == null)) {
@@ -137,6 +141,7 @@ public class ResilienceParcelServicesIM {
         return(currentParcel);
     }
 
+    @Transactional
     public ResilienceParcel notifyParcelProcessingFailure(FDNToken parcelID, UoW unitOfWork) {
         LOG.debug(".notifyParcelProcessingFailure(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID, unitOfWork);
         if ((unitOfWork == null) || (parcelID == null)) {
@@ -161,6 +166,7 @@ public class ResilienceParcelServicesIM {
         return(currentParcel);
     }
 
+    @Transactional
     public ResilienceParcel notifyParcelProcessingFinalisation(FDNToken parcelID) {
         LOG.debug(".notifyParcelProcessingFinalisation(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID);
         if (parcelID == null) {
@@ -187,6 +193,7 @@ public class ResilienceParcelServicesIM {
         return(currentParcel);
     }
 
+    @Transactional
     public ResilienceParcel notifyParcelProcessingCancellation(FDNToken parcelID) {
         LOG.debug(".notifyParcelProcessingCancellation(): Entry, parcelID --> {}", parcelID);
         if (parcelID == null) {
@@ -213,6 +220,7 @@ public class ResilienceParcelServicesIM {
         return(currentParcel);
     }
 
+    @Transactional
     public void notifyParcelProcessingPurge(FDNToken parcelID) {
         LOG.debug(".notifyParcelProcessingPurge(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID);
         if (parcelID == null) {

@@ -23,7 +23,6 @@ package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
@@ -35,6 +34,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConstants;
 
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 
@@ -60,9 +60,6 @@ public class ServiceModuleActivityMatrixDM {
 
     @Inject
     TopologyIM moduleIM;
-
-    @Inject
-    ServiceModuleProperties moduleProperties;
 
     public ServiceModuleActivityMatrixDM() {
         parcelElementStatusSet = new ConcurrentHashMap<FDNToken, ParcelStatusElement>();
@@ -215,8 +212,8 @@ public class ServiceModuleActivityMatrixDM {
         Enumeration<FDNToken> parcelEpisodeIDIterator = wuaEpisode2ParcelInstanceMap.keys();
         LOG.trace(".getAgedContentFromUpActivityMatrix(): Iterating through each EpisodeID");
         Date currentDate = Date.from(Instant.now());
-        Long cutOffAge = currentDate.getTime() - (moduleProperties.getWorkUnitActivityCleanUpAgeLimit());
-        Long timeOutAge = currentDate.getTime() - (moduleProperties.getWorkUnitActivityTimeoutLimit());
+        Long cutOffAge = currentDate.getTime() - (PetasosPropertyConstants.CACHE_ENTRY_RETENTION_PERIOD_SECONDS);
+        Long timeOutAge = currentDate.getTime() - (PetasosPropertyConstants.WUP_ACTIVITY_DURATION_SECONDS);
         while (parcelEpisodeIDIterator.hasMoreElements()) {
             FDNToken parcelEpisodeID = parcelEpisodeIDIterator.nextElement();
             FDNTokenSet statusSet = wuaEpisode2ParcelInstanceMap.get(parcelEpisodeID);

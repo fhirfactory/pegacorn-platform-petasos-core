@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -61,6 +62,7 @@ public class ServiceModuleParcelCacheDM {
      * to the particular ParcelID, it replaces it.
      * @param parcel The ResilienceParcel to be added to the (ConcurrentHashMap) Cache
      */
+    @Transactional
     public void addParcel(ResilienceParcel parcel) {
         LOG.debug(".addParcel(): Entry, parcel --> {}", parcel);
         if (parcel == null) {
@@ -93,6 +95,7 @@ public class ServiceModuleParcelCacheDM {
      * This function removes the ResilienceParcel from the Cache.
      * @param parcel The ResilienceParcel to be removed from the Cache
      */
+    @Transactional
     public void removeParcel(ResilienceParcel parcel) {
         LOG.debug(".removeParcel(): Entry, parcel --> {}", parcel);
         if (parcel == null) {
@@ -110,6 +113,7 @@ public class ServiceModuleParcelCacheDM {
      * This function removes the ResilienceParcel from the Cache.
      * @param parcelInstanceID The Identifier (FDNToken) of the ResilienceParcel to be removed
      */
+    @Transactional
     public void removeParcel(FDNToken parcelInstanceID) {
         LOG.debug(".removeParcel(): Entry, parcelInstanceID --> {}", parcelInstanceID);
         if (parcelInstanceID == null) {
@@ -125,6 +129,7 @@ public class ServiceModuleParcelCacheDM {
      * instance.
      * @param newParcel The new ResilienceParcel instance
      */
+    @Transactional
     public void updateParcel(ResilienceParcel newParcel) {
         LOG.debug(".updateParcel() Entry, parcel --> {}", newParcel);
         if (newParcel == null) {

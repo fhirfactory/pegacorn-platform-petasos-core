@@ -25,10 +25,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.pathway.contentrouting.cache.UoWPayloadTopicSubscriptionMapDM;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
@@ -38,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.Set;
+import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 
 /**
  *
@@ -52,9 +53,9 @@ public class WorkUnitProcessorFrameworkManager {
     TopologyIM topologyServer;
 
     @Inject
-    UoWPayloadTopicSubscriptionMapDM topicSubscriptionMapDM;
+    TopicIM topicServer;
     
-    public void buildWUPFramework(NodeElement element, FDNTokenSet subscribedTopics, WUPArchetypeEnum wupArchetype){
+    public void buildWUPFramework(NodeElement element, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
         LOG.debug(".buildWUPFramework(): Entry, element --> {}, subscribedTopics --> {}, wupArchetype --> {}", element, subscribedTopics, wupArchetype);
         CamelContext camel = new DefaultCamelContext();
         try {
@@ -93,17 +94,17 @@ public class WorkUnitProcessorFrameworkManager {
 
     }
 
-    public void uowTopicSubscribe(FDNTokenSet subscribedTopics, FDNToken wupTypeID){
+    public void uowTopicSubscribe(Set<TopicToken> subscribedTopics, FDNToken wupTypeID){
         LOG.debug(".uowTopicSubscribe(): Entry, subscribedTopics --> {}, wupTypeID --> {}", subscribedTopics, wupTypeID );
         if(subscribedTopics.isEmpty()){
             LOG.debug(".uowTopicSubscribe(): Something's wrong, no Topics are subscribed for this WUP");
             return;
         }
-        Iterator<FDNToken> topicIterator = subscribedTopics.getElements().iterator();
+        Iterator<TopicToken> topicIterator = subscribedTopics.iterator();
         while(topicIterator.hasNext()) {
-            FDNToken currentTopicID = topicIterator.next();
+            TopicToken currentTopicID = topicIterator.next();
             LOG.trace(".uowTopicSubscribe(): WUPType --> {} is subscribing to UoW Content Topic --> {}", wupTypeID, currentTopicID);
-            topicSubscriptionMapDM.addSubscriberToUoWContentTopic(currentTopicID, wupTypeID );
+            topicServer.addTopicSubscriber(currentTopicID, wupTypeID );
         }
         LOG.debug(".uowTopicSubscribe(): Exit");
     }

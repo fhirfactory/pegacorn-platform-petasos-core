@@ -24,14 +24,15 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worke
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
-import net.fhirfactory.pegacorn.petasos.pathway.contentrouting.cache.UoWPayloadTopicSubscriptionMapDM;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 
 /**
  * @author Mark A. Hunter
@@ -43,7 +44,7 @@ public class InterchangeTargetWUPTypeRouter {
     private static final String CURRENT_END_POINT_SET = "CurrentEndpointSetFor";
 
     @Inject
-    UoWPayloadTopicSubscriptionMapDM distributionList;
+    TopicIM distributionList;
 
     /**
      * Essentially, we get the set of WUPs subscribing to a particular UoW type,
@@ -60,14 +61,14 @@ public class InterchangeTargetWUPTypeRouter {
      */
     String forwardUoW2WUPs(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
         LOG.debug(".forwardUoW2WUPs(): Entry, incomingTraffic --> {}, camelExchange --> ###, wupTypeID --> {}, wupInstanceID --> {}", incomingPacket, wupTypeID, wupInstanceID);
-        FDNToken uowTopicID = null;
+        TopicToken uowTopicID = null;
         if(incomingPacket.hasPayload()){
             uowTopicID = incomingPacket.getPayload().getPayloadTopicID();
         } else {
             LOG.debug(".forwardUoW2WUPs(): Exit, there's no payload (UoW), so return null (and end this route).");
             return(null);
         }
-        FDN currentUoWFDN = new FDN(uowTopicID);
+        FDN currentUoWFDN = new FDN(uowTopicID.getIdentifier());
         String propertyName = CURRENT_END_POINT_SET + currentUoWFDN.getUnqualifiedRDN().getNameValue();
         LOG.trace(".forwardUoW2WUPs(): This instance's Subscribed WUP List is called --> {}", propertyName);
         FDNTokenSet targetWUPSet = camelExchange.getProperty(propertyName, FDNTokenSet.class);
@@ -77,13 +78,14 @@ public class InterchangeTargetWUPTypeRouter {
         boolean alreadyInstalled = true;
         if (targetWUPSet == null) {
             alreadyInstalled = false;
-            targetWUPSet = distributionList.getSubscriptionSetForUOWContentTopic(uowTopicID);
+            targetWUPSet = distributionList.getSubscriberSet(uowTopicID);
             if (targetWUPSet == null) {
                 LOG.debug(".forwardUoW2WUPs(): Exit, nobody was interested in processing this UoW and that's a concern!");
                 return (null);
             }
         }
         if (targetWUPSet.isEmpty()) {
+            camelExchange.removeProperty(propertyName);
             LOG.debug(".forwardUoW2WUPs(): Exit, finished iterating through interested/registered endpoints");
             return (null);
         }

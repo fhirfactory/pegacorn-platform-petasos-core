@@ -22,6 +22,8 @@
 
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
 
+import java.time.Instant;
+import java.util.Date;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayload;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import net.fhirfactory.pegacorn.common.model.RDN;
 
 public class InterchangeUoWPayload2NewUoWProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeUoWPayload2NewUoWProcessor.class);
@@ -44,14 +47,18 @@ public class InterchangeUoWPayload2NewUoWProcessor {
         Iterator<UoWPayload> incomingPayloadIterator = egressPayloadSet.getPayloadElements().iterator();
         while(incomingPayloadIterator.hasNext()){
             UoWPayload currentPayload = incomingPayloadIterator.next();
-            FDN newUoWFDN = new FDN(currentPayload.getPayloadTypeID());
+            FDN newUoWFDN = new FDN(currentPayload.getPayloadTopicID().getIdentifier());
+            newUoWFDN.appendRDN(new RDN("Version", currentPayload.getPayloadTopicID().getVersion()));
+            newUoWFDN.appendRDN(new RDN("Instance", Date.from(Instant.now()).toString()));
             UoW newUoW = new UoW(newUoWFDN.getToken(), currentPayload);
             newUoWSet.add(newUoW);
             if(LOG.isTraceEnabled()){
                 LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): New UoW Create --> {}", newUoW);
             }
         }
-        LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit ");
+        if(LOG.isDebugEnabled()){
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new UoWs created, number --> {} ", newUoWSet.size());
+        }
         return(newUoWSet);
     }
 }

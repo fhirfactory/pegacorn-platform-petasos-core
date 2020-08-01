@@ -22,6 +22,7 @@
 
 package net.fhirfactory.pegacorn.petasos.wup;
 
+import java.util.Set;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
@@ -140,7 +142,7 @@ public class PetasosServicesBroker {
         return(null);
     }
     
-    public void registerWorkUnitProcessor(NodeElement newElement, FDNTokenSet payloadTopicSet, WUPArchetypeEnum wupNature){
+    public void registerWorkUnitProcessor(NodeElement newElement, Set<TopicToken> payloadTopicSet, WUPArchetypeEnum wupNature){
         LOG.debug(".registerWorkUnitProcessor(): Entry, newElement --> {}, payloadTopicSet --> {}", newElement, payloadTopicSet);
         
         wupFrameworkManager.buildWUPFramework(newElement, payloadTopicSet, wupNature);

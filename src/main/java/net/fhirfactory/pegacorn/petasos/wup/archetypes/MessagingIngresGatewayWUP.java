@@ -22,6 +22,7 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.*;
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
 import org.slf4j.Logger;
@@ -29,11 +30,21 @@ import org.slf4j.LoggerFactory;
 
 public abstract class MessagingIngresGatewayWUP extends GenericWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(MessagingIngresGatewayWUP.class);
+    
+    public MessagingIngresGatewayWUP() {
+        super();
+        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
+        setIngresEndpoint();
+    }
 
     public WUPArchetypeEnum getWUPArchetype(){
         return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT);
     }
 
+    
+    protected void setIngresEndpoint(){
+        NodeElement myNode = topologyServer.getNode(this.getWupInstanceID());
+    } 
 
 
 }

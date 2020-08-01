@@ -23,7 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.tasks;
 
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
+import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.petasos.model.resilience.mode.ConcurrencyModeEnum;
+import net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum;
+
 
 @ApplicationScoped
 public class RegisterNewWorkUnitActivity {
@@ -43,7 +46,7 @@ public class RegisterNewWorkUnitActivity {
     ServiceModuleActivityMatrixDM activityMatrixDM;
 
     @Inject
-    ServiceModuleProperties moduleProperties;
+    TopologyIM topologerServer;
 
     public ParcelStatusElement doTask(WUPJobCard submittedJobCard){
         LOG.debug(".doTask(): Now register the parcel with the ActivityMatrix, submittedJobCard -- {}", submittedJobCard);
@@ -52,10 +55,10 @@ public class RegisterNewWorkUnitActivity {
         }
         ContinuityID activityID = submittedJobCard.getCardID();
         ParcelStatusElement newStatusElement;
-        switch (moduleProperties.getDeploymentMode()) {
+        switch (topologerServer.getDeploymentResilienceMode(activityID.getPresentWUPInstanceID())){
             case RESILIENCE_MODE_MULTISITE:
                 LOG.trace(".doTask(): Asking for -Multisite- Reliability Mode for Work Unit Activity Registration");
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologerServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_CONCURRENT:   // Woo hoo - we are full-on highly available
                         LOG.trace(".doTask(): Asking for -Concurrent- Concurrency Mode, in -Multisite- Reliability Mode - implementing Multisite/Concurrent mode");
                         newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
@@ -75,7 +78,7 @@ public class RegisterNewWorkUnitActivity {
                 }
             case RESILIENCE_MODE_CLUSTERED:
                 LOG.trace(".doTask(): Asking for -Clustered- Reliability Mode for Work Unit Activity Registration");
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologerServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_ONDEMAND:     // OK, preferred & MVP
                         LOG.trace(".doTask(): Asking for -On-Demand- Concurrency Mode, in -Clustered- Reliability Mode - implementing Clustered/OnDemand mode");
                         newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);;
@@ -97,7 +100,7 @@ public class RegisterNewWorkUnitActivity {
             case RESILIENCE_MODE_STANDALONE:
                 LOG.trace(".doTask(): Asking for -Standalone- Reliability Mode for Work Unit Activity Registration");
             default:
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologerServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_CONCURRENT:   // Not possible!
                         LOG.trace(".doTask(): Asking for -Concurrent- Concurrency Mode, in -Standalone- Reliability Mode - not possible, defaulting to Standalone/Standalone mode");
                         newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);

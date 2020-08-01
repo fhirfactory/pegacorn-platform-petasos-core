@@ -52,7 +52,7 @@
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
-            <version>${javax.enterprise.cdi-api.version}</version>
+            <version>${version-javax.enterprise-cdi-api}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -127,11 +127,19 @@
         <!-- Pegacorn Petasos Topology Servoces -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
-            <artifactId>pegacorn-platform-petasos-topology-server</artifactId>
+            <artifactId>pegacorn-platform-petasos-topology</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>
-        </dependency>        
+        </dependency>    
+        <!-- Pegacorn Petasos DataSet (Topic) Map Servoces -->
+        <dependency>
+            <groupId>net.fhirfactory.pegacorn</groupId>
+            <artifactId>pegacorn-platform-petasos-datasets</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>         
 		
         <!-- Infinispan -->
         <dependency>
@@ -184,7 +192,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version-org.apache.maven.compiler.plugin}</version>
+                <version>${version-org.apache.maven-compiler-plugin}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>

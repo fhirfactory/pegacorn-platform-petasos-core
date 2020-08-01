@@ -24,7 +24,6 @@ package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.tasks;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.topology.properties.ServiceModuleProperties;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 import org.slf4j.Logger;
@@ -34,6 +33,8 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 
 public class SynchroniseWorkUnitActivityJobCard {
     private static final Logger LOG = LoggerFactory.getLogger(SynchroniseWorkUnitActivityJobCard.class);
@@ -42,17 +43,18 @@ public class SynchroniseWorkUnitActivityJobCard {
     ServiceModuleActivityMatrixDM activityMatrixDM;
 
     @Inject
-    ServiceModuleProperties moduleProperties;
+    TopologyIM topologyServer;
 
     public void doTask(WUPJobCard submittedJobCard) {
         LOG.debug(".doTask(): Entry, submittedJobCard -- {}", submittedJobCard);
         if (submittedJobCard == null) {
             throw (new IllegalArgumentException(".doTask(): submittedJobCard is null"));
         }
-        switch (moduleProperties.getDeploymentMode()) {
+        ContinuityID activityID = submittedJobCard.getCardID();
+        switch (topologyServer.getDeploymentResilienceMode(activityID.getPresentWUPInstanceID())) {
             case RESILIENCE_MODE_MULTISITE:
                 LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_MULTISITE");
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologyServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_CONCURRENT:   // Woo hoo - we are full-on highly available
                         LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_MULTISITE, Concurrency Mode --> PETASOS_WUA_CONCURRENCY_MODE_CONCURRENT");
                         break;
@@ -67,7 +69,7 @@ public class SynchroniseWorkUnitActivityJobCard {
                 break;
             case RESILIENCE_MODE_CLUSTERED:
                 LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_CLUSTERED");
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologyServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_CONCURRENT:   // Not possible
                         LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_CLUSTERED, Concurrency Mode --> PETASOS_WUA_CONCURRENCY_MODE_CONCURRENT");
                     case CONCURRENCY_MODE_STANDALONE:   // A waste, we can have multiple - but only want one!
@@ -80,7 +82,7 @@ public class SynchroniseWorkUnitActivityJobCard {
             case RESILIENCE_MODE_STANDALONE:
                 LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_STANDALONE");
             default:
-                switch (moduleProperties.getWUAConcurrencyMode()) {
+                switch (topologyServer.getConcurrencyMode(activityID.getPresentWUPInstanceID())) {
                     case CONCURRENCY_MODE_CONCURRENT:   // Not possible!
                         LOG.trace(".doTask(): Deployment Mode --> PETASOS_MODE_STANDALONE, Concurrency Mode --> PETASOS_WUA_CONCURRENCY_MODE_CONCURRENT (not possible)");
                     case CONCURRENCY_MODE_ONDEMAND:     // Not possible!
