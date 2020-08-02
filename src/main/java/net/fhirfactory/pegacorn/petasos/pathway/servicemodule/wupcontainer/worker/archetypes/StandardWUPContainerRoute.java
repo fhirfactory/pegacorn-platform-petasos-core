@@ -23,6 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.*;
 import org.apache.camel.CamelContext;
@@ -37,25 +38,25 @@ import org.slf4j.LoggerFactory;
 public class StandardWUPContainerRoute extends RouteBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(StandardWUPContainerRoute.class);
 
-    private FDNToken wupTypeID;
+    private NodeElementFunctionToken wupFunctionToken;
     private FDNToken wupInstanceID;
     private RouteElementNames nameSet;
 
-    public StandardWUPContainerRoute(CamelContext context, FDNToken wupTypeID, FDNToken wupInstanceID) {
+    public StandardWUPContainerRoute(CamelContext context, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
         super(context);
-        LOG.debug(".StandardWUPContainerRoute(): Entry, context --> ###, wupTypeID --> {}, wupInstance --> {}", wupTypeID, wupInstanceID);
-        this.wupTypeID = wupTypeID;
+        LOG.debug(".StandardWUPContainerRoute(): Entry, context --> ###, wupFunctionToken --> {}, wupInstance --> {}", wupFunctionToken, wupInstanceID);
+        this.wupFunctionToken = wupFunctionToken;
         this.wupInstanceID = wupInstanceID;
-        nameSet = new RouteElementNames(wupTypeID);
+        nameSet = new RouteElementNames(wupFunctionToken);
     }
 
     @Override
     public void configure() {
-        LOG.debug(".configure(): Entry!, for wupTypeID --> {}, wupInstanceID --> {}", this.wupTypeID, this.wupInstanceID);
+        LOG.debug(".configure(): Entry!, for wupFunctionToken --> {}, wupInstanceID --> {}", this.wupFunctionToken, this.wupInstanceID);
 
         from(nameSet.getEndPointWUPContainerIngresProcessorIngres())
                 .routeId(nameSet.getRouteWUPContainerIngressProcessor())
-                .bean(WUPContainerIngresProcessor.class, "ingresContentProcessor(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")")
+                .bean(WUPContainerIngresProcessor.class, "ingresContentProcessor(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")")
                 .to(nameSet.getEndPointWUPContainerIngresProcessorEgress());
 
         from(nameSet.getEndPointWUPContainerIngresProcessorEgress())
@@ -64,26 +65,26 @@ public class StandardWUPContainerRoute extends RouteBuilder {
 
         from(nameSet.getEndPointWUPContainerIngresGatekeeperIngres())
                 .routeId(nameSet.getRouteWUPContainerIngresGateway())
-                .dynamicRouter(method(WUPContainerIngresGatekeeper.class, "ingresGatekeeper(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")"));
+                .dynamicRouter(method(WUPContainerIngresGatekeeper.class, "ingresGatekeeper(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")"));
 
         from(nameSet.getEndPointWUPIngresConduitIngres())
                 .routeId(nameSet.getRouteIngresConduitIngres2WUPIngres())
-                .bean(WUPIngresConduit.class, "forwardIntoWUP(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")")
+                .bean(WUPIngresConduit.class, "forwardIntoWUP(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")")
                 .to(nameSet.getEndPointWUPIngres());
 
         from(nameSet.getEndPointWUPEgress())
                 .routeId(nameSet.getRouteWUPEgress2WUPEgressConduitEgress())
-                .bean(WUPEgressConduit.class, "receiveFromWUP(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")")
+                .bean(WUPEgressConduit.class, "receiveFromWUP(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")")
                 .to(nameSet.getEndPointWUPContainerEgressProcessorIngres());
 
         from(nameSet.getEndPointWUPContainerEgressProcessorIngres())
                 .routeId(nameSet.getRouteWUPContainerEgressProcessor())
-                .bean(WUPContainerEgressProcessor.class, "egressContentProcessor(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")")
+                .bean(WUPContainerEgressProcessor.class, "egressContentProcessor(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")")
                 .to(nameSet.getEndPointWUPContainerEgressProcessorIngres());
 
         from(nameSet.getEndPointWUPContainerEgressProcessorIngres())
                 .routeId(nameSet.getRouteWUPContainerEgressGateway())
-                .dynamicRouter(method(WUPContainerEgressGatekeeper.class, "egressGatekeeper(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")"));
+                .dynamicRouter(method(WUPContainerEgressGatekeeper.class, "egressGatekeeper(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")"));
 
     }
 }

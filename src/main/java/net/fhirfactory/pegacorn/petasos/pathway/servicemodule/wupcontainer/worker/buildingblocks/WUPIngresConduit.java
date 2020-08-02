@@ -24,6 +24,7 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.work
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
@@ -47,8 +48,8 @@ public class WUPIngresConduit {
      * @param wupInstanceID The Work Unit Processor Instance - an absolutely unique identifier for the instance of WUP within the entiry deployment.
      * @return A UoW (Unit of Work) object for injection into the WUP for processing by the Business Logic
      */
-    public UoW forwardIntoWUP(WorkUnitTransportPacket ingresParcel, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID){
-        LOG.debug(".forwardIntoWUP(): Entry, ingresParcel --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresParcel, wupTypeID, wupInstanceID);
+    public UoW forwardIntoWUP(WorkUnitTransportPacket ingresParcel, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID){
+        LOG.debug(".forwardIntoWUP(): Entry, ingresParcel --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresParcel, wupFunctionToken, wupInstanceID);
         UoW theUoW = ingresParcel.getPayload();
         camelExchange.setProperty("WUPJobCard", ingresParcel.getCurrentJobCard());
         camelExchange.setProperty("ParcelStatusElement", ingresParcel.getCurrentParcelStatus());

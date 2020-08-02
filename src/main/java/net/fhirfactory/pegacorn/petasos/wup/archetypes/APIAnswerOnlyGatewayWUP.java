@@ -44,7 +44,7 @@ public abstract class APIAnswerOnlyGatewayWUP extends GenericWUPTemplate {
      public void registerActivityStart(UoW unitOfWork, WUPClusterModeEnum clusterMode, WUPSystemModeEnum systemMode){
         LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}", unitOfWork);
         ContinuityID newContinuityID = new ContinuityID();
-        newContinuityID.setPresentWUPTypeID(this.getWupFunctionID());
+        newContinuityID.setPresentWUPFunctionToken(this.getWUPFunctionToken());
         newContinuityID.setPresentWUPInstanceID(this.getWupInstanceID());
      }
 

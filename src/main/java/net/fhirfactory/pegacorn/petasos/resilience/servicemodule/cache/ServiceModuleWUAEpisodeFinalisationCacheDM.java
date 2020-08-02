@@ -40,13 +40,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * It uses a ConcurrentHasMap to store a full list of all downstream WUP Registered instances:
  * ConcurrentHashMap<FDNToken, WUAEpisodeFinalisationRegistrationStatus> downstreamRegistrationStatusSet
- * where the FDNToken is the WUPInstanceID and the WUAEpisodeFinalisationRegistrationStatus is their
- * registration status.
- * <p>
+ where the FDNToken is the WUPInstanceID and the WUAEpisodeFinalisationRegistrationStatus is their
+ registration status.
+ <p>
  * It also uses a ConcurrentHashMap to store a list of WUPs that have registered to consume the specific
  * UoW of the current WUAEpisodeID
  * ConcurrentHashMap<FDNToken, FDNTokenSet> downstreamWUPRegistrationMap
- * where the FDNToken is the EpisodeID and the FDNTokenSet is the list of WUPInstanceIDs for the downstream WUPS.
+ where the FDNToken is the EpisodeID and the FDNTokenSet is the list of WUPInstanceIDs for the downstream WUPS.
  *
  * @author Mark A. Hunter
  * @since 2020.07.01

@@ -25,6 +25,7 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.work
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +46,13 @@ public class WUPContainerIngresGatekeeper {
      *
      * @param ingresPacket The WorkUnitTransportPacket that is to be forwarded to the Intersection (if all is OK)
      * @param camelExchange The Apache Camel Exchange object, used to store a Semaphore as we iterate through Dynamic Route options
-     * @param wupTypeID The Work Unit Processor Type: should be unique with the SystemModule and is used to build routes around the core WUP
+     * @param wupFunctionToken The Work Unit Processor Type: should be unique with the SystemModule and is used to build routes around the core WUP
      * @param wupInstanceID The Work Unit Processor Instance: only to be used for instance debugging (not used at the moment)
      * @return Should either return the ingres point into the associated WUP Ingres Conduit or null (if the packet is to be discarded)
      */
-    public String ingresGatekeeper(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".ingresGatekeeper(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresPacket, wupTypeID, wupInstanceID);
-        RouteElementNames nameSet = new RouteElementNames(wupTypeID);
+    public String ingresGatekeeper(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".ingresGatekeeper(): Enter, ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresPacket, wupFunctionToken, wupInstanceID);
+        RouteElementNames nameSet = new RouteElementNames(wupFunctionToken);
 
         if(camelExchange.getProperty(INGRES_GATEKEEPER_PROCESSED_PROPERTY)==null){
             LOG.trace(".ingresGatekeeper(): No semaphore exists within the Camel Exchange, so this is the 1st time through the Router logic");

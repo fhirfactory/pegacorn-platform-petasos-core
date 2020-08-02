@@ -78,7 +78,7 @@ public class ServiceModuleActivityMatrixDM {
             boolean sameInstanceID = existingStatusElement.getParcelInstanceID().equals(activityID.getPresentParcelInstanceID());
             boolean sameEpisodeID = existingStatusElement.getActivityID().getPresentWUAEpisodeID().equals(activityID.getPresentWUAEpisodeID());
             boolean sameWUPInstanceID = existingStatusElement.getActivityID().getPresentWUPInstanceID().equals(activityID.getPresentWUPInstanceID());
-            boolean sameWUPTypeID = existingStatusElement.getActivityID().getPresentWUPTypeID().equals(activityID.getPresentWUPTypeID());
+            boolean sameWUPTypeID = existingStatusElement.getActivityID().getPresentWUPFunctionToken().equals(activityID.getPresentWUPFunctionToken());
             boolean sameUpstreamEpisodeID = existingStatusElement.getActivityID().getPreviousWUAEpisodeID().equals(activityID.getPresentWUAEpisodeID());
             if( sameInstanceID && sameEpisodeID && sameWUPInstanceID && sameWUPTypeID & sameUpstreamEpisodeID ){
                 LOG.trace(".addWUA(): New ActivityID and existing (registered) ID the same, so update the status (maybe) and then exit");

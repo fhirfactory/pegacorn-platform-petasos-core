@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,31 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming;
 
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.common.model.RDN;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 
+
+/**
+ * 
+ * @author Mark A. Hunter
+ * @since 2020-06-01
+ */
 public class RouteElementNames {
-    private FDNToken wupTypeID;
+    private NodeElementFunctionToken nodeFunctionToken;
     private String wupTypeName;
     private static final String DIRECT_TYPE = "direct:";
 
-    public RouteElementNames(FDNToken wupTypeID){
-        this.wupTypeID = wupTypeID;
+    public RouteElementNames(NodeElementFunctionToken functionToken){
+        this.nodeFunctionToken = functionToken;
         this.wupTypeName = simplifyName();
     }
 
     public String simplifyName(){
-        FDN wupInstanceFDN = new FDN(wupTypeID);
-        String wupName = wupInstanceFDN.getUnqualifiedRDN().getUnqualifiedName();
+        FDN wupFunctionFDN = new FDN(this.nodeFunctionToken.getFunctionID());
+        RDN serviceModuleRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.SERVICE_MODULE.getNodeElementType());
+        RDN wupFunctionRDN = wupFunctionFDN.getUnqualifiedRDN();
+        String wupName = serviceModuleRDN.getNameValue()+"."+wupFunctionRDN.getNameValue()+"."+wupTypeName;
         return(wupName);
     }
 

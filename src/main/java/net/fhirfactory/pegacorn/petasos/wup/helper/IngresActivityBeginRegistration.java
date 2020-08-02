@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 public class IngresActivityBeginRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(IngresActivityBeginRegistration.class);
@@ -47,11 +48,11 @@ public class IngresActivityBeginRegistration {
     @Inject
     PetasosServicesBroker servicesBroker;
 
-    public void registerActivityStart(UoW unitOfWork, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID){
-        LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}, wupTypeID --> {}, wupInstanceID --> {}", unitOfWork, wupTypeID, wupInstanceID);
+    public void registerActivityStart(UoW unitOfWork, Exchange camelExchange, NodeElementFunctionToken wupfunctionToken, FDNToken wupInstanceID){
+        LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}, wupTypeID --> {}, wupInstanceID --> {}", unitOfWork, wupfunctionToken, wupInstanceID);
         LOG.trace(".registerActivityStart(): Building the ActivityID for this activity");
         ContinuityID newActivityID = new ContinuityID();
-        newActivityID.setPresentWUPTypeID(wupTypeID);
+        newActivityID.setPresentWUPFunctionToken(wupfunctionToken);
         newActivityID.setPresentWUPInstanceID(wupInstanceID);
         LOG.trace(".registerActivityStart(): Creating new JobCard");
         WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, topologyIM.getConcurrencyMode(wupInstanceID), topologyIM.getDeploymentResilienceMode(wupInstanceID),  Date.from(Instant.now()));

@@ -62,10 +62,10 @@ public class WorkUnitProcessorFrameworkManager {
             switch (wupArchetype) {
                 case WUP_NATURE_MESSAGE_WORKER:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_WORKER route");
-                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camel, element.getElementFunctionTypeID(), element.getElementInstanceID());
+                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camel, element.getNodeFunctionToken(), element.getNodeInstanceID());
                     camel.addRoutes(standardWUPRoute);
                     LOG.trace(".buildWUPFramework(): Now subscribing this WUP/Route to UoW Content Topics");
-                    uowTopicSubscribe(subscribedTopics, element.getElementFunctionTypeID());
+                    uowTopicSubscribe(subscribedTopics, element.getNodeFunctionID());
                     break;
                 case WUP_NATURE_API_PUSH:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_PUSH route");
@@ -81,7 +81,7 @@ public class WorkUnitProcessorFrameworkManager {
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT route");
-                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camel, element.getElementFunctionTypeID(), element.getElementInstanceID());
+                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camel, element.getNodeFunctionToken(), element.getNodeInstanceID());
                     camel.addRoutes(ingresRoute);
                     LOG.trace(".buildWUPFramework(): Note, this type of WUP/Route does not subscribe to Topics (it is purely a producer)");
                     break;

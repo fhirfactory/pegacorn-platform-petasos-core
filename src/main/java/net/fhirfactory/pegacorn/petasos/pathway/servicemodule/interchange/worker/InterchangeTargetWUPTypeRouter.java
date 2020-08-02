@@ -33,6 +33,7 @@ import java.util.Iterator;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 /**
  * @author Mark A. Hunter
@@ -59,8 +60,8 @@ public class InterchangeTargetWUPTypeRouter {
      * this route.
      * @return An endpoint (name) for a recipient for the incoming UoW
      */
-    String forwardUoW2WUPs(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".forwardUoW2WUPs(): Entry, incomingTraffic --> {}, camelExchange --> ###, wupTypeID --> {}, wupInstanceID --> {}", incomingPacket, wupTypeID, wupInstanceID);
+    String forwardUoW2WUPs(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".forwardUoW2WUPs(): Entry, incomingTraffic --> {}, camelExchange --> ###, wupFunctionToken --> {}, wupInstanceID --> {}", incomingPacket, wupFunctionToken, wupInstanceID);
         TopicToken uowTopicID = null;
         if(incomingPacket.hasPayload()){
             uowTopicID = incomingPacket.getPayload().getPayloadTopicID();

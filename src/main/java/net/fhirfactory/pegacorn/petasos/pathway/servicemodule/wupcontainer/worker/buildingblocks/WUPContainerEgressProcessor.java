@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_CLUSTERED;
 import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_MULTISITE;
 import static net.fhirfactory.pegacorn.petasos.model.resilience.mode.ResilienceModeEnum.RESILIENCE_MODE_STANDALONE;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 /**
  * @author Mark A. Hunter
@@ -55,8 +56,8 @@ public class WUPContainerEgressProcessor {
     TopologyIM topologyServer;
 
 
-    public WorkUnitTransportPacket egressContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".egressContentProcessor(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresPacket, wupTypeID, wupInstanceID);
+    public WorkUnitTransportPacket egressContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".egressContentProcessor(): Enter, ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresPacket, wupFunctionToken, wupInstanceID);
         WorkUnitTransportPacket egressPacket;
         switch (topologyServer.getDeploymentResilienceMode(wupInstanceID)) {
             case RESILIENCE_MODE_MULTISITE:
@@ -65,14 +66,14 @@ public class WUPContainerEgressProcessor {
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_CLUSTERED");
             case RESILIENCE_MODE_STANDALONE:
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_STANDALONE");
-                egressPacket = standaloneDeploymentModeECP(ingresPacket, camelExchange, wupTypeID, wupInstanceID);
+                egressPacket = standaloneDeploymentModeECP(ingresPacket, camelExchange, wupFunctionToken, wupInstanceID);
         }
         return (ingresPacket);
     }
 
-    private WorkUnitTransportPacket standaloneDeploymentModeECP(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".standaloneDeploymentModeECP(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresPacket, wupTypeID, wupInstanceID);
-        elementNames = new RouteElementNames(wupTypeID);
+    private WorkUnitTransportPacket standaloneDeploymentModeECP(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".standaloneDeploymentModeECP(): Enter, ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresPacket, wupFunctionToken, wupInstanceID);
+        elementNames = new RouteElementNames(wupFunctionToken);
         LOG.trace(".standaloneDeploymentModeECP(): Now, check if this the 1st time the associated UoW has been (attempted to be) processed");
         WorkUnitTransportPacket newTransportPacket;
         WUPJobCard jobCard = ingresPacket.getCurrentJobCard();

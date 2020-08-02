@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
@@ -39,7 +40,7 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericWUPTemplate.class);
 
-    private FDNToken wupFunctionID;
+    private NodeElementFunctionToken wupFunctionToken;
     private FDNToken wupInstanceID;
     private WUPJobCard wupInstanceJobCard;
     private NodeElement wupTopologyElement;
@@ -56,19 +57,19 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         super();
         LOG.debug(".GenericWUPTemplate(): Entry, Default constructor");
         getInstanceID();
-        getFunctionTypeID();
+        getFunctionToken();
         buildWUPFramework();
     }
 
-    public void getFunctionTypeID() {
+    public void getFunctionToken() {
         LOG.debug(".getFunctionTypeID(): Entry");
-        this.wupFunctionID = topologyServer.getWUPFunctionID(this.wupInstanceID);
-        LOG.debug(".getFunctionTypeID(): Exit, created wupTypeID --> ", this.wupFunctionID);
+        this.wupFunctionToken = topologyServer.getWUPFunctionToken(this.wupInstanceID);
+        LOG.debug(".getFunctionTypeID(): Exit, created wupTypeID --> ", this.wupFunctionToken);
     }
 
     private void getInstanceID() {
         LOG.debug(".buildInstanceID(): Entry");
-        this.wupInstanceID = topologyServer.getWUPInstanceID(getWUPInstanceName());
+        this.wupInstanceID = topologyServer.getWUPInstanceID(getWUPInstanceName(), getWUPVersion());
         LOG.debug(".buildInstanceID(): Exit, created wupInstanceID --> {}", this.wupInstanceID);
     }
     
@@ -84,8 +85,8 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         LOG.debug(".buildWUPFramework(): Exit");
     }
 
-    public FDNToken getWupFunctionID() {
-        return (this.wupFunctionID);
+    public NodeElementFunctionToken getWUPFunctionToken() {
+        return (this.wupFunctionToken);
     }
 
     public FDNToken getWupInstanceID() {
@@ -104,6 +105,7 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
     
     public abstract Set<TopicToken> getSubscribedTopics();
     public abstract String getWUPInstanceName();
+    public abstract String getWUPVersion();
     public abstract WUPArchetypeEnum getWUPArchitype();
    
 }

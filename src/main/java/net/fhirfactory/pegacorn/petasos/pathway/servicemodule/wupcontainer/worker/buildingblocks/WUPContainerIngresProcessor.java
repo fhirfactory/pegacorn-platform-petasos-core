@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConstants;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 /**
  * @author Mark A. Hunter
@@ -81,21 +82,21 @@ public class WUPContainerIngresProcessor {
      *
      * @param ingresPacket The WorkUnitTransportPacket that is to be forwarded to the Intersection (if all is OK)
      * @param camelExchange The Apache Camel Exchange object, used to store a Semaphors and Attributes
-     * @param wupTypeID The Work Unit Processor Type: should be unique with the SystemModule and is used to establish context
+     * @param wupFunctionToken The Work Unit Processor Type: should be unique with the SystemModule and is used to establish context
      * @param wupInstanceID The Work Unit Processor Instance: will be unique is as used to established uniqueness across deployment of Parcel/Activity sets
      * @return Should return a WorkUnitTransportPacket that is forwarding onto the WUP Ingres Gatekeeper.
      */
-    public WorkUnitTransportPacket ingresContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".ingresContentProcessor(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID -->{}", ingresPacket, wupTypeID, wupInstanceID);
-        elementNames = new RouteElementNames(wupTypeID);
+    public WorkUnitTransportPacket ingresContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".ingresContentProcessor(): Enter, ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID -->{}", ingresPacket, wupFunctionToken, wupInstanceID);
+        elementNames = new RouteElementNames(wupFunctionToken);
         LOG.trace(".ingresContentProcessor(): Now, check if this the 1st time the associated UoW has been (attempted to be) processed");
         WorkUnitTransportPacket newTransportPacket;
         if (ingresPacket.getIsARetry()) {
             LOG.trace(".ingresContentProcessor(): This is a recovery or retry iteration of processing this UoW, so send to .alternativeIngresContentProcessor()");
-            newTransportPacket = alternativeIngresContentProcessor(ingresPacket, camelExchange, wupTypeID, wupInstanceID);
+            newTransportPacket = alternativeIngresContentProcessor(ingresPacket, camelExchange, wupFunctionToken, wupInstanceID);
         } else {
             LOG.trace(".ingresContentProcessor(): This is the 1st time this UoW is being processed, so send to .standardIngresContentProcessor()");
-            newTransportPacket = standardIngresContentProcessor(ingresPacket, camelExchange, wupTypeID, wupInstanceID);
+            newTransportPacket = standardIngresContentProcessor(ingresPacket, camelExchange, wupFunctionToken, wupInstanceID);
         }
         long waitTime = PetasosPropertyConstants.WUP_SLEEP_INTERVAL_MILLISECONDS;
         boolean waitState = true;
@@ -144,23 +145,23 @@ public class WUPContainerIngresProcessor {
         return (newTransportPacket);
     }
 
-    public WorkUnitTransportPacket standardIngresContentProcessor(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".ingresContentProcessor(): Enter, incomingPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", incomingPacket, wupTypeID, wupInstanceID);
+    public WorkUnitTransportPacket standardIngresContentProcessor(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".ingresContentProcessor(): Enter, incomingPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", incomingPacket, wupFunctionToken, wupInstanceID);
         UoW theUoW = incomingPacket.getPayload();
         LOG.trace(".standardIngresContentProcessor(): Creating a new ContinuityID/ActivityID");
         FDNToken localWUPInstanceID = new FDNToken(wupInstanceID);
-        FDNToken localWUPTypeID = new FDNToken(wupTypeID);
+        NodeElementFunctionToken localWUPTypeID = new NodeElementFunctionToken(wupFunctionToken);
         ContinuityID oldActivityID = incomingPacket.getCurrentJobCard().getCardID();
         ContinuityID newActivityID = new ContinuityID();
         FDNToken previousPresentParcelInstanceID = oldActivityID.getPresentParcelInstanceID();
         FDNToken previousPresentEpisodeID = oldActivityID.getPresentParcelInstanceID();
         FDNToken previousPresentWUPInstanceID = oldActivityID.getPresentWUPInstanceID();
-        FDNToken previousPresentWUPTypeID = oldActivityID.getPresentWUPTypeID();
+        NodeElementFunctionToken previousPresentWUPTypeID = oldActivityID.getPresentWUPFunctionToken();
         newActivityID.setPreviousParcelInstanceID(previousPresentParcelInstanceID);
         newActivityID.setPreviousWUAEpisodeID(previousPresentEpisodeID);
         newActivityID.setPreviousWUPInstanceID(previousPresentWUPInstanceID);
-        newActivityID.setPreviousWUPTypeID(previousPresentWUPTypeID);
-        newActivityID.setPresentWUPTypeID(localWUPTypeID);
+        newActivityID.setPreviousWUPFunctionToken(previousPresentWUPTypeID);
+        newActivityID.setPresentWUPFunctionToken(localWUPTypeID);
         newActivityID.setPresentWUPInstanceID(localWUPInstanceID);
         LOG.trace(".standardIngresContentProcessor(): Creating new JobCard");
         WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_WAITING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, ConcurrencyModeEnum.CONCURRENCY_MODE_STANDALONE, ResilienceModeEnum.RESILIENCE_MODE_STANDALONE, Date.from(Instant.now()));
@@ -193,8 +194,8 @@ public class WUPContainerIngresProcessor {
         return (newTransportPacket);
     }
 
-    public WorkUnitTransportPacket alternativeIngresContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".alternativeIngresContentProcessor(): Enter, ingresPacket --> {}, wupTypeID --> {}, wupInstanceID --> {}", ingresPacket, wupTypeID, wupInstanceID);
+    public WorkUnitTransportPacket alternativeIngresContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".alternativeIngresContentProcessor(): Enter, ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresPacket, wupFunctionToken, wupInstanceID);
         // TODO Implement alternate flow for ingressContentProcessor functionality (retry functionality).
         return (ingresPacket);
     }

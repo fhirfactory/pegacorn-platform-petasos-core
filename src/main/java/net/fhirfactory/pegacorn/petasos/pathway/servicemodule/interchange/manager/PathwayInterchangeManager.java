@@ -32,12 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 public class PathwayInterchangeManager {
     private static final Logger LOG = LoggerFactory.getLogger(PathwayInterchangeManager.class);
-
-    @Inject
-    ElementNameExtensions nameExtensions;
 
     /**
      * We have to establish a set of Routes for handling the egress traffic from a
@@ -48,13 +46,13 @@ public class PathwayInterchangeManager {
      * WUP instance.
      *
      * @param camel
-     * @param wupTypeID the WUP we are building the Interchange routes for
+     * @param wupFunctionToken the WUP we are building the Interchange routes for
      * @param wupInstanceID
      */
 
-    public void buildWUPInterchangeRoutes(CamelContext camel, FDNToken wupTypeID, FDNToken wupInstanceID){
-        LOG.debug(".buildWUPInterchangeRoutes(): Entry, wupTypeID --> {}, wupInstanceID --> {}", wupTypeID, wupInstanceID);
-        InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camel, wupTypeID, wupInstanceID);
+    public void buildWUPInterchangeRoutes(CamelContext camel, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID){
+        LOG.debug(".buildWUPInterchangeRoutes(): Entry, wupFunctionToken --> {}, wupInstanceID --> {}", wupFunctionToken, wupInstanceID);
+        InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camel, wupFunctionToken, wupInstanceID);
         LOG.trace(".buildWUPInterchangeRoutes(): Attempting to install new Route");
         try{
             camel.addRoutes(newRoute);

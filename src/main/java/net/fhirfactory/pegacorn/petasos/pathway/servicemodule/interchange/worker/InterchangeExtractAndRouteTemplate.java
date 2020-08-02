@@ -22,6 +22,7 @@
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -33,25 +34,25 @@ public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeExtractAndRouteTemplate.class);
 
     private String ingresPoint;
-    private FDNToken wupTypeID;
+    private NodeElementFunctionToken wupFunctionToken;
     private FDNToken wupInstanceID;
     private RouteElementNames nameSet;
 
-    public InterchangeExtractAndRouteTemplate(CamelContext context, FDNToken wupTypeID, FDNToken wupInstanceID) {
+    public InterchangeExtractAndRouteTemplate(CamelContext context, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
         super(context);
-        LOG.debug(".InterchangeExtractAndRouteTemplate(): Entry, context --> ###, wupTypeID", wupTypeID);
-        this.wupTypeID = wupTypeID;
+        LOG.debug(".InterchangeExtractAndRouteTemplate(): Entry, context --> ###, wupFunctionToken --> {}, wupInstanceID --> {}", wupFunctionToken, wupInstanceID);
+        this.wupFunctionToken = wupFunctionToken;
         this.wupInstanceID = wupInstanceID;
-        nameSet = new RouteElementNames(wupTypeID);
+        nameSet = new RouteElementNames(wupFunctionToken);
     }
 
     @Override
     public void configure() {
-        LOG.debug(".configure(): Entry!, wupTypeID --> {} ", this.wupTypeID);
+        LOG.debug(".configure(): Entry!, wupFunctionToken --> {} ", this.wupFunctionToken);
 
         from(nameSet.getEndPointInterchangePayloadTransformerIngres())
                 .routeId(nameSet.getRouteInterchangePayloadTransformer())
-                .split().method(InterchangeUoWPayload2NewUoWProcessor.class, "extractUoWPayloadAndCreateNewUoWSet(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")")
+                .split().method(InterchangeUoWPayload2NewUoWProcessor.class, "extractUoWPayloadAndCreateNewUoWSet(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")")
                 .to(nameSet.getEndPointInterchangePayloadTransformerEgress());
 
         from(nameSet.getEndPointInterchangePayloadTransformerEgress())
@@ -60,6 +61,6 @@ public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
 
         from(nameSet.getEndPointInterchangeRouterIngres())
                 .routeId(nameSet.getRouteInterchangeRouter())
-                .dynamicRouter(method(InterchangeTargetWUPTypeRouter.class, "forwardUoW2WUPs(*, Exchange," + this.wupTypeID + "," + this.wupInstanceID + ")"));
+                .dynamicRouter(method(InterchangeTargetWUPTypeRouter.class, "forwardUoW2WUPs(*, Exchange," + this.wupFunctionToken + "," + this.wupInstanceID + ")"));
     }
 }

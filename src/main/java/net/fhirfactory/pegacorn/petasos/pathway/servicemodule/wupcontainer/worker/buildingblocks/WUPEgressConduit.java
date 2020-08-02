@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Date;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
 /**
  * @author Mark A. Hunter
@@ -50,13 +51,13 @@ public class WUPEgressConduit {
      *
      * @param incomingUoW   The Unit of Work (UoW) received as output from the actual Work Unit Processor (Business Logic)
      * @param camelExchange The Apache Camel Exchange object, for extracting the WUPJobCard & ParcelStatusElement from
-     * @param wupTypeID     The Work Unit Processor Type - should be unique within a ServiceModule and is the reference point for logic
+     * @param wupFunctionToken     The Work Unit Processor Type - should be unique within a ServiceModule and is the reference point for logic
      * @param wupInstanceID The Work Unit Processor Instance - an absolutely unique identifier for the instance of WUP within the entiry deployment.
      * @return A WorkUnitTransportPacket object for relay to the other
      */
-    public WorkUnitTransportPacket receiveFromWUP(UoW incomingUoW, Exchange camelExchange, FDNToken wupTypeID, FDNToken wupInstanceID) {
-        LOG.debug(".receiveFromWUP(): Entry, incomingUoW --> {}, wupTypeID --> {}, wupInstanceID --> {}", incomingUoW, wupTypeID, wupInstanceID);
-        RouteElementNames elementNames = new RouteElementNames(wupTypeID);
+    public WorkUnitTransportPacket receiveFromWUP(UoW incomingUoW, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
+        LOG.debug(".receiveFromWUP(): Entry, incomingUoW --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", incomingUoW, wupFunctionToken, wupInstanceID);
+        RouteElementNames elementNames = new RouteElementNames(wupFunctionToken);
         WUPJobCard jobCard = camelExchange.getProperty("WUPJobCard", WUPJobCard.class);
         ParcelStatusElement statusElement = camelExchange.getProperty("ParcelStatusElement", ParcelStatusElement.class);
         WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(elementNames.getEndPointWUPEgressConduitEgress(), Date.from(Instant.now()), incomingUoW);
