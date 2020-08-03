@@ -32,16 +32,11 @@ package net.fhirfactory.pegacorn.petasos.resilience.clustered.utility;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import javax.enterprise.context.ApplicationScoped;
 import org.infinispan.manager.DefaultCacheManager;
 
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.eviction.EvictionType;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.cache.CacheMode;
 
 @ApplicationScoped
 public class PetasosCacheManager {

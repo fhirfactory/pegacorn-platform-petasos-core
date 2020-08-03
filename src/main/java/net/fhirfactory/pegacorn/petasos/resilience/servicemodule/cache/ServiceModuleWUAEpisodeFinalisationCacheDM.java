@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 
 /**
  * This class is the Cache Data Manager (CacheDM) for the ServiceModule WorkUnitActivity Episode ID
@@ -52,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2020.07.01
  */
 
+@ApplicationScoped
 public class ServiceModuleWUAEpisodeFinalisationCacheDM {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleWUAEpisodeFinalisationCacheDM.class);
 

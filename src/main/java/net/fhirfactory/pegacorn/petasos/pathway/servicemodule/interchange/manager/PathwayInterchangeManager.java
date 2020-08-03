@@ -22,6 +22,7 @@
 
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.manager;
 
+import javax.enterprise.context.ApplicationScoped;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker.InterchangeExtractAndRouteTemplate;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 
+@ApplicationScoped
 public class PathwayInterchangeManager {
     private static final Logger LOG = LoggerFactory.getLogger(PathwayInterchangeManager.class);
 

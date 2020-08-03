@@ -23,6 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.wup;
 
 import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
@@ -40,6 +41,7 @@ import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
+@ApplicationScoped
 public class PetasosServicesBroker {
     private static final Logger LOG = LoggerFactory.getLogger(PetasosServicesBroker.class);
 

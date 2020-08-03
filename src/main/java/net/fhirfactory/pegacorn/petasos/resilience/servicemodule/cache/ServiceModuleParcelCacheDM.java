@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.enterprise.context.ApplicationScoped;
 
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
@@ -47,7 +48,7 @@ import net.fhirfactory.pegacorn.common.model.FDNToken;
  * @author Mark A. Hunter
  * @since 2020-06-01
  */
-@Singleton
+@ApplicationScoped
 public class ServiceModuleParcelCacheDM {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleParcelCacheDM.class);
 

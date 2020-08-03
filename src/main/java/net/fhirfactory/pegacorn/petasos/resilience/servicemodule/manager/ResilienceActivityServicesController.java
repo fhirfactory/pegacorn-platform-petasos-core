@@ -49,9 +49,9 @@ public class ResilienceActivityServicesController {
     TopologyIM topologyServer;
 
     @Inject
-    ServiceModuleWUAEpisodeFinalisationCacheDM finalisationCacheDM;
-
-    // Task Specific Classes
+    ServiceModuleWUAEpisodeFinalisationCacheDM finalisationCacheDM;     
+    
+    //task Specific Classes
 
     @Inject
     RegisterNewWorkUnitActivity taskRegisterWUA;

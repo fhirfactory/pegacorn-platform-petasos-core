@@ -33,9 +33,11 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 
+@ApplicationScoped
 public class SynchroniseWorkUnitActivityJobCard {
     private static final Logger LOG = LoggerFactory.getLogger(SynchroniseWorkUnitActivityJobCard.class);
 

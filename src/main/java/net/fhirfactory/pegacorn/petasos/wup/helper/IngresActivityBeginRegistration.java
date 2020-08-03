@@ -38,6 +38,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayload;
 
 public class IngresActivityBeginRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(IngresActivityBeginRegistration.class);
@@ -48,16 +49,16 @@ public class IngresActivityBeginRegistration {
     @Inject
     PetasosServicesBroker servicesBroker;
 
-    public void registerActivityStart(UoW unitOfWork, Exchange camelExchange, NodeElementFunctionToken wupfunctionToken, FDNToken wupInstanceID){
-        LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}, wupTypeID --> {}, wupInstanceID --> {}", unitOfWork, wupfunctionToken, wupInstanceID);
+    public void registerActivityStart(UoW theUoW, Exchange camelExchange, NodeElementFunctionToken wupfunctionToken, FDNToken wupInstanceID){
+        LOG.debug(".registerActivityStart(): Entry, payload --> {}, wupTypeID --> {}, wupInstanceID --> {}", theUoW, wupfunctionToken, wupInstanceID);
         LOG.trace(".registerActivityStart(): Building the ActivityID for this activity");
         ContinuityID newActivityID = new ContinuityID();
         newActivityID.setPresentWUPFunctionToken(wupfunctionToken);
         newActivityID.setPresentWUPInstanceID(wupInstanceID);
         LOG.trace(".registerActivityStart(): Creating new JobCard");
         WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, topologyIM.getConcurrencyMode(wupInstanceID), topologyIM.getDeploymentResilienceMode(wupInstanceID),  Date.from(Instant.now()));
-        LOG.trace(".registerActivityStart(): Registering the Work Unit Activity using the activityJobCard --> {} and UoW --> {}", activityJobCard, unitOfWork);
-        ParcelStatusElement statusElement = servicesBroker.registerSystemEdgeWUA(activityJobCard, unitOfWork);
+        LOG.trace(".registerActivityStart(): Registering the Work Unit Activity using the activityJobCard --> {} and UoW --> {}", activityJobCard, theUoW);
+        ParcelStatusElement statusElement = servicesBroker.registerSystemEdgeWUA(activityJobCard, theUoW);
         LOG.trace(".registerActivityStart(): Registration aftermath: statusElement --> {}", statusElement);
         // Now we have to Inject some details into the Exchange so that the WUPEgressConduit can extract them as per standard practice
         LOG.trace(".registerActivityStart(): Injecting Job Card and Status Element into Exchange for extraction by the WUP Egress Conduit");

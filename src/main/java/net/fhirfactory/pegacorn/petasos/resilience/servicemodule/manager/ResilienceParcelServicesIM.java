@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import javax.transaction.Transactional;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 
 /**
  * @author Mark A. Hunter
@@ -46,20 +47,17 @@ import javax.transaction.Transactional;
 @ApplicationScoped
 public class ResilienceParcelServicesIM {
     private static final Logger LOG = LoggerFactory.getLogger(ResilienceParcelServicesIM.class);
-    private FDN nodeInstanceFDN;
+//    private FDN nodeInstanceFDN;
 
     @Inject
     ServiceModuleParcelCacheDM parcelCacheDM;
 
-//    @Inject
-//    ServiceModuleActivityMatrixDM resilienceMatrixDM;
-
     @Inject
     PetasosAuditWriter auditWriter;
-
-    public ResilienceParcelServicesIM() {
-        this.nodeInstanceFDN = new FDN();
-    }
+    
+//    public ResilienceParcelServicesIM() {
+//        this.nodeInstanceFDN = new FDN();
+//    }
 
     @Transactional
     public ResilienceParcel registerParcel(ContinuityID activityID, UoW unitOfWork, boolean synchronousWriteToAudit) {

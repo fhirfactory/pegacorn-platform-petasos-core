@@ -19,24 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
+import javax.enterprise.context.ApplicationScoped;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
 
+@ApplicationScoped
 public abstract class StandardWUP extends GenericWUPTemplate {
+
     private static final Logger LOG = LoggerFactory.getLogger(StandardWUP.class);
 
-
-    @Inject
-    PetasosServicesBroker moduleIM;
-
-
-
+    public StandardWUP() {
+        super();
+//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
+    }
+    
+    @Override
+    public WUPArchetypeEnum specifyWUPArchetype(){
+        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_WORKER);
+    }
+    
+    @Override
+    public String specifyEgressEndpoint(){
+        return(this.getNameSet().getEndPointWUPEgress());
+    }
+    
+    @Override
+    public String specifyIngresEndpoint(){
+        return(this.getNameSet().getEndPointWUPIngres());
+    }
 }

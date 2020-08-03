@@ -140,6 +140,7 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>         
+        
 		
         <!-- Infinispan -->
         <dependency>

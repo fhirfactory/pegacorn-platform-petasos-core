@@ -23,21 +23,26 @@
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.*;
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class APIAnswerOnlyGatewayWUP extends GenericWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(APIAnswerOnlyGatewayWUP.class);
+@ApplicationScoped
+public abstract class InteractAPIAnswerOnlyGateway extends GenericWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractAPIAnswerOnlyGateway.class);
 
-    public APIAnswerOnlyGatewayWUP(){
+    public InteractAPIAnswerOnlyGateway(){
         super();
     }
 
     @Override
-    public WUPArchetypeEnum getWUPArchitype(){
+    public WUPArchetypeEnum specifyWUPArchetype(){
         return(WUPArchetypeEnum.WUP_NATURE_API_ANSWER);
     }
 

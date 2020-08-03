@@ -20,12 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.resilience.clustered.cache;
+package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-/**
- * @author Mark A. Hunter
- *
- */
-public class ClusteredWorkUnitProcessorMap {
-
+public class InteractIngresConcurrentMessagingGatewayWUP {
 }
