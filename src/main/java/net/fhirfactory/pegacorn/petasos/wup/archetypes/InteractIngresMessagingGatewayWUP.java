@@ -55,7 +55,9 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
     
     @Override
     public String specifyIngresEndpoint(){
+        LOG.debug(".specifyIngresEndpoint(): Entry");
         EndpointElement myEndpoint = getEndpoint();
+        LOG.trace(".specifyIngresEndpoint(): Retrieved EndpointElement --> {}", myEndpoint);
         String ingresEndPoint;
         ingresEndPoint = getEndpointComponentDefinition();
         ingresEndPoint = ingresEndPoint + ":";
@@ -64,12 +66,16 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
         ingresEndPoint = ingresEndPoint + this.getEndpointHostName();
         ingresEndPoint = ingresEndPoint + ":" + getEndpointPort();
         ingresEndPoint = ingresEndPoint + getEndpointProtocolLeadout();
+        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
         return(ingresEndPoint);
     } 
     
     @Override
     public String specifyEgressEndpoint(){
-        return(this.getNameSet().getEndPointWUPEgress());
+        LOG.debug(".specifyEgressEndpoint(): Entry");
+        String endpointName = this.getNameSet().getEndPointWUPEgress();
+        LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpointName);
+        return(endpointName);
     }
 
     /**
@@ -80,6 +86,7 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
      * @return EndpointElement for the associated Endpoint to the WUP. 
      */
     protected EndpointElement getEndpoint(){
+        LOG.debug(".getEndpoint(): Entry");
         NodeElement node = getTopologyServer().getNode(this.getWupInstanceID());
         FDNTokenSet endpointIDs = node.getEndpoints();
         // Be brave
@@ -93,6 +100,7 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
         // we are ludicrously brave
         EndpointElement endpoint = getTopologyServer().getEndpoint(endpointToken);
         // the stars align!!!!!
+        LOG.debug(".getEndpoint(): Exit, endpoint --> {}", endpoint);
         return(endpoint);
     }
     

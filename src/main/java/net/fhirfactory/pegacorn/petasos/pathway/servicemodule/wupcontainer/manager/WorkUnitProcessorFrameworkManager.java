@@ -26,7 +26,9 @@ import javax.inject.Inject;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
@@ -55,17 +57,19 @@ public class WorkUnitProcessorFrameworkManager {
     @Inject
     TopicIM topicServer;
     
-    public void buildWUPFramework(NodeElement element, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
-        LOG.debug(".buildWUPFramework(): Entry, element --> {}, subscribedTopics --> {}, wupArchetype --> {}", element, subscribedTopics, wupArchetype);
+    public void buildWUPFramework(NodeElement wupNode, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
+        LOG.debug(".buildWUPFramework(): Entry, wupNode --> {}, subscribedTopics --> {}, wupArchetype --> {}", wupNode, subscribedTopics, wupArchetype);
         CamelContext camel = new DefaultCamelContext();
         try {
             switch (wupArchetype) {
                 case WUP_NATURE_MESSAGE_WORKER:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_WORKER route");
-                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camel, element.getNodeFunctionToken(), element.getNodeInstanceID());
+                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camel, wupNode.getNodeFunctionToken(), wupNode.getNodeInstanceID());
+                    LOG.trace(".buildWUPFramework(): Route created, now adding it to he CamelContext!");
                     camel.addRoutes(standardWUPRoute);
                     LOG.trace(".buildWUPFramework(): Now subscribing this WUP/Route to UoW Content Topics");
-                    uowTopicSubscribe(subscribedTopics, element.getNodeFunctionID());
+                    uowTopicSubscribe(subscribedTopics, wupNode);
+                    LOG.trace(".buildWUPFramework(): Subscribed to Topics, work is done!");
                     break;
                 case WUP_NATURE_API_PUSH:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_PUSH route");
@@ -81,7 +85,7 @@ public class WorkUnitProcessorFrameworkManager {
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT route");
-                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camel, element.getNodeFunctionToken(), element.getNodeInstanceID());
+                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camel, wupNode.getNodeFunctionToken(), wupNode.getNodeInstanceID());
                     camel.addRoutes(ingresRoute);
                     LOG.trace(".buildWUPFramework(): Note, this type of WUP/Route does not subscribe to Topics (it is purely a producer)");
                     break;
@@ -94,17 +98,20 @@ public class WorkUnitProcessorFrameworkManager {
 
     }
 
-    public void uowTopicSubscribe(Set<TopicToken> subscribedTopics, FDNToken wupTypeID){
-        LOG.debug(".uowTopicSubscribe(): Entry, subscribedTopics --> {}, wupTypeID --> {}", subscribedTopics, wupTypeID );
+    public void uowTopicSubscribe(Set<TopicToken> subscribedTopics, NodeElement wupNode){
+        LOG.debug(".uowTopicSubscribe(): Entry, subscribedTopics --> {}, wupNode --> {}", subscribedTopics, wupNode );
         if(subscribedTopics.isEmpty()){
             LOG.debug(".uowTopicSubscribe(): Something's wrong, no Topics are subscribed for this WUP");
             return;
         }
+        NodeElementFunctionToken wupFunctionToken = new NodeElementFunctionToken();
+        wupFunctionToken.setFunctionID(wupNode.getNodeFunctionID());
+        wupFunctionToken.setVersion(wupNode.getVersion());
         Iterator<TopicToken> topicIterator = subscribedTopics.iterator();
         while(topicIterator.hasNext()) {
             TopicToken currentTopicID = topicIterator.next();
-            LOG.trace(".uowTopicSubscribe(): WUPType --> {} is subscribing to UoW Content Topic --> {}", wupTypeID, currentTopicID);
-            topicServer.addTopicSubscriber(currentTopicID, wupTypeID );
+            LOG.trace(".uowTopicSubscribe(): wupNode --> {} is subscribing to UoW Content Topic --> {}", wupNode, currentTopicID);
+            topicServer.addTopicSubscriber(currentTopicID, wupNode );
         }
         LOG.debug(".uowTopicSubscribe(): Exit");
     }

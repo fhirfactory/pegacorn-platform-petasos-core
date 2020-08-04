@@ -24,12 +24,16 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worke
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Iterator;
+import java.util.Set;
+
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
@@ -70,16 +74,16 @@ public class InterchangeTargetWUPTypeRouter {
             return(null);
         }
         FDN currentUoWFDN = new FDN(uowTopicID.getIdentifier());
-        String propertyName = CURRENT_END_POINT_SET + currentUoWFDN.getUnqualifiedRDN().getNameValue();
+        String propertyName = CURRENT_END_POINT_SET + currentUoWFDN.getToken().toString();
         LOG.trace(".forwardUoW2WUPs(): This instance's Subscribed WUP List is called --> {}", propertyName);
-        FDNTokenSet targetWUPSet = camelExchange.getProperty(propertyName, FDNTokenSet.class);
+        EndpointNameSet targetWUPSet = camelExchange.getProperty(propertyName, EndpointNameSet.class);
         
         if (LOG.isTraceEnabled()) {tracePrintSubscribedWUPSet(targetWUPSet);}
-        
+
         boolean alreadyInstalled = true;
         if (targetWUPSet == null) {
             alreadyInstalled = false;
-            targetWUPSet = distributionList.getSubscriberSet(uowTopicID);
+            targetWUPSet = populateNameSet(uowTopicID);
             if (targetWUPSet == null) {
                 LOG.debug(".forwardUoW2WUPs(): Exit, nobody was interested in processing this UoW and that's a concern!");
                 return (null);
@@ -93,21 +97,37 @@ public class InterchangeTargetWUPTypeRouter {
         if (alreadyInstalled) {
             camelExchange.removeProperty(propertyName);
         }
-        FDNToken thisOne = targetWUPSet.getElements().iterator().next();
-        FDN thisIterationEndPoint = new FDN(thisOne);
-        targetWUPSet.removeElement(thisOne);
+        String thisOne = targetWUPSet.getNameSet().iterator().next();
+        targetWUPSet.removeEndpointName(thisOne);
         camelExchange.setProperty(propertyName, targetWUPSet);
-        String endpointDetail = thisIterationEndPoint.getUnqualifiedToken();
-        updateServiceModuleMap(incomingPacket.getCurrentJobCard().getCardID().getPresentWUPInstanceID(), thisIterationEndPoint.getToken());
-        LOG.debug(".forwardUoW2WUPs(): Exiting, returning another registered/interested endpoint: endpointDetail -->{}", endpointDetail);
-        return (endpointDetail);
+        LOG.debug(".forwardUoW2WUPs(): Exiting, returning another registered/interested endpoint: endpointDetail -->{}", thisOne);
+        return (thisOne);
     }
 
-    private void tracePrintSubscribedWUPSet(FDNTokenSet wupSet) {
-        LOG.trace(".forwardUoW2WUPs(): We've already commenced publishing this UoW, WUPs remaining --> {}", wupSet.getElements().size());
-        Iterator<FDNToken> tokenIterator = wupSet.getElements().iterator();
+    private EndpointNameSet populateNameSet(TopicToken uowTopicID) {
+        Set<NodeElement> nodeSet = distributionList.getSubscriberSet(uowTopicID);
+        if(nodeSet == null){
+            return(null);
+        }
+        if(nodeSet.isEmpty()){
+            return(null);
+        }
+        EndpointNameSet nameSet = new EndpointNameSet();
+        Iterator<NodeElement> nodeIterator = nodeSet.iterator();
+        while(nodeIterator.hasNext()){
+            NodeElement currentNode = nodeIterator.next();
+            NodeElementFunctionToken currentNodeFunctionToken = currentNode.getNodeFunctionToken();
+            RouteElementNames routeName = new RouteElementNames(currentNodeFunctionToken);
+            nameSet.addEndpointName(routeName.getEndPointWUPContainerIngresProcessorIngres());
+        }
+        return(nameSet);
+    }
+
+    private void tracePrintSubscribedWUPSet(EndpointNameSet wupSet) {
+        LOG.trace(".forwardUoW2WUPs(): We've already commenced publishing this UoW, WUPs remaining --> {}", wupSet.getNameSet().size());
+        Iterator<String> tokenIterator = wupSet.getNameSet().iterator();
         while (tokenIterator.hasNext()) {
-            LOG.trace(".forwardUoW2WUPs(): Subscribed WUP --> {}", tokenIterator.next());
+            LOG.trace(".forwardUoW2WUPs(): Subscribed WUP Ingres Point --> {}", tokenIterator.next());
         }
     }
 

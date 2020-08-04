@@ -31,6 +31,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+
 /**
  * @author Mark A. Hunter
  * @since 2020-07-1

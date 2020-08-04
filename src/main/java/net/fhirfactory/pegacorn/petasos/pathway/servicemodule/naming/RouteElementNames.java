@@ -37,6 +37,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 public class RouteElementNames {
     private NodeElementFunctionToken nodeFunctionToken;
     private String wupTypeName;
+    private String wupVersion;
     private static final String DIRECT_TYPE = "direct:";
 
     public RouteElementNames(NodeElementFunctionToken functionToken){
@@ -48,7 +49,9 @@ public class RouteElementNames {
         FDN wupFunctionFDN = new FDN(this.nodeFunctionToken.getFunctionID());
         RDN serviceModuleRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.SERVICE_MODULE.getNodeElementType());
         RDN wupFunctionRDN = wupFunctionFDN.getUnqualifiedRDN();
-        String wupName = serviceModuleRDN.getNameValue()+"."+wupFunctionRDN.getNameValue()+"."+wupTypeName;
+        String nodeVersion = nodeFunctionToken.getVersion();
+        String nodeVersionSimplified = nodeVersion.replace(".","");
+        String wupName = serviceModuleRDN.getNameValue()+"."+wupFunctionRDN.getNameValue()+"."+nodeVersionSimplified;
         return(wupName);
     }
 
@@ -78,7 +81,7 @@ public class RouteElementNames {
     }
 
     public String getEndPointWUPEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + "WUP.Egress";
+        String endpointName = DIRECT_TYPE + wupTypeName + ".WUP.Egress";
         return(endpointName);
     }
 
