@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,42 +23,106 @@
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
 
 import java.time.Instant;
-import java.util.Date;
-import net.fhirfactory.pegacorn.common.model.FDN;
+import java.util.*;
+
+import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayload;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayloadSet;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import net.fhirfactory.pegacorn.common.model.RDN;
+import javax.inject.Inject;
 
 public class InterchangeUoWPayload2NewUoWProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeUoWPayload2NewUoWProcessor.class);
 
-    public List<UoW> extractUoWPayloadAndCreateNewUoWSet(UoW incomingUoW, Exchange camelExchange) {
-        LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Entry, incomingUoW --> {}, camelExchange --> ###", incomingUoW);
-        LinkedList<UoW> newUoWSet = new LinkedList<UoW>();
-        UoWPayloadSet egressPayloadSet = incomingUoW.getEgressContent();
-        Iterator<UoWPayload> incomingPayloadIterator = egressPayloadSet.getPayloadElements().iterator();
-        while(incomingPayloadIterator.hasNext()){
-            UoWPayload currentPayload = incomingPayloadIterator.next();
-            FDN newUoWFDN = new FDN(currentPayload.getPayloadTopicID().getIdentifier());
-            newUoWFDN.appendRDN(new RDN("Version", currentPayload.getPayloadTopicID().getVersion()));
-            newUoWFDN.appendRDN(new RDN("Instance", Date.from(Instant.now()).toString()));
-            UoW newUoW = new UoW(newUoWFDN.getToken(), currentPayload);
-            newUoWSet.add(newUoW);
-            if(LOG.isTraceEnabled()){
-                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): New UoW Create --> {}", newUoW);
+    @Inject
+    ServiceModuleTopologyProxy topologyProxy;
+
+    public List<WorkUnitTransportPacket> extractUoWPayloadAndCreateNewUoWSet(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Entry");
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", ingresPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUAEpisodeID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier--> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", ingresPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", ingresPacket.getCurrentJobCard().getCardID().getCreationDate());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", ingresPacket.getCurrentJobCard().getClusterMode());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getCurrentStatus());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getGrantedStatus());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", ingresPacket.getCurrentJobCard().getIsToBeDiscarded());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getRequestedStatus());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", ingresPacket.getCurrentJobCard().getSystemMode());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", ingresPacket.getCurrentJobCard().getUpdateDate());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", ingresPacket.getCurrentParcelStatus().getParcelStatus());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): wupInstanceKey (String) --> {}", wupInstanceKey);
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).instanceID --> {}", ingresPacket.getPayload().getInstanceID());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).typeID --> {}", ingresPacket.getPayload().getTypeID());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", ingresPacket.getPayload().getPayloadTopicID());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).ingresContent --> {}", ingresPacket.getPayload().getIngresContent());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).egressContent --> {}", ingresPacket.getPayload().getEgressContent());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", ingresPacket.getPayload().getPayloadTopicID());
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).processingOutcome --> {}", ingresPacket.getPayload().getProcessingOutcome());
+        }
+        // Get my Petasos Context
+        NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(".extractUoWPayloadAndCreateNewUoWSet{}: Retrieved node from TopologyProxy");
+            Iterator<String> listIterator = node.debugPrint(".extractUoWPayloadAndCreateNewUoWSet(): node").iterator();
+            while (listIterator.hasNext()) {
+                LOG.trace(listIterator.next());
             }
         }
-        if(LOG.isDebugEnabled()){
-            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new UoWs created, number --> {} ", newUoWSet.size());
+        UoW incomingUoW = ingresPacket.getPayload();
+        if (LOG.isDebugEnabled()) {
+            UoWPayloadSet egressContent = incomingUoW.getEgressContent();
+            Iterator<UoWPayload> incomingPayloadIterator = egressContent.getPayloadElements().iterator();
+            int counter = 0;
+            while (incomingPayloadIterator.hasNext()) {
+                UoWPayload payload = incomingPayloadIterator.next();
+                LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): payload (UoWPayload).PayloadTopic --> [{}] {}", counter, payload.getPayloadTopicID());
+                LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): payload (UoWPayload).Payload --> [{}] {}", counter, payload.getPayload());
+                counter++;
+            }
         }
-        return(newUoWSet);
+        ArrayList<WorkUnitTransportPacket> newEgressTransportPacketSet = new ArrayList<WorkUnitTransportPacket>();
+        UoWPayloadSet egressPayloadSet = incomingUoW.getEgressContent();
+        Iterator<UoWPayload> incomingPayloadIterator = egressPayloadSet.getPayloadElements().iterator();
+        while (incomingPayloadIterator.hasNext()) {
+            UoWPayload currentPayload = incomingPayloadIterator.next();
+            UoW newUoW = new UoW(currentPayload);
+            WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(ingresPacket.getPacketID(), Date.from(Instant.now()), newUoW);
+            newEgressTransportPacketSet.add(transportPacket);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): New WorkUnitTransportPacket created: ");
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).previousParcelInstance -->{}", transportPacket.getPacketID().getPreviousParcelIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).previousWUAEpisodeID --> {}", transportPacket.getPacketID().getPreviousEpisodeIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).previousWUPFunctionTokan --> {}", transportPacket.getPacketID().getPreviousWUPFunctionToken());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).previousWUPIdentifier--> {}", transportPacket.getPacketID().getPreviousWUPIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).presentParcelIdentifier -->{}", transportPacket.getPacketID().getPresentParcelIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).presentEpisodeIdentifier --> {}", transportPacket.getPacketID().getPresentEpisodeIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).presentWUPFunctionTokan --> {}", transportPacket.getPacketID().getPresentWUPFunctionToken());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).packetID (ContinuityID).presentWUPIdentifier --> {}", transportPacket.getPacketID().getPresentWUPIdentifier());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).instanceID --> {}", transportPacket.getPayload().getInstanceID());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).typeID --> {}", transportPacket.getPayload().getTypeID());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", transportPacket.getPayload().getPayloadTopicID());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).ingresContent --> {}", transportPacket.getPayload().getIngresContent());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).egressContent --> {}", transportPacket.getPayload().getEgressContent());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", transportPacket.getPayload().getPayloadTopicID());
+                LOG.trace(".extractUoWPayloadAndCreateNewUoWSet(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).processingOutcome --> {}", transportPacket.getPayload().getProcessingOutcome());
+            }
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new WorkUnitTransportPackets created, number --> {} ", newEgressTransportPacketSet.size());
+        }
+        return (newEgressTransportPacketSet);
     }
 }

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 
-import javax.inject.Singleton;
 import javax.transaction.Transactional;
 
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
@@ -72,7 +71,7 @@ public class ServiceModuleParcelCacheDM {
         if (!parcel.hasInstanceID()) {
             return;
         }
-        FDNToken parcelInstanceID = parcel.getInstanceID();
+        FDNToken parcelInstanceID = parcel.getIdentifier();
         if(petasosParcelCache.containsKey(parcelInstanceID)){
             petasosParcelCache.remove(parcelInstanceID);
         }
@@ -105,8 +104,8 @@ public class ServiceModuleParcelCacheDM {
         if (!parcel.hasInstanceID()) {
             return;
         }
-        if(petasosParcelCache.containsKey(parcel.getInstanceID())) {
-            petasosParcelCache.remove(parcel.getInstanceID());
+        if(petasosParcelCache.containsKey(parcel.getIdentifier())) {
+            petasosParcelCache.remove(parcel.getIdentifier());
         }
     }
 
@@ -136,10 +135,10 @@ public class ServiceModuleParcelCacheDM {
         if (newParcel == null) {
             throw (new IllegalArgumentException("newParcel is null"));
         }
-        if (petasosParcelCache.containsKey(newParcel.getInstanceID())) {
-            petasosParcelCache.remove(newParcel.getInstanceID());
+        if (petasosParcelCache.containsKey(newParcel.getIdentifier())) {
+            petasosParcelCache.remove(newParcel.getIdentifier());
         }
-        petasosParcelCache.put(newParcel.getInstanceID(), newParcel);
+        petasosParcelCache.put(newParcel.getIdentifier(), newParcel);
     }
 
     /**
@@ -198,8 +197,8 @@ public class ServiceModuleParcelCacheDM {
         Iterator<ResilienceParcel> parcelListIterator = getParcelSet().iterator();
         while (parcelListIterator.hasNext()) {
             ResilienceParcel currentParcel = parcelListIterator.next();
-            if (currentParcel.hasEpisodeID()) {
-                if (currentParcel.getEpisodeID().equals(parcelTypeID)) {
+            if (currentParcel.hasEpisodeIdentifier()) {
+                if (currentParcel.getEpisodeIdentifier().equals(parcelTypeID)) {
                     parcelList.add(currentParcel);
                 }
             }
@@ -216,7 +215,7 @@ public class ServiceModuleParcelCacheDM {
         while (parcelListIterator.hasNext()) {
             ResilienceParcel currentParcel = parcelListIterator.next();
             if (currentParcel.hasAssociatedWUPInstanceID()) {
-                if (currentParcel.getAssociatedWUPInstanceID().equals(wupInstanceID)) {
+                if (currentParcel.getAssociatedWUPIdentifier().equals(wupInstanceID)) {
                     if (currentParcel.hasActualUoW()) {
                         if (currentParcel.getActualUoW().getInstanceID().equals(uowInstanceID)) {
                             return (currentParcel);

@@ -21,26 +21,25 @@
  */
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.manager;
 
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
-import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.Set;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 
 /**
  *
@@ -50,23 +49,25 @@ import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 @ApplicationScoped
 public class WorkUnitProcessorFrameworkManager {
     private static final Logger LOG = LoggerFactory.getLogger(WorkUnitProcessorFrameworkManager.class);
+    
+    @Inject
+    CamelContext camelctx;
 
     @Inject
-    TopologyIM topologyServer;
+    ServiceModuleTopologyProxy topologyServer;
 
     @Inject
     TopicIM topicServer;
     
-    public void buildWUPFramework(NodeElement wupNode, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
+    public void buildWUPFramework( NodeElement wupNode, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
         LOG.debug(".buildWUPFramework(): Entry, wupNode --> {}, subscribedTopics --> {}, wupArchetype --> {}", wupNode, subscribedTopics, wupArchetype);
-        CamelContext camel = new DefaultCamelContext();
         try {
             switch (wupArchetype) {
                 case WUP_NATURE_MESSAGE_WORKER:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_WORKER route");
-                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camel, wupNode.getNodeFunctionToken(), wupNode.getNodeInstanceID());
+                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode);
                     LOG.trace(".buildWUPFramework(): Route created, now adding it to he CamelContext!");
-                    camel.addRoutes(standardWUPRoute);
+                    camelctx.addRoutes(standardWUPRoute);
                     LOG.trace(".buildWUPFramework(): Now subscribing this WUP/Route to UoW Content Topics");
                     uowTopicSubscribe(subscribedTopics, wupNode);
                     LOG.trace(".buildWUPFramework(): Subscribed to Topics, work is done!");
@@ -85,13 +86,14 @@ public class WorkUnitProcessorFrameworkManager {
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT route");
-                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camel, wupNode.getNodeFunctionToken(), wupNode.getNodeInstanceID());
-                    camel.addRoutes(ingresRoute);
+                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camelctx, wupNode);
+                    camelctx.addRoutes(ingresRoute);
                     LOG.trace(".buildWUPFramework(): Note, this type of WUP/Route does not subscribe to Topics (it is purely a producer)");
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT route");
             }
+//            camelCTX.start();
         } catch(Exception Ex){
 
         }
@@ -111,7 +113,7 @@ public class WorkUnitProcessorFrameworkManager {
         while(topicIterator.hasNext()) {
             TopicToken currentTopicID = topicIterator.next();
             LOG.trace(".uowTopicSubscribe(): wupNode --> {} is subscribing to UoW Content Topic --> {}", wupNode, currentTopicID);
-            topicServer.addTopicSubscriber(currentTopicID, wupNode );
+            topicServer.addTopicSubscriber(currentTopicID, wupNode.getIdentifier() );
         }
         LOG.debug(".uowTopicSubscribe(): Exit");
     }

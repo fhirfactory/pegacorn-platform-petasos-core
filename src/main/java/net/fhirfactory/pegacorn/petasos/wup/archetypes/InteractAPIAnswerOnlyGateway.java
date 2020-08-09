@@ -50,7 +50,7 @@ public abstract class InteractAPIAnswerOnlyGateway extends GenericWUPTemplate {
         LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}", unitOfWork);
         ContinuityID newContinuityID = new ContinuityID();
         newContinuityID.setPresentWUPFunctionToken(this.getWUPFunctionToken());
-        newContinuityID.setPresentWUPInstanceID(this.getWupInstanceID());
+        newContinuityID.setPresentWUPIdentifier(this.getWupIdentifier());
      }
 
     public void registerActivityFinish(UoW unitOfWork){

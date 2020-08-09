@@ -25,14 +25,17 @@ import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 import org.apache.camel.Exchange;
+import org.apache.camel.RecipientList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
@@ -49,7 +52,10 @@ public class InterchangeTargetWUPTypeRouter {
     private static final String CURRENT_END_POINT_SET = "CurrentEndpointSetFor";
 
     @Inject
-    TopicIM distributionList;
+    TopicIM topicServer;
+
+    @Inject
+    ServiceModuleTopologyProxy topologyProxy;
 
     /**
      * Essentially, we get the set of WUPs subscribing to a particular UoW type,
@@ -58,74 +64,57 @@ public class InterchangeTargetWUPTypeRouter {
      * to. Once we've cycled through all the targets (subscribers), we return
      * null.
      *
-     * @param incomingPacket Incoming UoW that will be distributed to all
+     * @param ingresPacket Incoming WorkUnitTransportPacket that will be distributed to all
      * Subscribed WUPs
      * @param camelExchange The Apache Camel Exchange instance associated with
      * this route.
      * @return An endpoint (name) for a recipient for the incoming UoW
      */
-    String forwardUoW2WUPs(WorkUnitTransportPacket incomingPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
-        LOG.debug(".forwardUoW2WUPs(): Entry, incomingTraffic --> {}, camelExchange --> ###, wupFunctionToken --> {}, wupInstanceID --> {}", incomingPacket, wupFunctionToken, wupInstanceID);
-        TopicToken uowTopicID = null;
-        if(incomingPacket.hasPayload()){
-            uowTopicID = incomingPacket.getPayload().getPayloadTopicID();
-        } else {
-            LOG.debug(".forwardUoW2WUPs(): Exit, there's no payload (UoW), so return null (and end this route).");
-            return(null);
+    @RecipientList
+    public List<String> forwardUoW2WUPs(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
+        if(LOG.isDebugEnabled()) {
+            LOG.debug(".forwardUoW2WUPs(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
         }
-        FDN currentUoWFDN = new FDN(uowTopicID.getIdentifier());
-        String propertyName = CURRENT_END_POINT_SET + currentUoWFDN.getToken().toString();
-        LOG.trace(".forwardUoW2WUPs(): This instance's Subscribed WUP List is called --> {}", propertyName);
-        EndpointNameSet targetWUPSet = camelExchange.getProperty(propertyName, EndpointNameSet.class);
-        
-        if (LOG.isTraceEnabled()) {tracePrintSubscribedWUPSet(targetWUPSet);}
-
-        boolean alreadyInstalled = true;
-        if (targetWUPSet == null) {
-            alreadyInstalled = false;
-            targetWUPSet = populateNameSet(uowTopicID);
-            if (targetWUPSet == null) {
-                LOG.debug(".forwardUoW2WUPs(): Exit, nobody was interested in processing this UoW and that's a concern!");
-                return (null);
+        // Get my Petasos Context
+        NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
+        if(LOG.isTraceEnabled()) {
+            LOG.trace(".forwardUoW2WUPs{}: Retrieved node from TopologyProxy");
+            Iterator<String> listIterator = node.debugPrint(".forwardUoW2WUPs{}: node").iterator();
+            while(listIterator.hasNext()) {
+                LOG.trace(listIterator.next());
             }
         }
-        if (targetWUPSet.isEmpty()) {
-            camelExchange.removeProperty(propertyName);
-            LOG.debug(".forwardUoW2WUPs(): Exit, finished iterating through interested/registered endpoints");
-            return (null);
+        TopicToken uowTopicID = null;
+        if(ingresPacket.getPayload().hasIngresContent()){
+            uowTopicID = ingresPacket.getPayload().getIngresContent().getPayloadTopicID();
+        } else {
+            LOG.debug(".forwardUoW2WUPs(): Exit, there's no payload (UoW), so return an empty list (and end this route).");
+            return(new ArrayList<String>());
         }
-        if (alreadyInstalled) {
-            camelExchange.removeProperty(propertyName);
+        Set<NodeElementIdentifier> nodeSet = topicServer.getSubscriberSet(uowTopicID);
+        ArrayList<String> endpointList = new ArrayList<String>();
+        if( nodeSet == null ){
+            LOG.debug(".forwardUoW2WUPs(): Exiting, nothing subscribed to that topic, returning empty set");
+            return(endpointList);
+        } else {
+            if (LOG.isTraceEnabled()) {tracePrintSubscribedWUPSet(nodeSet);}
+            Iterator<NodeElementIdentifier> nodeIterator = nodeSet.iterator();
+            while(nodeIterator.hasNext()){
+                NodeElementIdentifier currentNodeIdentifier = nodeIterator.next();
+                LOG.trace(".forwardUoW2WUPs(): Subscriber --> {}", currentNodeIdentifier);
+                NodeElement currentNodeElement = topologyProxy.getNode(currentNodeIdentifier);
+                NodeElementFunctionToken currentNodeFunctionToken = currentNodeElement.getNodeFunctionToken();
+                RouteElementNames routeName = new RouteElementNames(currentNodeFunctionToken);
+                endpointList.add(routeName.getEndPointWUPContainerIngresProcessorIngres());
+            }
+            LOG.debug(".forwardUoW2WUPs(): Exiting, returning registered/interested endpoints: endpointList -->{}", endpointList);
+            return (endpointList);
         }
-        String thisOne = targetWUPSet.getNameSet().iterator().next();
-        targetWUPSet.removeEndpointName(thisOne);
-        camelExchange.setProperty(propertyName, targetWUPSet);
-        LOG.debug(".forwardUoW2WUPs(): Exiting, returning another registered/interested endpoint: endpointDetail -->{}", thisOne);
-        return (thisOne);
     }
 
-    private EndpointNameSet populateNameSet(TopicToken uowTopicID) {
-        Set<NodeElement> nodeSet = distributionList.getSubscriberSet(uowTopicID);
-        if(nodeSet == null){
-            return(null);
-        }
-        if(nodeSet.isEmpty()){
-            return(null);
-        }
-        EndpointNameSet nameSet = new EndpointNameSet();
-        Iterator<NodeElement> nodeIterator = nodeSet.iterator();
-        while(nodeIterator.hasNext()){
-            NodeElement currentNode = nodeIterator.next();
-            NodeElementFunctionToken currentNodeFunctionToken = currentNode.getNodeFunctionToken();
-            RouteElementNames routeName = new RouteElementNames(currentNodeFunctionToken);
-            nameSet.addEndpointName(routeName.getEndPointWUPContainerIngresProcessorIngres());
-        }
-        return(nameSet);
-    }
-
-    private void tracePrintSubscribedWUPSet(EndpointNameSet wupSet) {
-        LOG.trace(".forwardUoW2WUPs(): We've already commenced publishing this UoW, WUPs remaining --> {}", wupSet.getNameSet().size());
-        Iterator<String> tokenIterator = wupSet.getNameSet().iterator();
+    private void tracePrintSubscribedWUPSet(Set<NodeElementIdentifier> wupSet) {
+        LOG.trace(".tracePrintSubscribedWUPSet(): Subscribed WUP Set --> {}", wupSet.size());
+        Iterator<NodeElementIdentifier> tokenIterator = wupSet.iterator();
         while (tokenIterator.hasNext()) {
             LOG.trace(".forwardUoW2WUPs(): Subscribed WUP Ingres Point --> {}", tokenIterator.next());
         }

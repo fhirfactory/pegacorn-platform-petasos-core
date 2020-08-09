@@ -24,27 +24,31 @@ package net.fhirfactory.pegacorn.petasos.audit.model;
 
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
-import net.fhirfactory.pegacorn.petasos.model.uow.UoWProcessingOutcomeEnum;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelFinalisationStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 
 public class PetasosParcelAuditTrailEntry {
     private Date auditTrailEntryDate;
     private UoW actualUoW;
-    private FDNToken parcelInstanceID;
+    private ResilienceParcelIdentifier identifier;
     private ResilienceParcelFinalisationStatusEnum parcelFinalsationStatus;
     private ResilienceParcelProcessingStatusEnum processingStatus;
-    private FDNTokenSet alternativeWUPInstanceIDSet;
-    private FDNTokenSet alternativeParcelIDSet;
-    private FDNTokenSet downstreamEpisodeIDSet;
-    private FDNToken upstreamEpisodeID;
-    private FDNToken primaryWUPInstanceID;
+    private HashSet<WUPIdentifier> alternativeWUPIdentifierSet;
+    private HashSet<ResilienceParcelIdentifier> alternativeParcelIdentifiersSet;
+    private HashSet<EpisodeIdentifier> downstreamEpisodeIdentifierSet;
+    private EpisodeIdentifier upstreamEpisodeIdentifier;
+    private WUPIdentifier primaryWUPIdentifier;
     private FDNToken parcelTypeID;
     private Date parcelRegistrationDate;
     private Date parcelStartDate;
@@ -60,19 +64,19 @@ public class PetasosParcelAuditTrailEntry {
         // First, we clean the slate
         this.auditTrailEntryDate = null;
         this.actualUoW = null;
-        this.parcelInstanceID = null;
+        this.identifier = null;
         this.parcelFinalsationStatus = null;
-        this.alternativeWUPInstanceIDSet = null;
+        this.alternativeWUPIdentifierSet = null;
         this.processingStatus = null;
-        this.downstreamEpisodeIDSet = null;
-        this.upstreamEpisodeID = null;
-        this.primaryWUPInstanceID = null;
+        this.downstreamEpisodeIdentifierSet = null;
+        this.upstreamEpisodeIdentifier = null;
+        this.primaryWUPIdentifier = null;
         this.parcelRegistrationDate = null;
         this.parcelTypeID = null;
         this.parcelStartDate = null;
         this.parcelFinishedDate = null;
         this.parcelFinalisedDate = null;
-        this.alternativeParcelIDSet = null;
+        this.alternativeParcelIdentifiersSet = null;
         // Then, we try and add what we get given
         if( theParcel == null ){
             return;
@@ -81,11 +85,11 @@ public class PetasosParcelAuditTrailEntry {
         if( theParcel.hasActualUoW()) {
             this.actualUoW = theParcel.getActualUoW();
         }
-        if(theParcel.hasDownstreamEpisodeIDSet()){
-            this.downstreamEpisodeIDSet = new FDNTokenSet(theParcel.getDownstreamEpisodeIDSet());
+        if(theParcel.hasDownstreamEpisodeIdentifierSet()){
+            this.downstreamEpisodeIdentifierSet = new HashSet<EpisodeIdentifier>();
         }
         if(theParcel.hasUpstreamEpisodeID()){
-            this.upstreamEpisodeID = theParcel.getUpstreamEpisodeID();
+            this.upstreamEpisodeIdentifier = theParcel.getUpstreamEpisodeIdentifier();
         }
         if(theParcel.hasTypeID()){
             this.parcelTypeID = theParcel.getTypeID();
@@ -94,7 +98,7 @@ public class PetasosParcelAuditTrailEntry {
             this.parcelFinalisedDate = theParcel.getFinalisationDate();
         }
         if(theParcel.hasInstanceID()){
-            this.parcelInstanceID = theParcel.getInstanceID();
+            this.identifier = theParcel.getIdentifier();
         }
         if(theParcel.hasFinishedDate()){
             this.parcelFinishedDate = theParcel.getFinishedDate();
@@ -123,61 +127,52 @@ public class PetasosParcelAuditTrailEntry {
     // Helpers for the this.downstreamEpisodeIDSet attribute
     
     public boolean hasDownstreamParcelIDSet() {
-    	if(this.downstreamEpisodeIDSet == null ) {
+    	if(this.downstreamEpisodeIdentifierSet == null ) {
     		return(false);
     	}
-    	if(this.downstreamEpisodeIDSet.isEmpty()) {
+    	if(this.downstreamEpisodeIdentifierSet.isEmpty()) {
     		return(false);
     	}
     	return(true);
     }
     
-    public void setDownstreamEpisodeIDSet(FDNTokenSet newDownstreamParcelIDSet) {
-    	if(newDownstreamParcelIDSet == null) {
-    		this.downstreamEpisodeIDSet = null;
+    public void setDownstreamEpisodeIdentifierSet(HashSet<EpisodeIdentifier> newDownstreamEpisodeIdentifierSet) {
+    	if(newDownstreamEpisodeIdentifierSet == null) {
+    		this.downstreamEpisodeIdentifierSet = null;
     		return;
     	}
-    	if(newDownstreamParcelIDSet.isEmpty()) {
-    		this.downstreamEpisodeIDSet = new FDNTokenSet();
+    	if(newDownstreamEpisodeIdentifierSet.isEmpty()) {
+    		this.downstreamEpisodeIdentifierSet = new HashSet<EpisodeIdentifier>();
     		return;
     	}
-    	this.downstreamEpisodeIDSet = new FDNTokenSet(newDownstreamParcelIDSet);
+    	this.downstreamEpisodeIdentifierSet = newDownstreamEpisodeIdentifierSet;
     }
     
-    public FDNTokenSet getDownstreamEpisodeIDSet() {
-    	if(this.downstreamEpisodeIDSet == null) {
+    public Set<EpisodeIdentifier> getDownstreamEpisodeIdentifierSet() {
+    	if(this.downstreamEpisodeIdentifierSet == null) {
     		return(null);
     	}
-    	FDNTokenSet fdnSetCopy = new FDNTokenSet(this.downstreamEpisodeIDSet);
-    	return(fdnSetCopy);
+    	return(this.downstreamEpisodeIdentifierSet);
     }
 
     // Helpers for the this.alternativeWUPInstance attribute
 
     public boolean hasAlternativeWUPInstanceIDSet(){
-        if(this.alternativeWUPInstanceIDSet == null ){
+        if(this.alternativeWUPIdentifierSet == null ){
             return(false);
         }
-        if(this.alternativeWUPInstanceIDSet.isEmpty()){
+        if(this.alternativeWUPIdentifierSet.isEmpty()){
             return(false);
         }
         return(true);
     }
     
-    public void setAlternativeWUPInstanceIDSet(FDNTokenSet alternativeWUPInstanceIDSet) {
-    	if(alternativeWUPInstanceIDSet == null )
-    	{
-    		this.alternativeWUPInstanceIDSet = new FDNTokenSet();
-    	}
-        this.alternativeWUPInstanceIDSet = new FDNTokenSet(alternativeWUPInstanceIDSet);
+    public void setAlternativeWUPIdentifierSet(HashSet<WUPIdentifier> alternativeWUPIdentifierSet) {
+    	this.alternativeWUPIdentifierSet = alternativeWUPIdentifierSet;
     }
 
-    public FDNTokenSet getAlternativeWUPInstanceIDSet(){
-        if(hasAlternativeWUPInstanceIDSet()){
-        	FDNTokenSet newFDNSet = new FDNTokenSet(this.alternativeWUPInstanceIDSet);
-            return(this.alternativeWUPInstanceIDSet);
-        }
-        return(null);
+    public Set<WUPIdentifier> getAlternativeWUPIdentifierSet(){
+        return(this.alternativeWUPIdentifierSet);
     }
 
     // Helpers for the this.auditTrailEntryDate attribute
@@ -233,35 +228,35 @@ public class PetasosParcelAuditTrailEntry {
     // Helpers for the this.upstreamEpisodeID attribute
 
     public boolean hasUpstreamParcelID(){
-        if(this.upstreamEpisodeID==null){
+        if(this.upstreamEpisodeIdentifier ==null){
             return(false);
         }
         return(true);
     }
 
-    public FDNToken getUpstreamEpisodeID() {
-        return(upstreamEpisodeID);
+    public EpisodeIdentifier getUpstreamEpisodeIdentifier() {
+        return(upstreamEpisodeIdentifier);
     }
 
-    public void setUpstreamEpisodeID(FDNToken upstreamEpisodeID) {
-        this.upstreamEpisodeID = upstreamEpisodeID;
+    public void setUpstreamEpisodeIdentifier(EpisodeIdentifier upstreamEpisodeIdentifier) {
+        this.upstreamEpisodeIdentifier = upstreamEpisodeIdentifier;
     }
 
     // Helpers for the this.primaryWUPInstanceID attribute
 
     public boolean hasPrimaryWUPInstanceID(){
-        if(this.primaryWUPInstanceID==null){
+        if(this.primaryWUPIdentifier==null){
             return(false);
         }
         return(true);
     }
 
-    public FDNToken getPrimaryWUPInstanceID() {
-        return primaryWUPInstanceID;
+    public WUPIdentifier getPrimaryWUPInstanceID() {
+        return primaryWUPIdentifier;
     }
 
-    public void setPrimaryWUPInstanceID(FDNToken primaryWUPInstanceID) {
-        this.primaryWUPInstanceID = primaryWUPInstanceID;
+    public void setPrimaryWUPInstanceID(WUPIdentifier primaryWUPInstanceID) {
+        this.primaryWUPIdentifier = primaryWUPInstanceID;
     }
 
     // Helpers for the this.parcelRegistrationDate attribute

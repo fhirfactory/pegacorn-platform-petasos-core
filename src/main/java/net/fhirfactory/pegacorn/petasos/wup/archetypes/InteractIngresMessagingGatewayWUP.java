@@ -26,22 +26,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.*;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ApplicationScoped
 public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
     
-    private EndpointElement endpoint;
+    private EndpointElement ingresEndpointElement;
     
     public InteractIngresMessagingGatewayWUP() {
         super();
@@ -56,15 +56,15 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
     @Override
     public String specifyIngresEndpoint(){
         LOG.debug(".specifyIngresEndpoint(): Entry");
-        EndpointElement myEndpoint = getEndpoint();
-        LOG.trace(".specifyIngresEndpoint(): Retrieved EndpointElement --> {}", myEndpoint);
+        this.specifyIngresEndpointElement();
+        LOG.trace(".specifyIngresEndpoint(): Retrieved EndpointElement --> {}", this.ingresEndpointElement);
         String ingresEndPoint;
         ingresEndPoint = getEndpointComponentDefinition();
         ingresEndPoint = ingresEndPoint + ":";
         ingresEndPoint = ingresEndPoint + this.getEndpointProtocol();
         ingresEndPoint = ingresEndPoint + this.getEndpointProtocolLeadIn();
-        ingresEndPoint = ingresEndPoint + this.getEndpointHostName();
-        ingresEndPoint = ingresEndPoint + ":" + getEndpointPort();
+        ingresEndPoint = ingresEndPoint + this.ingresEndpointElement.getHostname();
+        ingresEndPoint = ingresEndPoint + ":" + this.ingresEndpointElement.getInternalPort();
         ingresEndPoint = ingresEndPoint + getEndpointProtocolLeadout();
         LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
         return(ingresEndPoint);
@@ -85,31 +85,25 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
      * 
      * @return EndpointElement for the associated Endpoint to the WUP. 
      */
-    protected EndpointElement getEndpoint(){
+    protected void specifyIngresEndpointElement(){
         LOG.debug(".getEndpoint(): Entry");
-        NodeElement node = getTopologyServer().getNode(this.getWupInstanceID());
-        FDNTokenSet endpointIDs = node.getEndpoints();
-        // Be brave
-        Set<FDNToken> endpoints = endpointIDs.getElements();
+        NodeElementIdentifier nodeID = new NodeElementIdentifier(this.getWupIdentifier());
+        NodeElement node = this.getTopologyServer().getNode(nodeID);
+        Set<EndpointElementIdentifier> endpoints = node.getEndpoints();
         if (endpoints.size() > 1) {
             throw new RuntimeException("Not yet implemented.  The current code only supports a single node and needs to be updated to handle multiple endpoints");
         }
-        Iterator<FDNToken> endpointIterator = endpoints.iterator();
+        Iterator<EndpointElementIdentifier> endpointIterator = endpoints.iterator();
         // we are still being brave
-        FDNToken endpointToken = endpointIterator.next();
+        EndpointElementIdentifier endpointToken = endpointIterator.next();
         // we are ludicrously brave
         EndpointElement endpoint = getTopologyServer().getEndpoint(endpointToken);
         // the stars align!!!!!
         LOG.debug(".getEndpoint(): Exit, endpoint --> {}", endpoint);
-        return(endpoint);
+        this.ingresEndpointElement = endpoint;
     }
     
-    public String getEndpointPort(){
-        int portNumber = endpoint.getPort();
-        String endpointPort = Integer.toString(portNumber);
-        return(endpointPort);
-    }
-    
+ 
     /**
      * The Ingres Message Gateway doesn't subscribe to ANY topics as it receives it's 
      * input from an external system.

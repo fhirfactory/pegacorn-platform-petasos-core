@@ -25,6 +25,7 @@ package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.manag
 import javax.enterprise.context.ApplicationScoped;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker.InterchangeExtractAndRouteTemplate;
 import net.fhirfactory.pegacorn.petasos.model.topology.ElementNameExtensions;
 import org.apache.camel.CamelContext;
@@ -39,6 +40,10 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 public class PathwayInterchangeManager {
     private static final Logger LOG = LoggerFactory.getLogger(PathwayInterchangeManager.class);
 
+    @Inject
+    CamelContext camelctx;
+
+
     /**
      * We have to establish a set of Routes for handling the egress traffic from a
      * WUP (and WUPContainer) which, essentially, pulls each UoWPayload element
@@ -47,33 +52,20 @@ public class PathwayInterchangeManager {
      * doco) that then forwards the UoW to any Registered (Subscribed) downstream
      * WUP instance.
      *
-     * @param camel
-     * @param wupFunctionToken the WUP we are building the Interchange routes for
-     * @param wupInstanceID
+     * @param nodeElement the WUP's NodeElement we are building the Interchange routes for
      */
 
-    public void buildWUPInterchangeRoutes(CamelContext camel, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID){
-        LOG.debug(".buildWUPInterchangeRoutes(): Entry, wupFunctionToken --> {}, wupInstanceID --> {}", wupFunctionToken, wupInstanceID);
-        InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camel, wupFunctionToken, wupInstanceID);
+    public void buildWUPInterchangeRoutes(NodeElement nodeElement){
+        LOG.debug(".buildWUPInterchangeRoutes(): Entry, nodeElement --> {}", nodeElement);
+        InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camelctx,nodeElement);
         LOG.trace(".buildWUPInterchangeRoutes(): Attempting to install new Route");
         try{
-            camel.addRoutes(newRoute);
+            camelctx.addRoutes(newRoute);
             LOG.trace(".buildWUPInterchangeRoutes(): Route installation successful");
         }
         catch(Exception Ex){
             LOG.debug(".buildWUPInterchangeRoutes(): Route install failed! Exception --> {}", Ex);
         }
         LOG.debug(".buildWUPInterchangeRoutes(): Exit - All good it seems!");
-    }
-
-    /**
-     * This function parses the ServiceModuleMap and ensures that all the associated
-     * Intersection elements are instantiated (and, in a very simplistic way, operational).
-     */
-    public void buildAllInterchangeRoutes(){
-        LOG.debug(".buildAllInterchangeRoutes(): Entry");
-        // need to create Camel
-        CamelContext camel = new DefaultCamelContext();
-        LOG.debug(".buildAllInterchangeRoutes(): Exit - All good it seems!");
     }
 }

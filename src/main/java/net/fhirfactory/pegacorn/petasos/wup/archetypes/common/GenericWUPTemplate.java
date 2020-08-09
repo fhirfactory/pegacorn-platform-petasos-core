@@ -25,9 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
+
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+
+import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,7 @@ import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
@@ -49,16 +53,15 @@ import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTo
  * @since 2020-07-01
  */
 
-@ApplicationScoped
 public abstract class GenericWUPTemplate extends RouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericWUPTemplate.class);
 
     private NodeElementFunctionToken wupFunctionToken;
-    private FDNToken wupInstanceID;
+    private WUPIdentifier wupIdentifier;
     private String wupInstanceName;
     private WUPJobCard wupInstanceJobCard;
-    private NodeElement wupTopologyElement;
+    private NodeElement wupNode;
     private RouteElementNames nameSet;
     private String wupEgressPoint = null;
     private String wupIngresPoint = null;
@@ -95,9 +98,9 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         LOG.trace(".initialise(): Setting the WUP Version - this allows us to support multiple variants of the same WUP function");
         this.version = specifyWUPVersion();
         LOG.trace(".initialise(): Setting the actual WUP ID - this is an instance unique identifier for the WUP within the deployed solution");
-        this.wupInstanceID = specifyInstanceID();
+        this.wupIdentifier = specifyInstanceID();
         LOG.trace(".initialise(): Setting up the wupTopologyElement (NodeElement) instance, which is the Topology Server's representation of this WUP ");
-        this.wupTopologyElement = specifyNodeElement();
+        this.wupNode = specifyNodeElement();
         LOG.trace(".initialise(): Setting the WUP Archetype - which is used by the WUP Framework to ascertain what wrapping this WUP needs");
         this.wupArchetype =  specifyWUPArchetype();
         LOG.trace(".initialise(): Setting the WUP Function Token (Function ID + Version ID) which uniquely defines the functionality of this WUP");
@@ -111,7 +114,7 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         this.wupEgressPoint = specifyEgressEndpoint();
         LOG.info(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
         LOG.trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
-        buildWUPFramework();
+        buildWUPFramework(this.getContext());
     }
     
     // To be implemented methods (in Specialisations)
@@ -133,45 +136,46 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
      * @return The function token representing the exact capability of the WUP
      */
     public NodeElementFunctionToken specifyFunctionToken() {
-        LOG.debug(".specifyFunctionToken(): Entry, wupInstanceID --> {}", this.wupInstanceID);
-        NodeElementFunctionToken functionToken = wupTopologyProxy.getWUPFunctionToken(this.wupInstanceID);
+        LOG.debug(".specifyFunctionToken(): Entry, wupInstanceID --> {}", this.wupIdentifier);
+        NodeElementFunctionToken functionToken = wupTopologyProxy.getWUPFunctionToken(this.wupIdentifier);
         LOG.debug(".specifyFunctionToken(): Exit, retrieved functionToken --> {}", functionToken);
         return(functionToken);
     }
 
-    public FDNToken specifyInstanceID() {
+    public WUPIdentifier specifyInstanceID() {
         LOG.debug(".specifyInstanceID(): Entry, wupInstanceName --> {}, wupVersion --> {}", this.getWupInstanceName(), this.getVersion());
-        FDNToken instanceId = wupTopologyProxy.getWUPInstanceID(this.getWupInstanceName(), this.getVersion());
+        WUPIdentifier instanceId = wupTopologyProxy.getWUPIdentifier(this.getWupInstanceName(), this.getVersion());
         LOG.debug(".specifyInstanceID(): Exit, extracted wupInstanceID --> {}", instanceId);
         return(instanceId);
     }
 
     public NodeElement specifyNodeElement(){
         LOG.debug(".specifyNodeElement(): Entry");
-        NodeElement element = wupTopologyProxy.getNode(this.wupInstanceID);
+        NodeElementIdentifier nodeID = new NodeElementIdentifier(this.wupIdentifier);
+        NodeElement element = wupTopologyProxy.getNode(nodeID);
         LOG.debug(".specifyNodeElement(): Exit, retrieved NodeElement --> {}", element);
         return(element);
     }
     
-    public void registerTopologyElementInstantiation(){
+    public void registerNodeInstantiation(){
         LOG.info(".registerTopologyElementInstantiation(): Entry");
-        wupTopologyProxy.setInstanceInPlace(wupInstanceID, true);
+        wupTopologyProxy.setNodeInstantiated(this.wupNode.getIdentifier(), true);
         LOG.info(".registerTopologyElementInstantiation(): Exit");
     }
 
-    public void buildWUPFramework() {
+    public void buildWUPFramework(CamelContext routeContext) {
         LOG.debug(".buildWUPFramework(): Entry");
-        servicesBroker.registerWorkUnitProcessor(this.wupTopologyElement, this.getTopicSubscriptionSet(), this.getWupArchetype());
+        servicesBroker.registerWorkUnitProcessor(this.wupNode, this.getTopicSubscriptionSet(), this.getWupArchetype());
         LOG.debug(".buildWUPFramework(): Exit");
     }
     
     public String getEndpointHostName(){
-        FDN wupFDN = new FDN(this.wupInstanceID);
+        FDN wupFDN = new FDN(this.wupIdentifier);
         Map<Integer, RDN> rdnSet = wupFDN.getRDNSet();
         for(int counter = 0; counter < wupFDN.getRDNCount(); counter++ ){
             RDN currentRDN = rdnSet.get(counter);
             if(currentRDN.getNameQualifier().contentEquals(NodeElementTypeEnum.PLATFORM.getNodeElementType())){
-               if(currentRDN.getNameValue().contentEquals("Derived")){
+               if(currentRDN.getNameValue().contentEquals("___")){
                    return("localhost");
                } else {
                    return(currentRDN.getNameValue());
@@ -185,8 +189,8 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         return (this.wupFunctionToken);
     }
 
-    public FDNToken getWupInstanceID() {
-        return (this.wupInstanceID);
+    public WUPIdentifier getWupIdentifier() {
+        return (this.wupIdentifier);
     }
 
     public String ingresFeed() {
@@ -205,12 +209,12 @@ public abstract class GenericWUPTemplate extends RouteBuilder {
         return(this.wupTopologyProxy);
     }
 
-    public NodeElement getWupTopologyElement() {
-        return wupTopologyElement;
+    public NodeElement getWupNode() {
+        return wupNode;
     }
 
-    public void setWupTopologyElement(NodeElement wupTopologyElement) {
-        this.wupTopologyElement = wupTopologyElement;
+    public void setWupNode(NodeElement wupNode) {
+        this.wupNode = wupNode;
     }
 
     public RouteElementNames getNameSet() {

@@ -23,6 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.tasks.RegisterNewWorkUnitActivity;
@@ -61,12 +62,13 @@ public class ResilienceActivityServicesController {
 
 
     public ParcelStatusElement registerNewWorkUnitActivity(WUPJobCard jobCard) {
-        LOG.debug(".checkForExistingSystemWideFocusedElement(): Entry, activityID --> {}, statusEnum --> {}", jobCard);
+        LOG.debug(".registerNewWorkUnitActivity(): Entry, activityID --> {}, statusEnum --> {}", jobCard);
         if (jobCard == null) {
             return (null);
         }
-        ParcelStatusElement parcelStatusElement = taskRegisterWUA.doTask(jobCard);
-        LOG.debug(".checkForExistingSystemWideFocusedElement(): Exit, parcelStatusElement --> {}", parcelStatusElement);
+        ParcelStatusElement parcelStatusElement = taskRegisterWUA.registerNewWUA(jobCard);
+        synchroniseJobCard(jobCard);
+        LOG.debug(".registerNewWorkUnitActivity(): Exit, parcelStatusElement --> {}", parcelStatusElement);
         return (parcelStatusElement);
     }
 
@@ -74,12 +76,12 @@ public class ResilienceActivityServicesController {
         if( submittedJobCard == null){
             return;
         }
-        taskSynchroniseWUA.doTask(submittedJobCard);
+        taskSynchroniseWUA.synchroniseJobCard(submittedJobCard);
     }
 
 
 
-    public ParcelStatusElement getStatusElement(FDNToken parcelInstanceID){
+    public ParcelStatusElement getStatusElement(ResilienceParcelIdentifier parcelInstanceID){
         LOG.debug(".getStatusElement(): Entry, parcelInstanceID --> {}", parcelInstanceID);
         ParcelStatusElement retrievedElement = activityMatrixDM.getParcelStatusElement(parcelInstanceID);
         LOG.debug(".getStatusElement(): Exit, retrievedElement --> {}", retrievedElement);

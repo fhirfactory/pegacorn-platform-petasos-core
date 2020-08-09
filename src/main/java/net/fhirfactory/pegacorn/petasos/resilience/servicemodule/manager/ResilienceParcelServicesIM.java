@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache.ServiceModuleParcelCacheDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -39,7 +41,6 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import javax.transaction.Transactional;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
 
 /**
  * @author Mark A. Hunter
@@ -55,25 +56,51 @@ public class ResilienceParcelServicesIM {
     @Inject
     PetasosAuditWriter auditWriter;
     
-//    public ResilienceParcelServicesIM() {
-//        this.nodeInstanceFDN = new FDN();
-//    }
 
     @Transactional
     public ResilienceParcel registerParcel(ContinuityID activityID, UoW unitOfWork, boolean synchronousWriteToAudit) {
-        LOG.debug(".registerParcel(): Entry, activityID --> {}, unitOfWork --> {}, synchronousWriteToAudit -->{}", activityID, unitOfWork, synchronousWriteToAudit);
+        LOG.debug(".registerParcel(): Entry"); 
         if ((unitOfWork == null) || (activityID == null)) {
             throw (new IllegalArgumentException("unitOfWork, wupTypeID or wupInstanceID are null in method invocation"));
         }
+        if(LOG.isDebugEnabled()) {
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousWUPFunctionTokan --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).instanceID --> {}", unitOfWork.getInstanceID());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).typeID --> {}", unitOfWork.getTypeID());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).ingresContent --> {}", unitOfWork.getIngresContent());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).egressContent --> {}", unitOfWork.getEgressContent());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
+    		LOG.debug(".registerParcel(): unitOfWork (UoW).processingOutcome --> {}", unitOfWork.getProcessingOutcome());
+    		LOG.debug(".registerParcel(): synchronousWriteToAudit (boolean) --> {}", synchronousWriteToAudit);
+        }
+        LOG.trace(".registerParcel(): Checking and/or Creating a WUAEpisde ID");
+        if(!activityID.hasPresentEpisodeIdentifier()) {
+        	FDN newWUAFDN = new FDN(activityID.getPresentWUPFunctionToken().getAsSingleFDNToken());
+        	FDN uowTypeFDN = new FDN(unitOfWork.getTypeID());
+        	newWUAFDN.appendFDN(uowTypeFDN);
+        	EpisodeIdentifier wuaEpisodeToken = new EpisodeIdentifier(newWUAFDN.getToken());
+        	activityID.setPresentWUAEpisodeID(wuaEpisodeToken);
+        }
         // 1st, lets register the parcel
         LOG.trace(".registerParcel(): check for existing ResilienceParcel instance for this WUP/UoW combination");
-        ResilienceParcel parcelInstance =  parcelCacheDM.getCurrentParcelForWUP(activityID.getPresentParcelInstanceID(), unitOfWork.getInstanceID());
+        ResilienceParcel parcelInstance =  parcelCacheDM.getCurrentParcelForWUP(activityID.getPresentWUPIdentifier(), unitOfWork.getTypeID());
         if(parcelInstance != null){
             LOG.trace(".registerParcel(): Well, there seems to be a Parcel already for this WUPInstanceID/UoWInstanceID. Odd, but let's use it!");
         } else {
             LOG.trace(".registerParcel(): Attempted to retrieve existing ResilienceParcel, and there wasn't one, so let's create it!");
             parcelInstance = new ResilienceParcel(activityID, unitOfWork);
             parcelCacheDM.addParcel(parcelInstance);
+            LOG.trace(".registerParcel(): Set the PresentParcelInstanceID in the ActivityID (ContinuityID), ParcelInstanceID --> {}", parcelInstance.getIdentifier());
+            activityID.setPresentParcelIdentifier(parcelInstance.getIdentifier());
             Date registrationDate = Date.from(Instant.now());
             LOG.trace(".registerParcel(): Set the Registration Date --> {}", registrationDate);
             parcelInstance.setRegistrationDate(registrationDate);
@@ -84,15 +111,33 @@ public class ResilienceParcelServicesIM {
             LOG.trace(".registerParcel(): Doing an Audit Write");
             auditWriter.writeAuditEntry(parcelInstance, synchronousWriteToAudit);
         }
-
-        // now, lets register the parcel with the AcitivityMatrix and check where things are at
-        // TODO check status when Registering a new Parcel in the ActivityMatrix
-        LOG.debug(".registerParcel(): Exit, returning registered Parcel --> {}", parcelInstance);
+        LOG.debug(".registerParcel(): Exit");
+        if(LOG.isDebugEnabled()) {
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).episodeID --> {}", parcelInstance.getEpisodeIdentifier());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).upsteamEpisodeID --> {}", parcelInstance.getUpstreamEpisodeIdentifier());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).parcelInstanceID --> {}", parcelInstance.getIdentifier());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).associatedWUPInstanceID --> {}", parcelInstance.getAssociatedWUPIdentifier());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).processingStatus --> {}", parcelInstance.getProcessingStatus());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).typeID --> {}", parcelInstance.getTypeID());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).registrationDate --> {}", parcelInstance.getRegistrationDate());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).startDate --> {}", parcelInstance.getStartDate());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).finishedDate --> {}", parcelInstance.getFinishedDate());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).finalisationDate --> {}", parcelInstance.getFinalisationDate());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).finalisationStatus --> {}", parcelInstance.getFinalisationStatus());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).cancellationDate --> {}", parcelInstance.getCancellationDate());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).instanceID --> {}", parcelInstance.getActualUoW().getInstanceID());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).typeID --> {}", parcelInstance.getActualUoW().getTypeID());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", parcelInstance.getActualUoW().getPayloadTopicID());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).ingresContent --> {}", parcelInstance.getActualUoW().getIngresContent());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).egressContent --> {}", parcelInstance.getActualUoW().getEgressContent());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", parcelInstance.getActualUoW().getPayloadTopicID());
+        	LOG.debug(".registerParcel(): parcelInstance (ResilienceParcel).actualUoW (UoW).processingOutcome --> {}", parcelInstance.getActualUoW().getProcessingOutcome());
+        }
         return(parcelInstance);
     }
 
     @Transactional
-    public ResilienceParcel notifyParcelProcessingStart(FDNToken parcelID) {
+    public ResilienceParcel notifyParcelProcessingStart(ResilienceParcelIdentifier parcelID) {
         LOG.debug(".notifyParcelProcessingStart(): Entry, parcelID --> {}", parcelID);
         if (parcelID == null) {
             throw (new IllegalArgumentException("parcelID is null in method invocation"));
@@ -114,17 +159,52 @@ public class ResilienceParcelServicesIM {
     }
 
     @Transactional
-    public ResilienceParcel notifyParcelProcessingFinish(FDNToken parcelID, UoW unitOfWork) {
-        LOG.debug(".notifyParcelProcessingFinish(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID, unitOfWork);
+    public ResilienceParcel notifyParcelProcessingFinish(ResilienceParcelIdentifier parcelID, UoW unitOfWork) {
+        if(LOG.isDebugEnabled()) {
+        	LOG.debug(".notifyParcelProcessingFinish(): Entry");
+    		LOG.debug(".notifyParcelProcessingFinish(): parcelID (FDNToken) --> {}", parcelID);
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).instanceID --> {}", unitOfWork.getInstanceID());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).typeID --> {}", unitOfWork.getTypeID());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).ingresContent --> {}", unitOfWork.getIngresContent());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).egressContent --> {}", unitOfWork.getEgressContent());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
+    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).processingOutcome --> {}", unitOfWork.getProcessingOutcome());
+        } 
         if ((unitOfWork == null) || (parcelID == null)) {
             throw (new IllegalArgumentException("unitOfWork or parcelID are null in method invocation"));
         }
         LOG.trace(".notifyParcelProcessingFinish(): retrieve existing Parcel");
         ResilienceParcel currentParcel = parcelCacheDM.getParcelInstance(parcelID);
-        LOG.trace(".notifyParcelProcessingFinish(): update the UoW (Egress Content)");
-        currentParcel.getActualUoW().setEgressContent(unitOfWork.getEgressContent());
-        LOG.trace(".notifyParcelProcessingFinish(): update the UoW Processing Outcome --> {}", unitOfWork.getProcessingOutcome());
-        currentParcel.getActualUoW().setProcessingOutcome(unitOfWork.getProcessingOutcome());
+        if(LOG.isTraceEnabled()){
+            LOG.debug(".notifyParcelProcessingFinish(): Parcel Retrieved, contents:");
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).episodeIdentifier --> {}", currentParcel.getEpisodeIdentifier());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).upsteamEpisodeIdentifier --> {}", currentParcel.getUpstreamEpisodeIdentifier());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).identifier --> {}", currentParcel.getIdentifier());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).associatedWUPIdentifier --> {}", currentParcel.getAssociatedWUPIdentifier());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).processingStatus --> {}", currentParcel.getProcessingStatus());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).typeID --> {}", currentParcel.getTypeID());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).registrationDate --> {}", currentParcel.getRegistrationDate());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).startDate --> {}", currentParcel.getStartDate());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finishedDate --> {}", currentParcel.getFinishedDate());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationDate --> {}", currentParcel.getFinalisationDate());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationStatus --> {}", currentParcel.getFinalisationStatus());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).cancellationDate --> {}", currentParcel.getCancellationDate());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).instanceID --> {}", currentParcel.getActualUoW().getInstanceID());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).typeID --> {}", currentParcel.getActualUoW().getTypeID());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).ingresContent --> {}", currentParcel.getActualUoW().getIngresContent());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).egressContent --> {}", currentParcel.getActualUoW().getEgressContent());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
+            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).processingOutcome --> {}", currentParcel.getActualUoW().getProcessingOutcome());
+        }
+        LOG.trace(".notifyParcelProcessingFinish(): update the UoW --> but only if the UoW content comes from the Agent, not the actual WUP itself");
+        if(!(unitOfWork == currentParcel.getActualUoW())) {
+            LOG.trace(".notifyParcelProcessingFinish(): update the UoW (Egress Content)");
+            currentParcel.getActualUoW().setEgressContent(unitOfWork.getEgressContent());
+            LOG.trace(".notifyParcelProcessingFinish(): update the UoW Processing Outcome --> {}", unitOfWork.getProcessingOutcome());
+            currentParcel.getActualUoW().setProcessingOutcome(unitOfWork.getProcessingOutcome());
+        }
         Date finishDate = Date.from(Instant.now());
         LOG.trace(".notifyParcelProcessingFinish(): Set the Finish Date --> {}", finishDate);
         currentParcel.setFinishedDate(finishDate);
@@ -134,13 +214,34 @@ public class ResilienceParcelServicesIM {
         currentParcel.setProcessingStatus(ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
         // TODO Check to see if we should do an Audit Entry when we finish processing
         // LOG.trace(".notifyParcelProcessingFinish(): Doing an Audit Write, note that it is asynchronous by design");
-        // auditWriter.writeAuditEntry(currentParcel,false);
-        LOG.debug(".notifyParcelProcessingFinish(): Exit, returning finished Parcel --> {}", currentParcel);
+        auditWriter.writeAuditEntry(currentParcel,false);        
+        if(LOG.isDebugEnabled()) {
+        	LOG.debug(".notifyParcelProcessingFinish(): Exit, returning finished Parcel");
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).episodeIdentifier --> {}", currentParcel.getEpisodeIdentifier());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).upsteamEpisodeIdentifier --> {}", currentParcel.getUpstreamEpisodeIdentifier());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).identifier --> {}", currentParcel.getIdentifier());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).associatedWUPIdentifier --> {}", currentParcel.getAssociatedWUPIdentifier());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).processingStatus --> {}", currentParcel.getProcessingStatus());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).typeID --> {}", currentParcel.getTypeID());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).registrationDate --> {}", currentParcel.getRegistrationDate());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).startDate --> {}", currentParcel.getStartDate());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finishedDate --> {}", currentParcel.getFinishedDate());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationDate --> {}", currentParcel.getFinalisationDate());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationStatus --> {}", currentParcel.getFinalisationStatus());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).cancellationDate --> {}", currentParcel.getCancellationDate());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).instanceID --> {}", currentParcel.getActualUoW().getInstanceID());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).typeID --> {}", currentParcel.getActualUoW().getTypeID());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).ingresContent --> {}", currentParcel.getActualUoW().getIngresContent());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).egressContent --> {}", currentParcel.getActualUoW().getEgressContent());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
+        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).processingOutcome --> {}", currentParcel.getActualUoW().getProcessingOutcome());
+        }
         return(currentParcel);
     }
 
     @Transactional
-    public ResilienceParcel notifyParcelProcessingFailure(FDNToken parcelID, UoW unitOfWork) {
+    public ResilienceParcel notifyParcelProcessingFailure(ResilienceParcelIdentifier parcelID, UoW unitOfWork) {
         LOG.debug(".notifyParcelProcessingFailure(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID, unitOfWork);
         if ((unitOfWork == null) || (parcelID == null)) {
             throw (new IllegalArgumentException(".notifyParcelProcessingFailure(): unitOfWork or parcelID are null in method invocation"));
@@ -165,7 +266,7 @@ public class ResilienceParcelServicesIM {
     }
 
     @Transactional
-    public ResilienceParcel notifyParcelProcessingFinalisation(FDNToken parcelID) {
+    public ResilienceParcel notifyParcelProcessingFinalisation(ResilienceParcelIdentifier parcelID) {
         LOG.debug(".notifyParcelProcessingFinalisation(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID);
         if (parcelID == null) {
             throw (new IllegalArgumentException(".notifyParcelProcessingFinalisation(): parcelID is null in method invocation"));
@@ -192,7 +293,7 @@ public class ResilienceParcelServicesIM {
     }
 
     @Transactional
-    public ResilienceParcel notifyParcelProcessingCancellation(FDNToken parcelID) {
+    public ResilienceParcel notifyParcelProcessingCancellation(ResilienceParcelIdentifier parcelID) {
         LOG.debug(".notifyParcelProcessingCancellation(): Entry, parcelID --> {}", parcelID);
         if (parcelID == null) {
             throw (new IllegalArgumentException(".notifyParcelProcessingFinalisation(): parcelID is null in method invocation"));
@@ -219,7 +320,7 @@ public class ResilienceParcelServicesIM {
     }
 
     @Transactional
-    public void notifyParcelProcessingPurge(FDNToken parcelID) {
+    public void notifyParcelProcessingPurge(ResilienceParcelIdentifier parcelID) {
         LOG.debug(".notifyParcelProcessingPurge(): Entry, parcelID --> {}, unitOfWork --> {}", parcelID);
         if (parcelID == null) {
             throw (new IllegalArgumentException(".notifyParcelProcessingPurge(): parcelID is null in method invocation"));

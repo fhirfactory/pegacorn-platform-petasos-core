@@ -23,7 +23,6 @@
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming;
 
 import net.fhirfactory.pegacorn.common.model.FDN;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
@@ -38,7 +37,8 @@ public class RouteElementNames {
     private NodeElementFunctionToken nodeFunctionToken;
     private String wupTypeName;
     private String wupVersion;
-    private static final String DIRECT_TYPE = "direct:";
+    private static final String INTRA_FUNCTION_DIRECT_TYPE = "direct:";
+    private static final String INTER_FUNCTION_DIRECT_TYPE = "seda:";
 
     public RouteElementNames(NodeElementFunctionToken functionToken){
         this.nodeFunctionToken = functionToken;
@@ -56,72 +56,72 @@ public class RouteElementNames {
     }
 
     public String getEndPointWUPContainerIngresProcessorIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Ingres";
+        String endpointName = INTER_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPContainerIngresProcessorEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Egress";
         return(endpointName);
     }
 
     public String getEndPointWUPContainerIngresGatekeeperIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresGatekeeper.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresGatekeeper.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPIngresConduitIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUP.IngresConduit.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUP.IngresConduit.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUP.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUP.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUP.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUP.Egress";
         return(endpointName);
     }
 
     public String getEndPointWUPEgressConduitEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUP.EgressConduit.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUP.EgressConduit.Egress";
         return(endpointName);
     }
 
     public String getEndPointWUPContainerEgressGatekeeperIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressGatekeeper.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressGatekeeper.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPContainerEgressProcessorIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressProcessor.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressProcessor.Ingres";
         return(endpointName);
     }
 
     public String getEndPointWUPContainerEgressProcessorEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressProcessor.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.EgressProcessor.Egress";
         return(endpointName);
     }
 
     public String getEndPointInterchangePayloadTransformerIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".Interchange.PayloadTransformer.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".Interchange.PayloadTransformer.Ingres";
         return(endpointName);
     }
 
     public String getEndPointInterchangePayloadTransformerEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".Interchange.PayloadTransformer.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".Interchange.PayloadTransformer.Egress";
         return(endpointName);
     }
 
     public String getEndPointInterchangeRouterIngres() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".Interchange.Router.Ingres";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".Interchange.Router.Ingres";
         return(endpointName);
     }
 
     public String getEndPointInterchangeRouterEgress() {
-        String endpointName = DIRECT_TYPE + wupTypeName + ".Interchange.Router.Egress";
+        String endpointName = INTRA_FUNCTION_DIRECT_TYPE + wupTypeName + ".Interchange.Router.Egress";
         return(endpointName);
     }
 
@@ -146,7 +146,7 @@ public class RouteElementNames {
     }
 
     public String getRouteWUPEgressProcessorEgress2WUPEgressGatekeeperIngres() {
-        String endpointName = "FROM-" + wupTypeName + ".WUP.EC.E-To-" + wupTypeName +".WUPC.EP.I" ;
+        String endpointName = "FROM-" + wupTypeName + ".WUP.EP.E-To-" + wupTypeName +".WUPC.EG.I" ;
         return(endpointName);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,45 @@
 
 package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.properties.EgressProcessingProperty;
 import org.apache.camel.Exchange;
+import org.apache.camel.RecipientList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Mark A. Hunter
  * @since 2020-07-01
  */
+@ApplicationScoped
 public class WUPContainerEgressGatekeeper {
     private static final Logger LOG = LoggerFactory.getLogger(WUPContainerEgressGatekeeper.class);
     private static final String EGRESS_GATEKEEPER_PROCESSED_PROPERTY = "EgressGatekeeperSemaphore";
+
+    @Inject
+    ServiceModuleTopologyProxy topologyProxy;
+
+    private String getGatekeeperProperty(FDNToken wupIdentifier) {
+        FDN workingFDN = new FDN(wupIdentifier);
+        String workingInstanceID = workingFDN.getUnqualifiedRDN().getNameValue();
+        String stringToUse = EGRESS_GATEKEEPER_PROCESSED_PROPERTY + "-" + workingInstanceID;
+        return (stringToUse);
+    }
 
     /**
      * This class/method checks the status of the WUPJobCard for the parcel, and ascertains if it is to be
@@ -44,36 +68,52 @@ public class WUPContainerEgressGatekeeper {
      * within another WUP). At the moment, it reaches the "discard" decisions purely by checking the
      * WUPJobCard.isToBeDiscarded boolean.
      *
-     * @param ingresPacket The WorkUnitTransportPacket that is to be forwarded to the Intersection (if all is OK)
-     * @param camelExchange The Apache Camel Exchange object, used to store a Semaphore as we iterate through Dynamic Route options
-     * @param wupFunctionToken The Work Unit Processor Type: should be unique with the SystemModule and is used to build routes around the core WUP
-     * @param wupInstanceID The Work Unit Processor Instance: only to be used for instance debugging (not used at the moment)
+     * @param transportPacket The WorkUnitTransportPacket that is to be forwarded to the Intersection (if all is OK)
+     * @param camelExchange   The Apache Camel Exchange object, used to store a Semaphore as we iterate through Dynamic Route options
+     * @param wupInstanceKey  The Work Unit Processor Instance Key, used to retrieve the associated NodeElement for the WUP
      * @return Should either return the ingres point into the associated Interchange Payload Transformer or null (if the packet is to be discarded)
      */
-    public String egressGatekeeper(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, FDNToken wupInstanceID) {
-        LOG.debug(".egressGatekeeper(): Enter,  ingresPacket --> {}, wupFunctionToken --> {}, wupInstanceID --> {}", ingresPacket, wupFunctionToken, wupInstanceID);
+    @RecipientList
+    public List<String> egressGatekeeper(WorkUnitTransportPacket transportPacket, Exchange camelExchange, String wupInstanceKey) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(".egressGatekeeper(): Enter");
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", transportPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", transportPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", transportPacket.getCurrentJobCard().getCardID().getCreationDate());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", transportPacket.getCurrentJobCard().getClusterMode());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getCurrentStatus());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getGrantedStatus());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", transportPacket.getCurrentJobCard().getIsToBeDiscarded());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getRequestedStatus());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", transportPacket.getCurrentJobCard().getSystemMode());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", transportPacket.getCurrentJobCard().getUpdateDate());
+            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", transportPacket.getCurrentParcelStatus().getParcelStatus());
+        }
+        // Get my Petasos Context
+        NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
+        LOG.trace(".egressGatekeeper(): Node Element retrieved --> {}", node);
+        NodeElementFunctionToken wupFunctionToken = node.getNodeFunctionToken();
+        LOG.trace(".egressGatekeeper(): wupFunctionToken (NodeElementFunctionToken) for this activity --> {}", wupFunctionToken);
+        // Now, continue with business logic
         RouteElementNames nameSet = new RouteElementNames(wupFunctionToken);
-        if (camelExchange.getProperty(EGRESS_GATEKEEPER_PROCESSED_PROPERTY) == null) {
-            LOG.trace(".egressGatekeeper(): No semaphore exists within the Camel Exchange, so this is the 1st time through the Router logic");
-            LOG.trace(".egressGatekeeper(): So, we will now determine if the Packet should be forwarded or discarded");
-            if(ingresPacket.getCurrentJobCard().getIsToBeDiscarded()){
-                LOG.trace(".egressGatekeeper(): The isToBeDiscarded attribute is true, so we return null (and discard the packet");
-                LOG.debug(".egressGatekeeper(): Returning null, as message is to be discarded (isToBeDiscarded == true)");
-                return(null);
-            } else {
-                LOG.trace(".egressGatekeeper(): the isToBeDiscarded attribute is false, so we need to set the Semaphore (so we know we've processed this packet)");
-                camelExchange.setProperty(EGRESS_GATEKEEPER_PROCESSED_PROPERTY, true);
-                LOG.trace(".egressGatekeeper(): And we return the ingres point of the associated Interchange Payload Transformer");
-                String targetEndpoint = nameSet.getEndPointInterchangePayloadTransformerIngres();
-                LOG.debug(".egressGatekeeper(): Returning route to the Interchange Payload Transformer instance --> {}", targetEndpoint);
-                return (targetEndpoint);
-            }
+        ArrayList<String> targetList = new ArrayList<String>();
+        if (transportPacket.getCurrentJobCard().getIsToBeDiscarded()) {
+            LOG.trace(".egressGatekeeper(): The isToBeDiscarded attribute is true, so we return null (and discard the packet");
+            LOG.debug(".egressGatekeeper(): Returning null, as message is to be discarded (isToBeDiscarded == true)");
+            return (targetList);
         } else {
-            LOG.trace("egressGatekeeper(): the semaphore exists, and the isToBeDiscarded attribute is false, which means we've done our Routing to the Interchange Payload Transformer");
-            LOG.trace("egressGatekeeper(): so now we should just remove the semaphore and then return null to indicate that there are no other endpoints to route to");
-            camelExchange.removeProperty(EGRESS_GATEKEEPER_PROCESSED_PROPERTY);
-            LOG.debug(".egressGatekeeper(): Exit, finished routing, so just return null");
-            return (null);
+            LOG.trace(".egressGatekeeper(): the isToBeDiscarded attribute is false, so we need to set the Semaphore (so we know we've processed this packet)");
+            LOG.trace(".egressGatekeeper(): And we return the ingres point of the associated Interchange Payload Transformer");
+            String targetEndpoint = nameSet.getEndPointInterchangePayloadTransformerIngres();
+            targetList.add(targetEndpoint);
+            LOG.debug(".egressGatekeeper(): Returning route to the Interchange Payload Transformer instance --> {}", targetEndpoint);
+            return (targetList);
         }
     }
 }

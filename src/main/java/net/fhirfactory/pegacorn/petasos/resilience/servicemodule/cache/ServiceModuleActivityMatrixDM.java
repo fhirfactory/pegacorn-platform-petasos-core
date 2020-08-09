@@ -23,6 +23,8 @@ package net.fhirfactory.pegacorn.petasos.resilience.servicemodule.cache;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
@@ -52,8 +54,8 @@ public class ServiceModuleActivityMatrixDM {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleActivityMatrixDM.class);
 
-    private ConcurrentHashMap<FDNToken, ParcelStatusElement> parcelElementStatusSet;
-    private ConcurrentHashMap<FDNToken, FDNTokenSet> wuaEpisode2ParcelInstanceMap;
+    private ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement> parcelStatusElementCache;
+    private ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>> wuaEpisode2ParcelInstanceMap;
 
     @Inject
     ServiceModuleParcelCacheDM parcelCacheDM;
@@ -62,42 +64,108 @@ public class ServiceModuleActivityMatrixDM {
     TopologyIM moduleIM;
 
     public ServiceModuleActivityMatrixDM() {
-        parcelElementStatusSet = new ConcurrentHashMap<FDNToken, ParcelStatusElement>();
-        wuaEpisode2ParcelInstanceMap = new ConcurrentHashMap<FDNToken, FDNTokenSet>();
+        parcelStatusElementCache = new ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement>();
+        wuaEpisode2ParcelInstanceMap = new ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>>();
     }
-
+    
+    /**
+     * This function registers (adds) the ParcelIdentifier and an associated ParcelStatusElement to the
+     * ParcelStatusElementCache (ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement>). It
+     * first checks to see if there is an instance already there. This functionality needs to be
+     * enhanced to support cluster-based behaviours.
+     *
+     * It then registers (adds) the ParcelIdentifier to the WUAEpisode2ParcelMap
+     * (ConcurrentHashMap<EpisodeIdentifier,HashSet<ResilienceParcelIdentifier>>) to track that
+     * the specific Parcel is part of a processing Episode.
+     *
+     * @param activityID The WUP/Parcel ActivityID
+     * @param initialProcessingStatus The initial (provided) Processing Status of the ResilienceParcel
+     * @return A ParcelStatusElement which is used by the WUP Components to determine execution & status privileges.
+     */
     public ParcelStatusElement addWUA(ContinuityID activityID, ResilienceParcelProcessingStatusEnum initialProcessingStatus) {
-        LOG.debug(".addWUA(): Entry, activityID --> {}, initialProcessingStatus --> {}", activityID, initialProcessingStatus);
+    	if(LOG.isDebugEnabled()) {
+    		// There's just too much information in this object to have it print on a single line and be able to debug with it!!!
+    		LOG.debug(".addWUA(): Entry");
+    		LOG.debug(".addWUA(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".addWUA(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".addWUA(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
+    		LOG.debug(".addWUA(): initialProcessingStatus (ResilienceParcelProcessingStatusEnum) --> {}", initialProcessingStatus);
+    	}
         if (activityID == null) {
             throw (new IllegalArgumentException(".registerParcelExecution(): activityID is null"));
         }
-        if( parcelElementStatusSet.containsKey(activityID.getPresentParcelInstanceID()))
+        // First we are going to update the ParcelCache
+        LOG.trace(".addWUA(): Adding/Updating the ParcelStatusElementCache with a new ParcelStatusElement");
+        ParcelStatusElement newStatusElement = null;
+        if(parcelStatusElementCache.containsKey(activityID.getPresentParcelIdentifier()))
         {
-            LOG.trace(".addWUA(): activityID already registered, let's make sure it's the same though!");
-            ParcelStatusElement existingStatusElement = parcelElementStatusSet.get(activityID.getPresentParcelInstanceID());
-            boolean sameInstanceID = existingStatusElement.getParcelInstanceID().equals(activityID.getPresentParcelInstanceID());
-            boolean sameEpisodeID = existingStatusElement.getActivityID().getPresentWUAEpisodeID().equals(activityID.getPresentWUAEpisodeID());
-            boolean sameWUPInstanceID = existingStatusElement.getActivityID().getPresentWUPInstanceID().equals(activityID.getPresentWUPInstanceID());
+            LOG.trace(".addWUA(): ParcelIdentifier already registered in the ParcelStatusElementCache, let's make sure it's the same though!");
+            ParcelStatusElement existingStatusElement = parcelStatusElementCache.get(activityID.getPresentParcelIdentifier());
+            boolean sameInstanceID = existingStatusElement.getParcelInstanceID().equals(activityID.getPresentParcelIdentifier());
+            boolean sameEpisodeID = existingStatusElement.getActivityID().getPresentEpisodeIdentifier().equals(activityID.getPresentEpisodeIdentifier());
+            boolean sameWUPInstanceID = existingStatusElement.getActivityID().getPresentWUPIdentifier().equals(activityID.getPresentWUPIdentifier());
             boolean sameWUPTypeID = existingStatusElement.getActivityID().getPresentWUPFunctionToken().equals(activityID.getPresentWUPFunctionToken());
-            boolean sameUpstreamEpisodeID = existingStatusElement.getActivityID().getPreviousWUAEpisodeID().equals(activityID.getPresentWUAEpisodeID());
-            if( sameInstanceID && sameEpisodeID && sameWUPInstanceID && sameWUPTypeID & sameUpstreamEpisodeID ){
+            boolean sameUpstreamEpisodeID = existingStatusElement.getActivityID().getPreviousEpisodeIdentifier().equals(activityID.getPreviousEpisodeIdentifier());
+            if( sameInstanceID && sameEpisodeID && sameWUPInstanceID && sameWUPTypeID && sameUpstreamEpisodeID ){
                 LOG.trace(".addWUA(): New ActivityID and existing (registered) ID the same, so update the status (maybe) and then exit");
                 existingStatusElement.setParcelStatus(initialProcessingStatus);
-                LOG.debug(".addWUA(): Exit, returning existingStatusElement --> {}", existingStatusElement);
-                return(existingStatusElement);
+                LOG.trace(".addWUA(): Set the to-be-returned ParcelStatusElement to the existingStatusElement");
+                newStatusElement = existingStatusElement;
             } else {
-                LOG.trace(".addWUA(): Exit, new ActivityID and existing (registered) ID are different, so delete the existing one!");
-                parcelElementStatusSet.remove(activityID.getPresentParcelInstanceID());
-                FDNTokenSet wuaEpisodeParcelSet = wuaEpisode2ParcelInstanceMap.get(activityID.getPresentWUAEpisodeID());
-                wuaEpisodeParcelSet.removeElement(activityID.getPresentParcelInstanceID());
+                LOG.trace(".addWUA(): New ActivityID and existing (registered) ID are different, so delete the existing one from the ParcelStatusElementCache!");
+                parcelStatusElementCache.remove(activityID.getPresentParcelIdentifier());
+                LOG.trace(".addWUA(): Now create a new ParcelStatusElement, set its initial status and add it to the ParcelStatusElementCache!");
+                newStatusElement = new ParcelStatusElement(activityID);
+                newStatusElement.setParcelStatus(initialProcessingStatus);
+                LOG.trace(".addWUA(): New ParcelStatusElement created, newStatusElement --> {}", newStatusElement);
+                parcelStatusElementCache.put(activityID.getPresentParcelIdentifier(), newStatusElement);
+            }
+        } else {
+            LOG.trace(".addWUA(): Create a new ParcelStatusElement, set its initial status and add it to the ParcelStatusElementCache!");
+            newStatusElement = new ParcelStatusElement(activityID);
+            newStatusElement.setParcelStatus(initialProcessingStatus);
+            LOG.trace(".addWUA(): New ParcelStatusElement created, newStatusElement --> {}", newStatusElement);
+            parcelStatusElementCache.put(activityID.getPresentParcelIdentifier(), newStatusElement);
+        }
+        // Now let's update the WUAEpisode2ParcelMap for the Episode/ResilienceParcel combination
+        if(LOG.isTraceEnabled()) {
+            LOG.trace(".addWUA(): Adding the ReslienceParcelIdentifier to the WUAEpisode2ParcelMap");
+            LOG.trace(".addWUA(): EpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier() );
+            LOG.trace(".addWUA(): ResilienceParcelIdentifier --> {}", activityID.getPresentParcelIdentifier());
+        }
+        if(!wuaEpisode2ParcelInstanceMap.containsKey(activityID.getPresentEpisodeIdentifier()) ){
+        	LOG.trace(".addWUA(): No WUAEpisode2ParcelMap Entry for this Episode, creating!");
+        	HashSet<ResilienceParcelIdentifier> wuaEpisodeParcelSet = new HashSet<ResilienceParcelIdentifier>();
+        	LOG.trace(".addWUA(): Add the ResilienceParcelIdentifier to the HashSet<ResilienceParcelIdentifier> set of Parcels associated to this Episode");
+            wuaEpisodeParcelSet.add(activityID.getPresentParcelIdentifier());
+            LOG.trace(".addWUA(): Add the EpisodeIdentifier/HashSet<ResilienceParcelIdentifier> combination to the WUAEpisode2ParcelMap");
+        	wuaEpisode2ParcelInstanceMap.put(activityID.getPresentEpisodeIdentifier(),wuaEpisodeParcelSet );
+        } else {
+        	LOG.trace(".addWUA(): WUAEpisode2ParcelMap Entry exists for this Episode, so retrieve the HashSet<ResilienceParcelIdentifier> set of Parcels associated to this Episode!");
+            Set<ResilienceParcelIdentifier> wuaEpisodeParcelSet = wuaEpisode2ParcelInstanceMap.get(activityID.getPresentEpisodeIdentifier());
+            LOG.trace(".addWUA(): Now check to see if the ResilienceParcelIdentifier is already in the HashSet<ResilienceParcelIdentifier> set of Parcels associated to this Episode?");
+            Iterator<ResilienceParcelIdentifier> setIterator = wuaEpisodeParcelSet.iterator();
+            boolean foundParcelIdentifierInSet = false;
+            while(setIterator.hasNext()){
+                ResilienceParcelIdentifier currentParcelIdentifier = setIterator.next();
+                if(currentParcelIdentifier.equals(activityID.getPresentParcelIdentifier())){
+                    foundParcelIdentifierInSet = true;
+                    break;
+                }
+            }
+            if(!foundParcelIdentifierInSet) {
+                LOG.trace(".addWUA(): The ResilienceParcelIdentifier is not already in the HashSet<ResilienceParcelIdentifier> set, so add it!");
+                wuaEpisodeParcelSet.add(activityID.getPresentParcelIdentifier());
+            } else {
+                LOG.trace(".addWUA(): The ResilienceParcelIdentifier is already in the HashSet<ResilienceParcelIdentifier> set, so do nothing!");
             }
         }
-        LOG.trace(".addWUA(): Create a new ParcelStatusElement, set its initial status and add it to the two caches!");
-        ParcelStatusElement newStatusElement = new ParcelStatusElement(activityID);
-        newStatusElement.setParcelStatus(initialProcessingStatus);
-        FDNTokenSet wuaEpisodeParcelSet = wuaEpisode2ParcelInstanceMap.get(activityID.getPresentWUAEpisodeID());
-        parcelElementStatusSet.put(activityID.getPresentParcelInstanceID(), newStatusElement);
-        wuaEpisodeParcelSet.addElement(activityID.getPresentParcelInstanceID());
         LOG.debug(".addWUA(): Exit, newStatusElement --> {}", newStatusElement);
         return(newStatusElement);
     }
@@ -116,11 +184,11 @@ public class ServiceModuleActivityMatrixDM {
             throw (new IllegalArgumentException(".updateParcelActivity(): ContinuityID (activityID) Processing Status (status) is null"));
         }
         LOG.trace(".updateWUA(): Get the current ParcelStatusElement");
-        FDNToken parcelInstanceID = activityID.getPresentParcelInstanceID();
+        ResilienceParcelIdentifier parcelInstanceID = activityID.getPresentParcelIdentifier();
         ParcelStatusElement currentStatusElement;
-        if(parcelElementStatusSet.containsKey(parcelInstanceID)) {
+        if(parcelStatusElementCache.containsKey(parcelInstanceID)) {
             LOG.trace(".updateWUA(): ParcelStatusElement exists -> get it!");
-            currentStatusElement = parcelElementStatusSet.get(parcelInstanceID);
+            currentStatusElement = parcelStatusElementCache.get(parcelInstanceID);
             LOG.trace(".updateWUA(): Updating status of the ParcelStatusElement!");
             currentStatusElement.setParcelStatus(status);
         } else {
@@ -130,20 +198,33 @@ public class ServiceModuleActivityMatrixDM {
         LOG.debug(".updateWUA(): Exit, updated currentStatusElement --> {}", currentStatusElement);
     }
 
-    public ParcelStatusElement getParcelStatusElement(FDNToken parcelInstanceID) {
+    public ParcelStatusElement getParcelStatusElement(ResilienceParcelIdentifier parcelInstanceID) {
         LOG.debug(".getCurrentParcelStatusElement(): Entry, parcelInstanceID --> {}", parcelInstanceID);
-        ParcelStatusElement requestedElement = parcelElementStatusSet.get(parcelInstanceID);
-        LOG.debug(".getCurrentParcelStatusElement(): Exit, returning requestedElement --> {}", requestedElement);
-        return (requestedElement);
+        if(parcelStatusElementCache.containsKey(parcelInstanceID)) {
+	        ParcelStatusElement requestedElement = parcelStatusElementCache.get(parcelInstanceID);
+	        LOG.debug(".getCurrentParcelStatusElement(): Exit, returning requestedElement --> {}", requestedElement);
+	        return (requestedElement);
+        }
+        else {
+            LOG.debug(".getCurrentParcelStatusElement(): no matching element.");
+            return (null);        	
+        }
     }
 
-    private FDNToken findWUAEpisodeForParcelInstance(FDNToken parcelInstanceID) {
-        Enumeration<FDNToken> wuaEpisodeEnumeration = wuaEpisode2ParcelInstanceMap.keys();
+    private EpisodeIdentifier findEpisodeIdentifierForParcelInstance(ResilienceParcelIdentifier parcelInstanceID) {
+        Enumeration<EpisodeIdentifier> wuaEpisodeEnumeration = wuaEpisode2ParcelInstanceMap.keys();
         while (wuaEpisodeEnumeration.hasMoreElements()) {
-            FDNToken presentWUAEpisode = wuaEpisodeEnumeration.nextElement();
-            FDNTokenSet tokenSet = wuaEpisode2ParcelInstanceMap.get(presentWUAEpisode);
-            if (tokenSet.getElements().contains(parcelInstanceID)) {
-                return (presentWUAEpisode);
+            EpisodeIdentifier presentWUAEpisode = wuaEpisodeEnumeration.nextElement();
+            Set<ResilienceParcelIdentifier> tokenSet = wuaEpisode2ParcelInstanceMap.get(presentWUAEpisode);
+            if(tokenSet == null){
+                return(null);
+            }
+            Iterator<ResilienceParcelIdentifier> tokenSetIterator = tokenSet.iterator();
+            while(tokenSetIterator.hasNext()) {
+                ResilienceParcelIdentifier currentIdentifier = tokenSetIterator.next();
+                if (currentIdentifier.equals(parcelInstanceID)) {
+                    return (presentWUAEpisode);
+                }
             }
         }
         return (null);
@@ -160,13 +241,28 @@ public class ServiceModuleActivityMatrixDM {
      * @return Returns the Parcel Instance Identifier for the Parcel that has
      * System Wide Focus, or null.
      */
-    public FDNToken getSiteWideFocusElement(FDNToken wuaEpisodeID) {
+    public ResilienceParcelIdentifier getSiteWideFocusElement(EpisodeIdentifier wuaEpisodeID) {
         LOG.debug(".getSiteWideFocusElement(): Entry, wuaEpisodeID --> {}", wuaEpisodeID);
-        FDNTokenSet wuaEpisodeParcelIDSet = wuaEpisode2ParcelInstanceMap.get(wuaEpisodeID);
-        Iterator<FDNToken> wuaEpisodeParcelIDIterator = wuaEpisodeParcelIDSet.getElements().iterator();
+        LOG.trace(".getSiteWideFocusElement(): Retrieve the ResilienceParcels for the Episode");
+        if(!wuaEpisode2ParcelInstanceMap.containsKey(wuaEpisodeID)) {
+            LOG.debug(".getSiteWideFocusElement(): Exit, No parcel was found with System Wide Focus, returning -null-");
+            return (null);
+        }
+        Set<ResilienceParcelIdentifier> wuaEpisodeParcelIDSet = wuaEpisode2ParcelInstanceMap.get(wuaEpisodeID);
+        LOG.trace(".getSiteWideFocusElement(): Extracted the set of ResilienceParcel IDs for the Episode (wuaEpisode), wuaEpisodeParcelIDSet (FDNTokenSet) --> {}", wuaEpisodeParcelIDSet);
+        LOG.trace(".getSiteWideFocusElement(): Iterator through the Parcel IDs, extract each actual ParcelStatusElement and check to see if it has SystemWide focus");
+        Iterator<ResilienceParcelIdentifier> wuaEpisodeParcelIDIterator = wuaEpisodeParcelIDSet.iterator();
+        if(LOG.isTraceEnabled()) {
+        	Enumeration<ResilienceParcelIdentifier> statusElementKeys = parcelStatusElementCache.keys();
+        	while(statusElementKeys.hasMoreElements()) {
+        		LOG.trace(".getSiteWideFocusElement(): ParcelStatusElementCache, Key --> {}", statusElementKeys.nextElement());
+        	}
+        }
         while (wuaEpisodeParcelIDIterator.hasNext()) {
-            FDNToken currentParcelID = wuaEpisodeParcelIDIterator.next();
-            ParcelStatusElement currentStatusElement = parcelElementStatusSet.get(currentParcelID);
+            ResilienceParcelIdentifier currentParcelID = wuaEpisodeParcelIDIterator.next();
+            LOG.trace(".getSiteWideFocusElement(): Checking ParcelStatusElement for ResilienceParcel ID --> {}", currentParcelID);
+            ParcelStatusElement currentStatusElement = parcelStatusElementCache.get(currentParcelID);
+            LOG.trace(".getSiteWideFocusElement(): Extracted ParcelStatusElement --> {}", currentStatusElement);
             if (currentStatusElement.getHasSystemWideFocus()) {
                 LOG.debug(".getSiteWideFocusElement(): Exit, Parcel has been found that has System Wide Focus, returning parcelInstanceID --> {}", currentParcelID);
                 return (currentParcelID);
@@ -187,13 +283,13 @@ public class ServiceModuleActivityMatrixDM {
      * @return Returns the Parcel Instance Identifier for the Parcel that has
      * Cluster Focus, or null.
      */
-    public FDNToken getClusterFocusElement(FDNToken wuaEpisodeID) {
+    public ResilienceParcelIdentifier getClusterFocusElement(EpisodeIdentifier wuaEpisodeID) {
         LOG.debug(".getClusterFocusElement(): Entry, wuaEpisodeID --> {}", wuaEpisodeID);
-        FDNTokenSet wuaEpisodeParcelIDSet = wuaEpisode2ParcelInstanceMap.get(wuaEpisodeID);
-        Iterator<FDNToken> wuaEpisodeParcelIDIterator = wuaEpisodeParcelIDSet.getElements().iterator();
+        Set<ResilienceParcelIdentifier> wuaEpisodeParcelIDSet = wuaEpisode2ParcelInstanceMap.get(wuaEpisodeID);
+        Iterator<ResilienceParcelIdentifier> wuaEpisodeParcelIDIterator = wuaEpisodeParcelIDSet.iterator();
         while (wuaEpisodeParcelIDIterator.hasNext()) {
-            FDNToken currentParcelID = wuaEpisodeParcelIDIterator.next();
-            ParcelStatusElement currentStatusElement = parcelElementStatusSet.get(currentParcelID);
+            ResilienceParcelIdentifier currentParcelID = wuaEpisodeParcelIDIterator.next();
+            ParcelStatusElement currentStatusElement = parcelStatusElementCache.get(currentParcelID);
             if (currentStatusElement.getHasClusterFocus()) {
                 LOG.debug(".getClusterFocusElement(): Exit, Parcel has been found that has Cluster Focus, returning parcelInstanceID --> {}", currentParcelID);
                 return (currentParcelID);
@@ -206,24 +302,24 @@ public class ServiceModuleActivityMatrixDM {
     /**
      * Clear any aged content from the Cache systems
      */
-    public List<FDNToken> getAgedContentFromUpActivityMatrix() {
+    public List<ResilienceParcelIdentifier> getAgedContentFromUpActivityMatrix() {
         LOG.debug(".getAgedContentFromUpActivityMatrix(): Entry");
-        ArrayList<FDNToken> agedContent = new ArrayList<FDNToken>();
-        Enumeration<FDNToken> parcelEpisodeIDIterator = wuaEpisode2ParcelInstanceMap.keys();
+        ArrayList<ResilienceParcelIdentifier> agedContent = new ArrayList<ResilienceParcelIdentifier>();
+        Enumeration<EpisodeIdentifier> parcelEpisodeIDIterator = wuaEpisode2ParcelInstanceMap.keys();
         LOG.trace(".getAgedContentFromUpActivityMatrix(): Iterating through each EpisodeID");
         Date currentDate = Date.from(Instant.now());
         Long cutOffAge = currentDate.getTime() - (PetasosPropertyConstants.CACHE_ENTRY_RETENTION_PERIOD_SECONDS);
         Long timeOutAge = currentDate.getTime() - (PetasosPropertyConstants.WUP_ACTIVITY_DURATION_SECONDS);
         while (parcelEpisodeIDIterator.hasMoreElements()) {
-            FDNToken parcelEpisodeID = parcelEpisodeIDIterator.nextElement();
-            FDNTokenSet statusSet = wuaEpisode2ParcelInstanceMap.get(parcelEpisodeID);
+            EpisodeIdentifier parcelEpisodeID = parcelEpisodeIDIterator.nextElement();
+            Set<ResilienceParcelIdentifier> statusSet = wuaEpisode2ParcelInstanceMap.get(parcelEpisodeID);
             LOG.trace(".clearAgedContentFromUpActivityMatrix(): Iterating through ALL ParcelStatusElements to see if one is FINISHED, ParcelEpisodeID --> {}, ", parcelEpisodeID);
-            Iterator<FDNToken> initialSearchStatusIterator = statusSet.getElements().iterator();
+            Iterator<ResilienceParcelIdentifier> initialSearchStatusIterator = statusSet.iterator();
             boolean foundFinished = false;
-            FDNToken finishedParcelID = null;
+            ResilienceParcelIdentifier finishedParcelID = null;
             while (initialSearchStatusIterator.hasNext()) {
-                FDNToken currentParcelInstanceID = initialSearchStatusIterator.next();
-                ParcelStatusElement currentElement = parcelElementStatusSet.get(currentParcelInstanceID);
+                ResilienceParcelIdentifier currentParcelInstanceID = initialSearchStatusIterator.next();
+                ParcelStatusElement currentElement = parcelStatusElementCache.get(currentParcelInstanceID);
                 switch (currentElement.getParcelStatus()) {
                     case PARCEL_STATUS_FINALISED:
                     case PARCEL_STATUS_FINALISED_ELSEWHERE:
@@ -249,19 +345,19 @@ public class ServiceModuleActivityMatrixDM {
         return(agedContent);
     }
 
-    public List<ParcelStatusElement> getEpisodeElementSet(FDNToken episodeID){
+    public List<ParcelStatusElement> getEpisodeElementSet(EpisodeIdentifier episodeID){
         LOG.debug(".getEpisodeElementSet(): Entry, episodeID --> {}", episodeID);
         ArrayList<ParcelStatusElement> episodeSet = new ArrayList<ParcelStatusElement>();
-        FDNTokenSet episodeParcelIDs = wuaEpisode2ParcelInstanceMap.get(episodeID);
+        Set<ResilienceParcelIdentifier> episodeParcelIDs = wuaEpisode2ParcelInstanceMap.get(episodeID);
         if(episodeParcelIDs == null){
             return(episodeSet);
         }
         if(episodeParcelIDs.isEmpty()){
             return(episodeSet);
         }
-        Iterator<FDNToken> parcelStatusIDIterator = episodeParcelIDs.getElements().iterator();
+        Iterator<ResilienceParcelIdentifier> parcelStatusIDIterator = episodeParcelIDs.iterator();
         while(parcelStatusIDIterator.hasNext()){
-            ParcelStatusElement currentElement = parcelElementStatusSet.get(parcelStatusIDIterator.next());
+            ParcelStatusElement currentElement = parcelStatusElementCache.get(parcelStatusIDIterator.next());
             if(currentElement != null){
                 episodeSet.add(currentElement);
             }
@@ -269,4 +365,77 @@ public class ServiceModuleActivityMatrixDM {
         return(episodeSet);
     }
 
+    /**
+     * This function assigns the SystemWideFocus for the specified episode (EpisodeIdentifier) to the specified
+     * parcelIdentifier (ResilienceParcelIdentifier). It revokes it from any other ResilienceParcel if it
+     * was assigned to them.
+     *
+     * @param episode The EpisodeIdentifier for the Episode we want to assign (operational) focus for
+     * @param parcelIdentifier The ResilienceParcelIdentifier for the Parcel we want to take the lead on doing the actual work -
+     *                         with the context of the whole deployed system.
+     */
+    public void setSystemWideFocusElement(EpisodeIdentifier episode, ResilienceParcelIdentifier parcelIdentifier) {
+        if(LOG.isDebugEnabled()){
+            LOG.debug(".setSiteWideFocusElement(): Entry");
+            LOG.debug(".setSiteWideFocusElement(): episode (EpisodeIdentifier) --> {}", episode);
+            LOG.debug(".setSiteWideFocusElement(): parcelIdentifier (ResilienceParcelIdentifier) --> {}", parcelIdentifier);
+        }
+        // First, let's see if someone already has it!
+        ResilienceParcelIdentifier currentSiteWideFocusParcel = this.getSiteWideFocusElement(episode);
+        boolean alreadyHasFocus = false;
+        if(currentSiteWideFocusParcel != null){
+            if(currentSiteWideFocusParcel.equals(parcelIdentifier)){
+                LOG.trace(".setSiteWideFocusElement(): Nothing to do, the ResilienceParcel already has the focus");
+                alreadyHasFocus = true;
+            } else {
+                LOG.trace(".setSiteWideFocusElement(): Another ResilienceParcel has the focus, so we need to revoke it");
+                ParcelStatusElement associateStatusElement = this.getParcelStatusElement(currentSiteWideFocusParcel);
+                associateStatusElement.setHasSystemWideFocus(false);
+                alreadyHasFocus = false;
+            }
+        }
+        if(!alreadyHasFocus){
+            LOG.trace(".setSiteWideFocusElement(): Assigning the SiteWide Focus to the provided ResilienceParcelIdentifier");
+            ParcelStatusElement statusElement = this.getParcelStatusElement(parcelIdentifier);
+            statusElement.setHasSystemWideFocus(true);
+        }
+        LOG.debug(".setSiteWideFocusElement(): Exit");
+    }
+
+    /**
+     * This function assigns the ClusterFocus for the specified episode (EpisodeIdentifier) to the specified
+     * parcelIdentifier (ResilienceParcelIdentifier). It revokes it from any other ResilienceParcel if it
+     * was assigned to them.
+     *
+     * @param episode The EpisodeIdentifier for the Episode we want to assign (operational) focus for
+     * @param parcelIdentifier The ResilienceParcelIdentifier for the Parcel we want to take the lead on doing the actual work -
+     *                         the context of the Cluster.
+     */
+    public void setClusterWideFocusElement(EpisodeIdentifier episode, ResilienceParcelIdentifier parcelIdentifier){
+        if(LOG.isDebugEnabled()){
+            LOG.debug(".setClusterWideFocusElement(): Entry");
+            LOG.debug(".setClusterWideFocusElement(): episode (EpisodeIdentifier) --> {}", episode);
+            LOG.debug(".setClusterWideFocusElement(): parcelIdentifier (ResilienceParcelIdentifier) --> {}", parcelIdentifier);
+        }
+        // First, let's see if someone already has it!
+        ResilienceParcelIdentifier currentClusterWideFocusParcel = this.getClusterFocusElement(episode);
+        boolean alreadyHasFocus = false;
+        if(currentClusterWideFocusParcel != null){
+            if(currentClusterWideFocusParcel.equals(parcelIdentifier)){
+                LOG.trace(".setClusterWideFocusElement(): Nothing to do, the ResilienceParcel already has the focus");
+                alreadyHasFocus = true;
+            } else {
+                LOG.trace(".setClusterWideFocusElement(): Another ResilienceParcel has the focus, so we need to revoke it");
+                ParcelStatusElement associateStatusElement = this.getParcelStatusElement(currentClusterWideFocusParcel);
+                associateStatusElement.setHasClusterFocus(false);
+                alreadyHasFocus = false;
+            }
+        }
+        if(!alreadyHasFocus){
+            LOG.trace(".setClusterWideFocusElement(): Assigning the SiteWide Focus to the provided ResilienceParcelIdentifier");
+            ParcelStatusElement statusElement = this.getParcelStatusElement(parcelIdentifier);
+            statusElement.setHasClusterFocus(true);
+        }
+        LOG.debug(".setClusterWideFocusElement(): Exit");
+    }
 }
