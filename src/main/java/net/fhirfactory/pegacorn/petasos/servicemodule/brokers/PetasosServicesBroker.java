@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter (ACT Health)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,30 +20,30 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.wup;
+package net.fhirfactory.pegacorn.petasos.servicemodule.brokers;
 
 import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.manager.PathwayInterchangeManager;
+import net.fhirfactory.pegacorn.petasos.pathway.interchange.manager.PathwayInterchangeManager;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.ResilienceActivityServicesController;
 import net.fhirfactory.pegacorn.petasos.resilience.servicemodule.manager.ResilienceParcelServicesIM;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
 @ApplicationScoped
 public class PetasosServicesBroker {

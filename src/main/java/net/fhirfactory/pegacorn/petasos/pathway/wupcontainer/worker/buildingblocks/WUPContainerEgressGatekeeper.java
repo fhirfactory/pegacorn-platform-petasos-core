@@ -20,28 +20,26 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks;
+package net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.common.model.FDN;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.properties.EgressProcessingProperty;
 import org.apache.camel.Exchange;
 import org.apache.camel.RecipientList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.fhirfactory.pegacorn.common.model.FDN;
+import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
 
 /**
  * @author Mark A. Hunter

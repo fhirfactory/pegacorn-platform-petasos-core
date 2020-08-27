@@ -20,21 +20,17 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.manager;
+package net.fhirfactory.pegacorn.petasos.pathway.interchange.manager;
 
 import javax.enterprise.context.ApplicationScoped;
-import net.fhirfactory.pegacorn.common.model.FDN;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker.InterchangeExtractAndRouteTemplate;
-import net.fhirfactory.pegacorn.petasos.model.topology.ElementNameExtensions;
+import javax.inject.Inject;
+
 import org.apache.camel.CamelContext;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.pathway.interchange.worker.InterchangeExtractAndRouteTemplate;
 
 @ApplicationScoped
 public class PathwayInterchangeManager {

@@ -20,22 +20,26 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
+package net.fhirfactory.pegacorn.petasos.pathway.interchange.worker;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
+import javax.inject.Inject;
+
+import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayload;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoWPayloadSet;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
-import org.apache.camel.Exchange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 public class InterchangeUoWPayload2NewUoWProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeUoWPayload2NewUoWProcessor.class);

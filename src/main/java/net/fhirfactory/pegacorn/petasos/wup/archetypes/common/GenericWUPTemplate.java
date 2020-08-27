@@ -23,29 +23,28 @@ package net.fhirfactory.pegacorn.petasos.wup.archetypes.common;
 
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.servicemodule.brokers.PetasosServicesBroker;
 
 /**
  * 

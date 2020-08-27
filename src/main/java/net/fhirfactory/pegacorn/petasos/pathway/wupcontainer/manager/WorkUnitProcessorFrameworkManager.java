@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.manager;
+package net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.manager;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -28,18 +28,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
 
 /**
  *

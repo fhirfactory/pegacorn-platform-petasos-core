@@ -22,26 +22,37 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.helper;
 
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
-import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPActivityStatusEnum;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
+import java.time.Instant;
+import java.util.Date;
+
+import javax.inject.Inject;
 
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Date;
-
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPActivityStatusEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import net.fhirfactory.pegacorn.petasos.servicemodule.brokers.PetasosServicesBroker;
+
+/**
+ * This class (bean) is to be injected into the flow of an Ingres Only WUP Implementation
+ * (i.e. Ingres Messaging, RESTful.POST, RESTful.PUT, RESTful.DELETE). It provides the
+ * Petasos Initialisation Sequence of the Transaction/Messaging flow - including logging
+ * the initial Audit-Trail entry.
+ *
+ * The method registerActivityStart must be invoked PRIOR to responding to the source (external)
+ * system with a +ve/-ve response.
+ *
+ */
 
 public class IngresActivityBeginRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(IngresActivityBeginRegistration.class);

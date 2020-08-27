@@ -19,18 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
+package net.fhirfactory.pegacorn.petasos.pathway.interchange.worker;
 
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker.InterchangeUoWPayload2NewUoWProcessor;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker.InterchangeTargetWUPTypeRouter;
+
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
 
 public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
 

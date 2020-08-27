@@ -22,13 +22,6 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
@@ -36,20 +29,26 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
-    
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public abstract class InteractRESTfulPOSTServerWUP extends GenericWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractRESTfulPOSTServerWUP.class);
+
     private EndpointElement ingresEndpointElement;
-    
-    public InteractIngresMessagingGatewayWUP() {
+
+    public InteractRESTfulPOSTServerWUP() {
         super();
 //        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
     @Override
     public WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT);
+        return(WUPArchetypeEnum.WUP_NATURE_API_PUSH);
     }
     
     @Override
@@ -57,22 +56,14 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
         LOG.debug(".specifyIngresEndpoint(): Entry");
         this.specifyIngresEndpointElement();
         LOG.trace(".specifyIngresEndpoint(): Retrieved EndpointElement --> {}", this.ingresEndpointElement);
-        String ingresEndPoint;
-        ingresEndPoint = getEndpointComponentDefinition();
-        ingresEndPoint = ingresEndPoint + ":";
-        ingresEndPoint = ingresEndPoint + this.getEndpointProtocol();
-        ingresEndPoint = ingresEndPoint + this.getEndpointProtocolLeadIn();
-        ingresEndPoint = ingresEndPoint + this.ingresEndpointElement.getHostname();
-        ingresEndPoint = ingresEndPoint + ":" + this.ingresEndpointElement.getInternalPort();
-        ingresEndPoint = ingresEndPoint + getEndpointProtocolLeadout();
-        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
+        String ingresEndPoint = this.getWupInstanceName() + "-" + this.getEndpointPath();
         return(ingresEndPoint);
     } 
     
     @Override
     public String specifyEgressEndpoint(){
         LOG.debug(".specifyEgressEndpoint(): Entry");
-        String endpointName = this.getNameSet().getEndPointWUPEgress();
+        String endpointName = "direct:" + this.getNameSet().getEndPointWUPEgress();
         LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpointName);
         return(endpointName);
     }
@@ -115,8 +106,5 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTempla
         return(subTopics);
     }
     
-    abstract protected String getEndpointComponentDefinition();
-    abstract protected String getEndpointProtocol();
-    abstract protected String getEndpointProtocolLeadIn();
-    abstract protected String getEndpointProtocolLeadout();
+    abstract protected String getEndpointPath();
 }

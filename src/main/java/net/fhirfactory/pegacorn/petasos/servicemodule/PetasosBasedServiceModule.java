@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,19 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.audit.api;
+package net.fhirfactory.pegacorn.petasos.servicemodule;
 
-import net.fhirfactory.pegacorn.petasos.audit.forwarder.integration.HestiaAuditWriter;
-import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelAuditTrailEntry;
-import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.apache.camel.builder.RouteBuilder;
 
-@ApplicationScoped
-public class AuditTrailSynchronousWriter {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditTrailSynchronousWriter.class);
+public abstract class PetasosBasedServiceModule extends RouteBuilder {
 
-    @Inject
-    HestiaAuditWriter hestiaAuditLog;
+    private String name;
+    private Set<String> modules;
 
-    public boolean synchronousWrite(ResilienceParcel parcel){
-        PetasosParcelAuditTrailEntry newAuditEntry = new PetasosParcelAuditTrailEntry(parcel);
-        boolean success = hestiaAuditLog.writeAuditEntry(newAuditEntry);
-        return(success);
-    }
+    protected abstract String specifyName();
+    protected abstract Set<String> specifyModuleSet();
+
 }
+

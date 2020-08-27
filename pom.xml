@@ -92,7 +92,6 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jms</artifactId>
         </dependency>
-
         <!-- To be bundled: JSON -->
         <dependency>
             <groupId>org.json</groupId>
@@ -105,42 +104,57 @@
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-platform-commoncode</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
+            <type>jar</type>
         </dependency>
         <!-- Pegacorn Customised Resources -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-fhir-r4-model</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
+            <type>jar</type>
         </dependency>
         <!-- Pegacorn Petasos Information Model -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-platform-petasos-model</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
+            <type>jar</type>
         </dependency>
         <!-- Pegacorn Petasos Topology Servoces -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-platform-petasos-topology</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
-        </dependency>    
+            <type>jar</type>
+        </dependency>
         <!-- Pegacorn Petasos DataSet (Topic) Map Servoces -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-platform-petasos-datasets</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
             <scope>compile</scope>
-        </dependency>         
-        
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>net.fhirfactory.pegacorn</groupId>
+            <artifactId>pegacorn-deployment-datasets</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.fhirfactory.pegacorn</groupId>
+            <artifactId>pegacorn-deployment-topology</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <type>jar</type>
+        </dependency>
+
 		
         <!-- Infinispan -->
         <dependency>
@@ -187,6 +201,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+
 
     <build>
         <plugins>

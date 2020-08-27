@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks;
+package net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks;
 
 import javax.enterprise.context.ApplicationScoped;
 

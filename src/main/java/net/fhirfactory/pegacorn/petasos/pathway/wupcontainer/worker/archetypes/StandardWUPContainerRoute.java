@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.archetypes;
+package net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.archetypes;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -28,13 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPContainerEgressGatekeeper;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPContainerEgressProcessor;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPContainerIngresGatekeeper;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPContainerIngresProcessor;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPEgressConduit;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks.WUPIngresConduit;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPContainerEgressGatekeeper;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPContainerEgressProcessor;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPContainerIngresGatekeeper;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPContainerIngresProcessor;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPEgressConduit;
+import net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks.WUPIngresConduit;
 
 /**
  * @author Mark A. Hunter

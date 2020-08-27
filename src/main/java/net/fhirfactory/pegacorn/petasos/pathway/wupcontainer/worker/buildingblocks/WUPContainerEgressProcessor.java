@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.wupcontainer.worker.buildingblocks;
+package net.fhirfactory.pegacorn.petasos.pathway.wupcontainer.worker.buildingblocks;
 
 import java.util.Iterator;
 
@@ -31,6 +31,7 @@ import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -38,9 +39,8 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
-import net.fhirfactory.pegacorn.petasos.wup.PetasosServicesBroker;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.servicemodule.brokers.PetasosServicesBroker;
 
 /**
  * @author Mark A. Hunter

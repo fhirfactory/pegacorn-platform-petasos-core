@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 MAHun
+ * Copyright (c) 2020 Mark A. Hunter
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,22 +23,14 @@ package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.apache.camel.CamelContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-
 import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
 
 @ApplicationScoped
 public abstract class StandardWUP extends GenericWUPTemplate {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StandardWUP.class);
-
     public StandardWUP() {
         super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
     
     @Override

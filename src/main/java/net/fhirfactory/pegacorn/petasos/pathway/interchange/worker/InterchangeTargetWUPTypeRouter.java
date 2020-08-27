@@ -19,28 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.pathway.servicemodule.interchange.worker;
+package net.fhirfactory.pegacorn.petasos.pathway.interchange.worker;
 
-import net.fhirfactory.pegacorn.common.model.FDN;
-import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
-import net.fhirfactory.pegacorn.petasos.pathway.servicemodule.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.topology.manager.proxies.ServiceModuleTopologyProxy;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.RecipientList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.util.*;
-
+import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
+import net.fhirfactory.pegacorn.petasos.pathway.naming.RouteElementNames;
 
 /**
  * @author Mark A. Hunter
@@ -48,8 +49,6 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 public class InterchangeTargetWUPTypeRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeTargetWUPTypeRouter.class);
-
-    private static final String CURRENT_END_POINT_SET = "CurrentEndpointSetFor";
 
     @Inject
     TopicIM topicServer;
@@ -121,6 +120,6 @@ public class InterchangeTargetWUPTypeRouter {
     }
 
     private void updateServiceModuleMap(FDNToken associatedWUP, FDNToken targetIngresPoint) {
-
+    	// TODO
     }
 }
