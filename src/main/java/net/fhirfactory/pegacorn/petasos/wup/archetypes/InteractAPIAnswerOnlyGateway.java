@@ -22,29 +22,26 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
+import net.fhirfactory.pegacorn.petasos.core.soa.wup.GenericSOAWUPTemplate;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
-import net.fhirfactory.pegacorn.petasos.model.wup.*;
-import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
-
-import javax.enterprise.context.ApplicationScoped;
-
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPClusterModeEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPSystemModeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ApplicationScoped
-public abstract class InteractAPIAnswerOnlyGateway extends GenericWUPTemplate {
+import javax.enterprise.context.ApplicationScoped;
+
+
+public abstract class InteractAPIAnswerOnlyGateway extends GenericSOAWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(InteractAPIAnswerOnlyGateway.class);
 
     public InteractAPIAnswerOnlyGateway(){
         super();
     }
 
-    @Override
-    public WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_API_ANSWER);
-    }
+
 
      public void registerActivityStart(UoW unitOfWork, WUPClusterModeEnum clusterMode, WUPSystemModeEnum systemMode){
         LOG.debug(".registerActivityStart(): Entry, unitOfWork --> {}", unitOfWork);

@@ -6,3 +6,10 @@
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse.core.resources.prefs
 *.iml
+*.iml
+.settings/org.eclipse.wst.common.project.facet.core.xml
+.settings/org.eclipse.wst.common.component
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.core.resources.prefs
+.project
+.classpath

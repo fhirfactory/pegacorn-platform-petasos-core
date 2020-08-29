@@ -31,7 +31,7 @@ import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.deployment.topology.manager.ServiceModuleTopologyProxy;
+import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
@@ -41,7 +41,7 @@ import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPActivityStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.servicemodule.brokers.PetasosServicesBroker;
+import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
 
 /**
  * This class (bean) is to be injected into the flow of an Ingres Only WUP Implementation
@@ -58,10 +58,10 @@ public class IngresActivityBeginRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(IngresActivityBeginRegistration.class);
 
     @Inject
-    ServiceModuleTopologyProxy topologyProxy;
+    DeploymentTopologyIM topologyProxy;
 
     @Inject
-    PetasosServicesBroker servicesBroker;
+    PetasosMOAServicesBroker servicesBroker;
 
     public UoW registerActivityStart(UoW theUoW, Exchange camelExchange, String wupInstanceKey){
         LOG.debug(".registerActivityStart(): Entry, payload --> {}, wupInstanceKey --> {}", theUoW, wupInstanceKey);

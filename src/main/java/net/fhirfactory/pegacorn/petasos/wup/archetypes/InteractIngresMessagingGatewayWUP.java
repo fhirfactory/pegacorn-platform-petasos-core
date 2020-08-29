@@ -35,9 +35,9 @@ import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
 
-public abstract class InteractIngresMessagingGatewayWUP extends GenericWUPTemplate {
+public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
     
     private EndpointElement ingresEndpointElement;

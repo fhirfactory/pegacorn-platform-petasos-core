@@ -28,7 +28,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.wup.archetypes.common.GenericWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public abstract class InteractRESTfulPOSTServerWUP extends GenericWUPTemplate {
+public abstract class InteractRESTfulPOSTServerWUP extends GenericMOAWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(InteractRESTfulPOSTServerWUP.class);
 
     private EndpointElement ingresEndpointElement;
