@@ -20,28 +20,27 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager.tasks;
+package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks;
+
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
-import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
-
 @ApplicationScoped
-public class RegisterNewMOAWorkUnitActivityTask {
-	private static final Logger LOG = LoggerFactory.getLogger(RegisterNewMOAWorkUnitActivityTask.class);
+public class RegisterNewSOAWorkUnitActivityTask {
+	private static final Logger LOG = LoggerFactory.getLogger(RegisterNewSOAWorkUnitActivityTask.class);
 
 	@Inject
-	ServiceModuleActivityMatrixDM activityMatrixDM;
+	SOAServiceModuleActivityMatrixDM activityMatrixDM;
 
 	@Inject
 	TopologyIM topologerServer;
@@ -61,18 +60,18 @@ public class RegisterNewMOAWorkUnitActivityTask {
 			switch (topologerServer.getConcurrencyMode(nodeID)) {
 			case CONCURRENCY_MODE_CONCURRENT: // Woo hoo - we are full-on highly available
 				LOG.trace(".registerNewWUA(): Asking for -Concurrent- Concurrency Mode, in -Multisite- Reliability Mode - implementing Multisite/Concurrent mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_STANDALONE: // WTF - why bother!
 				LOG.trace(".registerNewWUA(): Asking for -Standalone- Concurrency Mode, in -Multisite- Reliability Mode - not possible, defaulting to Multisite/OnDemand mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_ONDEMAND: // make it reliable, scalable
 			default:
 				LOG.trace( ".registerNewWUA(): Asking for -OnDemand- Concurrency Mode, in -Multisite- Reliability Mode - implementing Multisite/OnDemand mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			}
@@ -81,18 +80,18 @@ public class RegisterNewMOAWorkUnitActivityTask {
 			switch (topologerServer.getConcurrencyMode(nodeID)) {
 			case CONCURRENCY_MODE_ONDEMAND: // OK, preferred & MVP
 				LOG.trace(".registerNewWUA(): Asking for -On-Demand- Concurrency Mode, in -Clustered- Reliability Mode - implementing Clustered/OnDemand mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_CONCURRENT: // Not possible
 				LOG.trace(".registerNewWUA(): Asking for -Concurrent- Concurrency Mode, in -Clustered- Reliability Mode - not possible, defaulting to Clustered/OnDemand mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_STANDALONE: // A waste, we can have multiple - but only want one!
 			default:
 				LOG.trace(".registerNewWUA(): Asking for -Standalone- Concurrency Mode, in -Clustered- Reliability Mode - not possible, defaulting to Clustered/OnDemand mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			}
@@ -102,20 +101,18 @@ public class RegisterNewMOAWorkUnitActivityTask {
 			switch (topologerServer.getConcurrencyMode(nodeID)) {
 			case CONCURRENCY_MODE_CONCURRENT: // Not possible!
 				LOG.trace(".registerNewWUA(): Asking for -Concurrent- Concurrency Mode, in -Standalone- Reliability Mode - not possible, defaulting to Standalone/Standalone mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID,ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID,ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_ONDEMAND: // Not possible!
 				LOG.trace(".registerNewWUA(): Asking for -On-Demand- Concurrency Mode, in -Standalone- Reliability Mode - not possible, defaulting to Standalone/Standalone mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
+				newStatusElement = activityMatrixDM.startTransaction(activityID, ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			case CONCURRENCY_MODE_STANDALONE: // Really only good for PoCs and Integration Testing
 			default:
 				LOG.trace(".registerNewWUA(): Defaulting to -Standalone-/-Standalone- Reliability/Concurrency Mode");
-				newStatusElement = activityMatrixDM.addWUA(activityID,ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_REGISTERED);
-				activityMatrixDM.setClusterWideFocusElement(activityID.getPresentEpisodeIdentifier(), activityID.getPresentParcelIdentifier());
-				activityMatrixDM.setSystemWideFocusElement(activityID.getPresentEpisodeIdentifier(), activityID.getPresentParcelIdentifier());
+				newStatusElement = activityMatrixDM.startTransaction(activityID,ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE);
 				LOG.debug(".registerNewWUA(): Exit, newStatusElement --> {}", newStatusElement);
 				return (newStatusElement);
 			}

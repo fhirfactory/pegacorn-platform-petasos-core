@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager;
+package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
-import net.fhirfactory.pegacorn.petasos.core.common.resilience.servicemodule.cache.ServiceModuleParcelCacheDM;
+import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
@@ -50,7 +50,7 @@ public class SOAResilienceParcelServicesIM {
 //    private FDN nodeInstanceFDN;
 
     @Inject
-    ServiceModuleParcelCacheDM parcelCacheDM;
+    ProcessingPlantParcelCacheDM parcelCacheDM;
 
     @Inject
     PetasosAuditWriter auditWriter;

@@ -47,7 +47,7 @@ public class RouteElementNames {
 
     public String simplifyName(){
         FDN wupFunctionFDN = new FDN(this.nodeFunctionToken.getFunctionID());
-        RDN serviceModuleRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.SERVICE_MODULE.getNodeElementType());
+        RDN serviceModuleRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.PROCESSING_PLANT.getNodeElementType());
         RDN wupFunctionRDN = wupFunctionFDN.getUnqualifiedRDN();
         String nodeVersion = nodeFunctionToken.getVersion();
         String nodeVersionSimplified = nodeVersion.replace(".","");

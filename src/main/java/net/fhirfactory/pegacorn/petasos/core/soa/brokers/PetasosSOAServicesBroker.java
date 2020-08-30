@@ -23,8 +23,8 @@
 package net.fhirfactory.pegacorn.petasos.core.soa.brokers;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.cache.SOAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager.SOAResilienceParcelServicesIM;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.SOAResilienceParcelServicesIM;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;

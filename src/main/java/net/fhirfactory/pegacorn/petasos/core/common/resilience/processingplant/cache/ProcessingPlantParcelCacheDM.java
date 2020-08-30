@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.core.common.resilience.servicemodule.cache;
+package net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,12 +48,12 @@ import net.fhirfactory.pegacorn.common.model.FDNToken;
  * @since 2020-06-01
  */
 @ApplicationScoped
-public class ServiceModuleParcelCacheDM {
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleParcelCacheDM.class);
+public class ProcessingPlantParcelCacheDM {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantParcelCacheDM.class);
 
     private ConcurrentHashMap<FDNToken, ResilienceParcel> petasosParcelCache;
 
-    public ServiceModuleParcelCacheDM() {
+    public ProcessingPlantParcelCacheDM() {
         petasosParcelCache = new ConcurrentHashMap<FDNToken, ResilienceParcel>();
     }
 

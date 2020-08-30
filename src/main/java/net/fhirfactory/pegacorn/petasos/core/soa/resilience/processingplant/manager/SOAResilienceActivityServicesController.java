@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager;
+package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager;
 
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.cache.SOAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager.tasks.FinaliseSOAWorkUnitActivityTask;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager.tasks.RegisterNewSOAWorkUnitActivityTask;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks.FinaliseSOAWorkUnitActivityTask;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks.RegisterNewSOAWorkUnitActivityTask;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;

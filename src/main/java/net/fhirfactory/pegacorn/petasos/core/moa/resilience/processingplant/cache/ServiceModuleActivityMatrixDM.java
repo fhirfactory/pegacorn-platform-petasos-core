@@ -19,9 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.cache;
+package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache;
 
-import net.fhirfactory.pegacorn.petasos.core.common.resilience.servicemodule.cache.ServiceModuleParcelCacheDM;
+import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -57,7 +57,7 @@ public class ServiceModuleActivityMatrixDM {
     private ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>> wuaEpisode2ParcelInstanceMap;
 
     @Inject
-    ServiceModuleParcelCacheDM parcelCacheDM;
+    ProcessingPlantParcelCacheDM parcelCacheDM;
 
     @Inject
     TopologyIM moduleIM;

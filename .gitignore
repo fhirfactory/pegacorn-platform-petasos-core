@@ -13,3 +13,10 @@
 .settings/org.eclipse.core.resources.prefs
 .project
 .classpath
+.classpath
+.project
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.wst.common.component
+.settings/org.eclipse.wst.common.project.facet.core.xml
+pegacorn-platform-petasos-core.iml

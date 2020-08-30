@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.worker;
+package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.worker;
 
 public class ResilienceWatchDog {
 }

@@ -20,9 +20,9 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.manager.tasks;
+package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks;
 
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.servicemodule.cache.SOAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;

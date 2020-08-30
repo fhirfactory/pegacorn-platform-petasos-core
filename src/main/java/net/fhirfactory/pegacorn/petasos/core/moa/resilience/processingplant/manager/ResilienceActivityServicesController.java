@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager;
+package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager.tasks.RegisterNewMOAWorkUnitActivityTask;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.RegisterNewMOAWorkUnitActivityTask;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 

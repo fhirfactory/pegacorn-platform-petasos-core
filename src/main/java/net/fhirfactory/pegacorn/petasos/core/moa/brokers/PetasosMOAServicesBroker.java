@@ -29,8 +29,8 @@ import javax.inject.Inject;
 
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.manager.PathwayInterchangeManager;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager.ResilienceActivityServicesController;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.servicemodule.manager.ResilienceParcelServicesIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceActivityServicesController;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceParcelServicesIM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
