@@ -24,75 +24,39 @@ package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-public abstract class InteractRESTfulPOSTServerWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractRESTfulPOSTServerWUP.class);
+public abstract class InteractAPIServletRESTfulPOSTGatewayWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractAPIServletRESTfulPOSTGatewayWUP.class);
 
     private EndpointElement ingresEndpointElement;
 
-    public InteractRESTfulPOSTServerWUP() {
-        super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
-    }
-
     @Override
-    public WUPArchetypeEnum specifyWUPArchetype(){
+    protected WUPArchetypeEnum specifyWUPArchetype(){
         return(WUPArchetypeEnum.WUP_NATURE_API_PUSH);
     }
     
     @Override
     public String specifyIngresEndpoint(){
         LOG.debug(".specifyIngresEndpoint(): Entry");
-        this.specifyIngresEndpointElement();
         LOG.trace(".specifyIngresEndpoint(): Retrieved EndpointElement --> {}", this.ingresEndpointElement);
-        String ingresEndPoint = this.getWupInstanceName() + "-" + this.getEndpointPath();
+        String ingresEndPoint = "direct:" + this.getWupInstanceName() + "-" + this.specifyIngresEndpointPath();
         return(ingresEndPoint);
     } 
     
     @Override
-    public String specifyEgressEndpoint(){
+    protected String specifyEgressEndpoint(){
         LOG.debug(".specifyEgressEndpoint(): Entry");
-        String endpointName = "direct:" + this.getNameSet().getEndPointWUPEgress();
+        String endpointName = this.getNameSet().getEndPointWUPEgress();
         LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpointName);
         return(endpointName);
     }
-
-    /**
-     * Get's the Endpoint associated with the WUP. The assumption is that
-     * there is only ever a single endpoint associated with a WUP. This may 
-     * break in later releases.
-     * 
-     * @return EndpointElement for the associated Endpoint to the WUP. 
-     */
-    protected void specifyIngresEndpointElement(){
-        LOG.debug(".getEndpoint(): Entry");
-        NodeElementIdentifier nodeID = new NodeElementIdentifier(this.getWupIdentifier());
-        NodeElement node = this.getTopologyServer().getNode(nodeID);
-        Set<EndpointElementIdentifier> endpoints = node.getEndpoints();
-        if (endpoints.size() > 1) {
-            throw new RuntimeException("Not yet implemented.  The current code only supports a single node and needs to be updated to handle multiple endpoints");
-        }
-        Iterator<EndpointElementIdentifier> endpointIterator = endpoints.iterator();
-        // we are still being brave
-        EndpointElementIdentifier endpointToken = endpointIterator.next();
-        // we are ludicrously brave
-        EndpointElement endpoint = getTopologyServer().getEndpoint(endpointToken);
-        // the stars align!!!!!
-        LOG.debug(".getEndpoint(): Exit, endpoint --> {}", endpoint);
-        this.ingresEndpointElement = endpoint;
-    }
-    
  
     /**
      * The Ingres Message Gateway doesn't subscribe to ANY topics as it receives it's 
@@ -106,5 +70,20 @@ public abstract class InteractRESTfulPOSTServerWUP extends GenericMOAWUPTemplate
         return(subTopics);
     }
     
-    abstract protected String getEndpointPath();
+    abstract protected String specifyIngresEndpointPath();
+
+    @Override
+    protected String specifyEgressTopologyEndpointName() {
+        return null;
+    }
+
+    @Override
+    protected String specifyEgressEndpointVersion() {
+        return null;
+    }
+
+    @Override
+    protected boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint() {
+        return (true);
+    }
 }

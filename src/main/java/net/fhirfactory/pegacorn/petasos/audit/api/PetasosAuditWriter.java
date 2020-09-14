@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelAuditTrailEntry;
 
 @ApplicationScoped
 public class PetasosAuditWriter {
@@ -39,15 +40,21 @@ public class PetasosAuditWriter {
     @Inject
     AuditTrailSynchronousWriter synchAuditWriter;
 
-    public boolean writeAuditEntry(ResilienceParcel parcel, boolean isSynchrnous){
+    public boolean writeAuditEntry(ResilienceParcel parcel, boolean isSynchronous){
         boolean success;
-        if(isSynchrnous){
-            success = synchAuditWriter.synchronousWrite(parcel);
-        } else {
-            success = asynchAuditWriter.asynchronousWrite(parcel);
-        }
+        PetasosParcelAuditTrailEntry newAuditEntry = new PetasosParcelAuditTrailEntry(parcel);
+        success = writeAuditEntry(newAuditEntry, isSynchronous);
         return(success);
     }
 
+    public boolean writeAuditEntry(PetasosParcelAuditTrailEntry newAuditEntry, boolean isSynchronous){
+        boolean success;
+        if(isSynchronous){
+            success = synchAuditWriter.synchronousWrite(newAuditEntry);
+        } else {
+            success = asynchAuditWriter.asynchronousWrite(newAuditEntry);
+        }
+        return(success);        
+    }
 
 }

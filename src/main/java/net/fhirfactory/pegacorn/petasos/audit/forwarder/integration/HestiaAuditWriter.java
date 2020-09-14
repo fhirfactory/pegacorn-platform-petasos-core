@@ -52,11 +52,14 @@ public class HestiaAuditWriter {
         ObjectMapper entryObjectMapper = new ObjectMapper();
         entryObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String auditEntryString = new String();
+        String cleanUpString = null;
         try {
             auditEntryString = entryObjectMapper.writeValueAsString(auditTrailEntry);
+            String cleanUpString1 = auditEntryString.replace("\\\\\"","\"");
+            cleanUpString = cleanUpString1.replace("\\\"","\"");
         } catch (JsonProcessingException jsonException ){
             auditEntryString = "Can't Decode. Error --> " + jsonException.getMessage();
         }
-        LOG.info("Audit Entry --> " + auditEntryString);
+        LOG.info("Audit Entry --> " + cleanUpString);
     }
 }

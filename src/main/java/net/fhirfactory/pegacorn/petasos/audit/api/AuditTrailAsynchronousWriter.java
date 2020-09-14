@@ -39,9 +39,8 @@ public class AuditTrailAsynchronousWriter {
     @Inject
     PetasosAsynchronousWriterQueue asynchronousWriterQueue;
 
-    public boolean asynchronousWrite(ResilienceParcel parcel){
-        PetasosParcelAuditTrailEntry newAuditEntry = new PetasosParcelAuditTrailEntry(parcel);
-        boolean success = asynchronousWriterQueue.addAuditEntryToQueue(newAuditEntry);
+    public boolean asynchronousWrite(PetasosParcelAuditTrailEntry parcel){
+        boolean success = asynchronousWriterQueue.addAuditEntryToQueue(parcel);
         return(success);
     }
 }

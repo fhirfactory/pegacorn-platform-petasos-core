@@ -23,7 +23,9 @@
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.buildingblocks;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.PetasosPathwayExchangePropertyNames;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,10 @@ import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
  */
 @ApplicationScoped
 public class WUPIngresConduit {
+
+    @Inject
+    PetasosPathwayExchangePropertyNames exchangePropertyNames;
+
     private static final Logger LOG = LoggerFactory.getLogger(WUPIngresConduit.class);
     /**
      * This function strips the WUPJobCard and ParcelStatusElement from the ingresParcel, and injects them into the
@@ -46,15 +52,14 @@ public class WUPIngresConduit {
      *
      * @param ingresParcel The WorkUnitTransportPacket for the associated UoW - containing the WUPJobCard & ParcelStatusElement for the activity
      * @param camelExchange The Apache Camel Exchange object, for injecting the WUPJobCard & ParcelStatusElement into
-     * @param wupTypeID The Work Unit Processor Type - should be unique within a ServiceModule and is the reference point for logic
-     * @param wupInstanceID The Work Unit Processor Instance - an absolutely unique identifier for the instance of WUP within the entiry deployment.
+     * @param wupInstanceKey The Work Unit Processor Instance Key - usable to extract the WUP Instance details from the Topology Services.
      * @return A UoW (Unit of Work) object for injection into the WUP for processing by the Business Logic
      */
     public UoW forwardIntoWUP(WorkUnitTransportPacket ingresParcel, Exchange camelExchange,String wupInstanceKey){
         LOG.debug(".forwardIntoWUP(): Entry, ingresParcel --> {}, wupInstanceKey --> {}", ingresParcel, wupInstanceKey);
         UoW theUoW = ingresParcel.getPayload();
-        String jobcardPropertyKey = "WUPJobCard" + wupInstanceKey;
-        String parcelStatusPropertyKey = "ParcelStatusElement" + wupInstanceKey;
+        String jobcardPropertyKey = exchangePropertyNames.getExchangeJobCardPropertyName(wupInstanceKey);
+        String parcelStatusPropertyKey = exchangePropertyNames.getExchangeStatusElementPropertyName(wupInstanceKey);
         camelExchange.setProperty(jobcardPropertyKey, ingresParcel.getCurrentJobCard());
         camelExchange.setProperty(parcelStatusPropertyKey, ingresParcel.getCurrentParcelStatus());
         LOG.debug(".forwardIntoWUP(): Exit, returning the UoW --> {}", theUoW);

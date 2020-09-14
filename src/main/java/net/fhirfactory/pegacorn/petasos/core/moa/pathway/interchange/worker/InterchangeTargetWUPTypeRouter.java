@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.camel.Exchange;
@@ -46,6 +47,8 @@ import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementName
 /**
  * @author Mark A. Hunter
  */
+
+@ApplicationScoped
 public class InterchangeTargetWUPTypeRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeTargetWUPTypeRouter.class);

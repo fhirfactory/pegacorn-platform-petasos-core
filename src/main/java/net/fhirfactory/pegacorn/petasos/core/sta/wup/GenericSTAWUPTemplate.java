@@ -1,7 +1,7 @@
-package net.fhirfactory.pegacorn.petasos.core.soa.wup;
+package net.fhirfactory.pegacorn.petasos.core.sta.wup;
 
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
-import net.fhirfactory.pegacorn.petasos.core.soa.brokers.PetasosSOAServicesBroker;
+import net.fhirfactory.pegacorn.petasos.core.sta.brokers.PetasosSTAServicesBroker;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-public abstract class GenericSOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(GenericSOAWUPTemplate.class);
+public abstract class GenericSTAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(GenericSTAWUPTemplate.class);
 
     private NodeElementFunctionToken wupFunctionToken;
     private WUPIdentifier wupIdentifier;
@@ -26,12 +26,12 @@ public abstract class GenericSOAWUPTemplate {
      private String version;
 
     @Inject
-    PetasosSOAServicesBroker servicesBroker;
+    PetasosSTAServicesBroker servicesBroker;
 
     @Inject
     DeploymentTopologyIM wupTopologyProxy;
 
-    public GenericSOAWUPTemplate(){
+    public GenericSTAWUPTemplate(){
         LOG.trace(".initialise(): Setting the WUP Archetype - which is used by the WUP Framework to ascertain what wrapping this WUP needs");
         wupArchetype =  WUPArchetypeEnum.WUP_NATURE_API_ANSWER;
     }
@@ -87,7 +87,7 @@ public abstract class GenericSOAWUPTemplate {
 
     public void registerNodeInstantiation(){
         LOG.info(".registerTopologyElementInstantiation(): Entry");
-        wupTopologyProxy.setNodeInstantiated(this.wupNode.getIdentifier(), true);
+        wupTopologyProxy.setNodeInstantiated(this.wupNode.getNodeInstanceID(), true);
         LOG.info(".registerTopologyElementInstantiation(): Exit");
     }
 
@@ -99,7 +99,7 @@ public abstract class GenericSOAWUPTemplate {
         return (this.wupIdentifier);
     }
 
-    public PetasosSOAServicesBroker getServicesBroker(){
+    public PetasosSTAServicesBroker getServicesBroker(){
         return(this.servicesBroker);
     }
 

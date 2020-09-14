@@ -55,7 +55,7 @@ public class WUPContainerEgressGatekeeper {
 
     private String getGatekeeperProperty(FDNToken wupIdentifier) {
         FDN workingFDN = new FDN(wupIdentifier);
-        String workingInstanceID = workingFDN.getUnqualifiedRDN().getNameValue();
+        String workingInstanceID = workingFDN.getUnqualifiedRDN().getValue();
         String stringToUse = EGRESS_GATEKEEPER_PROCESSED_PROPERTY + "-" + workingInstanceID;
         return (stringToUse);
     }
@@ -73,26 +73,7 @@ public class WUPContainerEgressGatekeeper {
      */
     @RecipientList
     public List<String> egressGatekeeper(WorkUnitTransportPacket transportPacket, Exchange camelExchange, String wupInstanceKey) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(".egressGatekeeper(): Enter");
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", transportPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", transportPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", transportPacket.getCurrentJobCard().getCardID().getCreationDate());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", transportPacket.getCurrentJobCard().getClusterMode());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getCurrentStatus());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getGrantedStatus());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", transportPacket.getCurrentJobCard().getIsToBeDiscarded());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getRequestedStatus());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", transportPacket.getCurrentJobCard().getSystemMode());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", transportPacket.getCurrentJobCard().getUpdateDate());
-            LOG.debug(".egressGatekeeper(): transportPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", transportPacket.getCurrentParcelStatus().getParcelStatus());
-        }
+        LOG.debug(".egressGatekeeper(): Enter, transportPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", transportPacket,wupInstanceKey );
         // Get my Petasos Context
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         LOG.trace(".egressGatekeeper(): Node Element retrieved --> {}", node);

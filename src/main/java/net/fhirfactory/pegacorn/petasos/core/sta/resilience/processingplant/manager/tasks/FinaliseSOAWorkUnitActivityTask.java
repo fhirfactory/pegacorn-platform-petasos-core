@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks;
+package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.tasks;
 
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache.STAServiceModuleActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
@@ -44,7 +44,7 @@ public class FinaliseSOAWorkUnitActivityTask {
 	private static final Logger LOG = LoggerFactory.getLogger(FinaliseSOAWorkUnitActivityTask.class);
 
 	@Inject
-    SOAServiceModuleActivityMatrixDM activityMatrixDM;
+	STAServiceModuleActivityMatrixDM activityMatrixDM;
 
 	@Inject
 	TopologyIM topologyServer;

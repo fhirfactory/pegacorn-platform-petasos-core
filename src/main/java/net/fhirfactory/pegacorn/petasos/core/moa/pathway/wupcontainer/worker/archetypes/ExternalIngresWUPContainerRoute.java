@@ -57,7 +57,7 @@ public class ExternalIngresWUPContainerRoute extends RouteBuilder {
         
       
         from(nameSet.getEndPointWUPEgress())
-        		.log(LoggingLevel.INFO, "content --> ${body}")
+        		.log(LoggingLevel.DEBUG, "from(nameSet.getEndPointWUPEgress()) --> ${body}")
                 .routeId(nameSet.getRouteWUPEgress2WUPEgressConduitEgress())
                 .bean(WUPEgressConduit.class, "receiveFromWUP(*, Exchange," + this.wupNodeElement.extractNodeKey() + ")")
                 .to(nameSet.getEndPointWUPEgressConduitEgress());

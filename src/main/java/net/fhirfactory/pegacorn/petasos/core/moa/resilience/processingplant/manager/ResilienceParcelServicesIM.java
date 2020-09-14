@@ -25,7 +25,7 @@ package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.man
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -87,7 +87,7 @@ public class ResilienceParcelServicesIM {
         	FDN uowTypeFDN = new FDN(unitOfWork.getTypeID());
         	newWUAFDN.appendFDN(uowTypeFDN);
         	EpisodeIdentifier wuaEpisodeToken = new EpisodeIdentifier(newWUAFDN.getToken());
-        	activityID.setPresentWUAEpisodeID(wuaEpisodeToken);
+        	activityID.setPresentEpisodeIdentifier(wuaEpisodeToken);
         }
         // 1st, lets register the parcel
         LOG.trace(".registerParcel(): check for existing ResilienceParcel instance for this WUP/UoW combination");
@@ -159,44 +159,13 @@ public class ResilienceParcelServicesIM {
 
     @Transactional
     public ResilienceParcel notifyParcelProcessingFinish(ResilienceParcelIdentifier parcelID, UoW unitOfWork) {
-        if(LOG.isDebugEnabled()) {
-        	LOG.debug(".notifyParcelProcessingFinish(): Entry");
-    		LOG.debug(".notifyParcelProcessingFinish(): parcelID (FDNToken) --> {}", parcelID);
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).instanceID --> {}", unitOfWork.getInstanceID());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).typeID --> {}", unitOfWork.getTypeID());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).ingresContent --> {}", unitOfWork.getIngresContent());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).egressContent --> {}", unitOfWork.getEgressContent());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).payloadTopicID --> {}", unitOfWork.getPayloadTopicID());
-    		LOG.debug(".notifyParcelProcessingFinish(): unitOfWork (UoW).processingOutcome --> {}", unitOfWork.getProcessingOutcome());
-        } 
+        LOG.debug(".notifyParcelProcessingFinish(): Entry, parcelID (ResilienceParcelIdentifier) --> {}, unitOfWork (UoW) --> {}", parcelID, unitOfWork);
         if ((unitOfWork == null) || (parcelID == null)) {
             throw (new IllegalArgumentException("unitOfWork or parcelID are null in method invocation"));
         }
         LOG.trace(".notifyParcelProcessingFinish(): retrieve existing Parcel");
         ResilienceParcel currentParcel = parcelCacheDM.getParcelInstance(parcelID);
-        if(LOG.isTraceEnabled()){
-            LOG.debug(".notifyParcelProcessingFinish(): Parcel Retrieved, contents:");
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).episodeIdentifier --> {}", currentParcel.getEpisodeIdentifier());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).upsteamEpisodeIdentifier --> {}", currentParcel.getUpstreamEpisodeIdentifier());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).identifier --> {}", currentParcel.getIdentifier());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).associatedWUPIdentifier --> {}", currentParcel.getAssociatedWUPIdentifier());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).processingStatus --> {}", currentParcel.getProcessingStatus());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).typeID --> {}", currentParcel.getTypeID());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).registrationDate --> {}", currentParcel.getRegistrationDate());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).startDate --> {}", currentParcel.getStartDate());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finishedDate --> {}", currentParcel.getFinishedDate());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationDate --> {}", currentParcel.getFinalisationDate());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationStatus --> {}", currentParcel.getFinalisationStatus());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).cancellationDate --> {}", currentParcel.getCancellationDate());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).instanceID --> {}", currentParcel.getActualUoW().getInstanceID());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).typeID --> {}", currentParcel.getActualUoW().getTypeID());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).ingresContent --> {}", currentParcel.getActualUoW().getIngresContent());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).egressContent --> {}", currentParcel.getActualUoW().getEgressContent());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
-            LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).processingOutcome --> {}", currentParcel.getActualUoW().getProcessingOutcome());
-        }
+        LOG.trace(".notifyParcelProcessingFinish(): Parcel Retrieved, contents --> {}", currentParcel);
         LOG.trace(".notifyParcelProcessingFinish(): update the UoW --> but only if the UoW content comes from the Agent, not the actual WUP itself");
         if(!(unitOfWork == currentParcel.getActualUoW())) {
             LOG.trace(".notifyParcelProcessingFinish(): update the UoW (Egress Content)");
@@ -213,29 +182,8 @@ public class ResilienceParcelServicesIM {
         currentParcel.setProcessingStatus(ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
         // TODO Check to see if we should do an Audit Entry when we finish processing
         // LOG.trace(".notifyParcelProcessingFinish(): Doing an Audit Write, note that it is asynchronous by design");
-        auditWriter.writeAuditEntry(currentParcel,false);        
-        if(LOG.isDebugEnabled()) {
-        	LOG.debug(".notifyParcelProcessingFinish(): Exit, returning finished Parcel");
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).episodeIdentifier --> {}", currentParcel.getEpisodeIdentifier());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).upsteamEpisodeIdentifier --> {}", currentParcel.getUpstreamEpisodeIdentifier());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).identifier --> {}", currentParcel.getIdentifier());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).associatedWUPIdentifier --> {}", currentParcel.getAssociatedWUPIdentifier());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).processingStatus --> {}", currentParcel.getProcessingStatus());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).typeID --> {}", currentParcel.getTypeID());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).registrationDate --> {}", currentParcel.getRegistrationDate());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).startDate --> {}", currentParcel.getStartDate());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finishedDate --> {}", currentParcel.getFinishedDate());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationDate --> {}", currentParcel.getFinalisationDate());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).finalisationStatus --> {}", currentParcel.getFinalisationStatus());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).cancellationDate --> {}", currentParcel.getCancellationDate());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).instanceID --> {}", currentParcel.getActualUoW().getInstanceID());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).typeID --> {}", currentParcel.getActualUoW().getTypeID());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).ingresContent --> {}", currentParcel.getActualUoW().getIngresContent());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).egressContent --> {}", currentParcel.getActualUoW().getEgressContent());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).payloadTopicID --> {}", currentParcel.getActualUoW().getPayloadTopicID());
-        	LOG.debug(".notifyParcelProcessingFinish(): parcelInstance (ResilienceParcel).actualUoW (UoW).processingOutcome --> {}", currentParcel.getActualUoW().getProcessingOutcome());
-        }
+        auditWriter.writeAuditEntry(currentParcel,true);
+       	LOG.debug(".notifyParcelProcessingFinish(): Exit, parcelInstance (ResilienceParcel) --> {}", currentParcel);
         return(currentParcel);
     }
 

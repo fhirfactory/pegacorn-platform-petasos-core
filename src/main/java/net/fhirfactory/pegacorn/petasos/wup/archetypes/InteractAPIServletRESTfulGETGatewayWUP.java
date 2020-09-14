@@ -22,22 +22,19 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import net.fhirfactory.pegacorn.petasos.core.soa.wup.GenericSOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.core.sta.wup.GenericSTAWUPTemplate;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPClusterModeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPSystemModeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
 
+public abstract class InteractAPIServletRESTfulGETGatewayWUP extends GenericSTAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractAPIServletRESTfulGETGatewayWUP.class);
 
-public abstract class InteractAPIAnswerOnlyGateway extends GenericSOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractAPIAnswerOnlyGateway.class);
-
-    public InteractAPIAnswerOnlyGateway(){
+    public InteractAPIServletRESTfulGETGatewayWUP(){
         super();
     }
 

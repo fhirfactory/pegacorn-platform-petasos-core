@@ -22,9 +22,9 @@
 
 package net.fhirfactory.pegacorn.petasos.audit.model;
 
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
@@ -60,6 +60,24 @@ public class PetasosParcelAuditTrailEntry {
     // Constructor(s)
     //
 
+    public PetasosParcelAuditTrailEntry(){
+        this.auditTrailEntryDate = null;
+        this.actualUoW = null;
+        this.identifier = null;
+        this.parcelFinalsationStatus = null;
+        this.alternativeWUPIdentifierSet = null;
+        this.processingStatus = null;
+        this.downstreamEpisodeIdentifierSet = null;
+        this.upstreamEpisodeIdentifier = null;
+        this.primaryWUPIdentifier = null;
+        this.parcelRegistrationDate = null;
+        this.parcelTypeID = null;
+        this.parcelStartDate = null;
+        this.parcelFinishedDate = null;
+        this.parcelFinalisedDate = null;
+        this.alternativeParcelIdentifiersSet = null;        
+    }
+    
     public PetasosParcelAuditTrailEntry(ResilienceParcel theParcel ){
         // First, we clean the slate
         this.auditTrailEntryDate = null;
@@ -88,7 +106,7 @@ public class PetasosParcelAuditTrailEntry {
         if(theParcel.hasDownstreamEpisodeIdentifierSet()){
             this.downstreamEpisodeIdentifierSet = new HashSet<EpisodeIdentifier>();
         }
-        if(theParcel.hasUpstreamEpisodeID()){
+        if(theParcel.hasUpstreamEpisodeIdentifier()){
             this.upstreamEpisodeIdentifier = theParcel.getUpstreamEpisodeIdentifier();
         }
         if(theParcel.hasTypeID()){
@@ -97,7 +115,7 @@ public class PetasosParcelAuditTrailEntry {
         if(theParcel.hasFinalisationDate()){
             this.parcelFinalisedDate = theParcel.getFinalisationDate();
         }
-        if(theParcel.hasInstanceID()){
+        if(theParcel.hasInstanceIdentifier()){
             this.identifier = theParcel.getIdentifier();
         }
         if(theParcel.hasFinishedDate()){
@@ -184,6 +202,7 @@ public class PetasosParcelAuditTrailEntry {
         return(true);
     }
 
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getAuditTrailEntryDate() {
         return auditTrailEntryDate;
     }
@@ -220,6 +239,10 @@ public class PetasosParcelAuditTrailEntry {
     public ResilienceParcelProcessingStatusEnum getProcessingStatus() {
         return(this.processingStatus);
     }
+    
+    public void setProcessingStatus(ResilienceParcelProcessingStatusEnum newProcessingStatus) {
+        this.processingStatus = newProcessingStatus;
+    }    
 
     public void setUowOutcome(ResilienceParcelProcessingStatusEnum newProcessingStatus) {
         this.processingStatus = newProcessingStatus;
@@ -267,6 +290,8 @@ public class PetasosParcelAuditTrailEntry {
         }
         return(true);
     }
+
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getParcelRegistrationDate() {
         return parcelRegistrationDate;
     }
@@ -284,6 +309,8 @@ public class PetasosParcelAuditTrailEntry {
         return(true);
     }
 
+
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getParcelStartDate() {
         return parcelStartDate;
     }
@@ -301,6 +328,7 @@ public class PetasosParcelAuditTrailEntry {
         return(true);
     }
 
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getParcelFinishedDate() {
         return parcelFinishedDate;
     }
@@ -318,11 +346,53 @@ public class PetasosParcelAuditTrailEntry {
         return(true);
     }
 
+    @JsonSerialize(using=JsonDateSerializer.class)
     public Date getParcelFinalisedDate() {
         return parcelFinalisedDate;
     }
 
     public void setParcelFinalisedDate(Date parcelFinalisedDate) {
         this.parcelFinalisedDate = parcelFinalisedDate;
+    }
+
+    public ResilienceParcelIdentifier getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(ResilienceParcelIdentifier identifier) {
+        this.identifier = identifier;
+    }
+
+    public ResilienceParcelFinalisationStatusEnum getParcelFinalsationStatus() {
+        return parcelFinalsationStatus;
+    }
+
+    public void setParcelFinalsationStatus(ResilienceParcelFinalisationStatusEnum parcelFinalsationStatus) {
+        this.parcelFinalsationStatus = parcelFinalsationStatus;
+    }
+
+    public WUPIdentifier getPrimaryWUPIdentifier() {
+        return primaryWUPIdentifier;
+    }
+
+    public void setPrimaryWUPIdentifier(WUPIdentifier primaryWUPIdentifier) {
+        this.primaryWUPIdentifier = primaryWUPIdentifier;
+    }
+
+    public FDNToken getParcelTypeID() {
+        return parcelTypeID;
+    }
+
+    public void setParcelTypeID(FDNToken parcelTypeID) {
+        this.parcelTypeID = parcelTypeID;
+    }
+
+    @JsonSerialize(using=JsonDateSerializer.class)
+    public Date getParcelCancellationDate() {
+        return parcelCancellationDate;
+    }
+
+    public void setParcelCancellationDate(Date parcelCancellationDate) {
+        this.parcelCancellationDate = parcelCancellationDate;
     }
 }

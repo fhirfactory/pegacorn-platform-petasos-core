@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
@@ -59,34 +59,7 @@ public class WUPContainerEgressProcessor {
 
 
     public WorkUnitTransportPacket egressContentProcessor(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
-    	if(LOG.isDebugEnabled()) {
-        	LOG.debug(".egressContentProcessor(): Entry"); 
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", ingresPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUAEpisodeID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier--> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", ingresPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", ingresPacket.getCurrentJobCard().getCardID().getCreationDate());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", ingresPacket.getCurrentJobCard().getClusterMode());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getCurrentStatus());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getGrantedStatus());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", ingresPacket.getCurrentJobCard().getIsToBeDiscarded());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getRequestedStatus());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", ingresPacket.getCurrentJobCard().getSystemMode());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", ingresPacket.getCurrentJobCard().getUpdateDate());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", ingresPacket.getCurrentParcelStatus().getParcelStatus());
-        	LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).instanceID --> {}", ingresPacket.getPayload().getInstanceID());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).typeID --> {}", ingresPacket.getPayload().getTypeID());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", ingresPacket.getPayload().getPayloadTopicID());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).ingresContent --> {}", ingresPacket.getPayload().getIngresContent());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).egressContent --> {}", ingresPacket.getPayload().getEgressContent());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", ingresPacket.getPayload().getPayloadTopicID());
-			LOG.debug(".egressContentProcessor(): ingresPacket (WorkUnitTransportPacket).getPayload (UoW).processingOutcome --> {}", ingresPacket.getPayload().getProcessingOutcome());
-			LOG.debug(".egressContentProcessor(): wupInstanceKey (String) --> {}", wupInstanceKey);
-    	}
+      	LOG.debug(".egressContentProcessor(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
         // Get my Petasos Context
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         if(LOG.isTraceEnabled()) {
@@ -109,61 +82,12 @@ public class WUPContainerEgressProcessor {
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_STANDALONE");
                 egressPacket = standaloneDeploymentModeECP(ingresPacket, camelExchange,node);
         }
-		if(LOG.isDebugEnabled()) {
-			LOG.debug(".egressContentProcessor(): Exit");
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", egressPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUAEpisodeID --> {}", egressPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", egressPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier--> {}", egressPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", egressPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", egressPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", egressPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", egressPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", egressPacket.getCurrentJobCard().getCardID().getCreationDate());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", egressPacket.getCurrentJobCard().getClusterMode());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", egressPacket.getCurrentJobCard().getCurrentStatus());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", egressPacket.getCurrentJobCard().getGrantedStatus());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", egressPacket.getCurrentJobCard().getIsToBeDiscarded());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", egressPacket.getCurrentJobCard().getRequestedStatus());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", egressPacket.getCurrentJobCard().getSystemMode());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", egressPacket.getCurrentJobCard().getUpdateDate());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", egressPacket.getCurrentParcelStatus().getParcelStatus());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).instanceID --> {}", egressPacket.getPayload().getInstanceID());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).typeID --> {}", egressPacket.getPayload().getTypeID());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", egressPacket.getPayload().getPayloadTopicID());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).ingresContent --> {}", egressPacket.getPayload().getIngresContent());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).egressContent --> {}", egressPacket.getPayload().getEgressContent());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", egressPacket.getPayload().getPayloadTopicID());
-			LOG.debug(".egressContentProcessor(): egressPacket (WorkUnitTransportPacket).getPayload (UoW).processingOutcome --> {}", egressPacket.getPayload().getProcessingOutcome());
-		}
+		LOG.debug(".egressContentProcessor(): Exit, egressPacket (WorkUnitTransportPacket) --> {}", egressPacket);
         return (egressPacket);
     }
 
     private WorkUnitTransportPacket standaloneDeploymentModeECP(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, NodeElement wupNode) {
-    	if(LOG.isDebugEnabled()) {
-        	LOG.debug(".standaloneDeploymentModeECP(): Entry"); 
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", ingresPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUAEpisodeID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPInstanceID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelInstance -->{}", ingresPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUAEpisodeID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPInstanceID --> {}", ingresPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", ingresPacket.getCurrentJobCard().getCardID().getCreationDate());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", ingresPacket.getCurrentJobCard().getClusterMode());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getCurrentStatus());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getGrantedStatus());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", ingresPacket.getCurrentJobCard().getIsToBeDiscarded());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", ingresPacket.getCurrentJobCard().getRequestedStatus());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", ingresPacket.getCurrentJobCard().getSystemMode());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", ingresPacket.getCurrentJobCard().getUpdateDate());
-        	LOG.debug(".standaloneDeploymentModeECP(): ingresPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", ingresPacket.getCurrentParcelStatus().getParcelStatus());
-        	Iterator<String> listIterator = wupNode.debugPrint(".standaloneDeploymentModeECP{}: wupNode").iterator();
-        	while(listIterator.hasNext()) {
-        		LOG.debug(listIterator.next());
-        	}
-    	}
+       	LOG.debug(".standaloneDeploymentModeECP(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupNode (NodeElement) --> {}", ingresPacket, wupNode);
         elementNames = new RouteElementNames(wupNode.getNodeFunctionToken());
         LOG.trace(".standaloneDeploymentModeECP(): Now, extract WUPJobCard from ingresPacket (WorkUnitTransportPacket)");
         WUPJobCard jobCard = ingresPacket.getCurrentJobCard();
@@ -171,15 +95,7 @@ public class WUPContainerEgressProcessor {
         ParcelStatusElement statusElement = ingresPacket.getCurrentParcelStatus();
         LOG.trace(".standaloneDeploymentModeECP(): Now, extract UoW from ingresPacket (WorkUnitTransportPacket)");
         UoW uow = ingresPacket.getPayload();
-		if(LOG.isDebugEnabled()) {
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).instanceID --> {}", uow.getInstanceID());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).typeID --> {}", uow.getTypeID());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).payloadTopicID --> {}", uow.getPayloadTopicID());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).ingresContent --> {}", uow.getIngresContent());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).egressContent --> {}", uow.getEgressContent());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).payloadTopicID --> {}", uow.getPayloadTopicID());
-			LOG.debug(".standaloneDeploymentModeECP(): uow (UoW).processingOutcome --> {}", uow.getProcessingOutcome());
-		}
+		LOG.debug(".standaloneDeploymentModeECP(): uow (UoW) --> {}", uow);
 		LOG.trace(".standaloneDeploymentModeECP(): Now, continue processing based on the ParcelStatusElement.getParcelStatus() (ResilienceParcelProcessingStatusEnum)");
         ResilienceParcelProcessingStatusEnum parcelProcessingStatusEnum = statusElement.getParcelStatus();
         switch (parcelProcessingStatusEnum) {

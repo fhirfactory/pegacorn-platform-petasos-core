@@ -26,6 +26,8 @@ import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,6 +36,8 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
  * @since 2020-06-01
  */
 public class RouteElementNames {
+    private static final Logger LOG = LoggerFactory.getLogger(RouteElementNames.class);
+
     private NodeElementFunctionToken nodeFunctionToken;
     private String wupTypeName;
     private String wupVersion;
@@ -46,12 +50,17 @@ public class RouteElementNames {
     }
 
     public String simplifyName(){
+        LOG.debug(".simplifyName(): this.nodeFunctionToken --> {}", this.nodeFunctionToken);
         FDN wupFunctionFDN = new FDN(this.nodeFunctionToken.getFunctionID());
-        RDN serviceModuleRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.PROCESSING_PLANT.getNodeElementType());
+        LOG.trace(".simplifyName(): wupFunctionFDN --> {}", wupFunctionFDN);
+        RDN processingPlantRDN = wupFunctionFDN.extractRDNViaQualifier(NodeElementTypeEnum.PROCESSING_PLANT.getNodeElementType());
+        LOG.trace(".simplifyName(): processingPlantRDN (RDN) --> {} ", processingPlantRDN);
         RDN wupFunctionRDN = wupFunctionFDN.getUnqualifiedRDN();
+        LOG.trace(".simplifyName(): wupFunctionRDN (RDN) --> {}", wupFunctionRDN);
         String nodeVersion = nodeFunctionToken.getVersion();
         String nodeVersionSimplified = nodeVersion.replace(".","");
-        String wupName = serviceModuleRDN.getNameValue()+"."+wupFunctionRDN.getNameValue()+"."+nodeVersionSimplified;
+        String wupName = processingPlantRDN.getValue()+"."+wupFunctionRDN.getValue()+"."+nodeVersionSimplified;
+        LOG.debug(".simplifyName(): wupName (String) --> {}", wupName);
         return(wupName);
     }
 

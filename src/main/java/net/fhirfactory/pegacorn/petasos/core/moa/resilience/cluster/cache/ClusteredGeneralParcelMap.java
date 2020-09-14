@@ -76,7 +76,7 @@ public class ClusteredGeneralParcelMap {
     	if(parcel == null) {
     		return; 
     	}
-    	if(!parcel.hasInstanceID()) {
+    	if(!parcel.hasInstanceIdentifier()) {
     		return;
     	}
     	FDNToken parcelID = parcel.getIdentifier();
@@ -88,7 +88,7 @@ public class ClusteredGeneralParcelMap {
     	if(parcel==null) {
     		return;
     	}
-    	if(!parcel.hasInstanceID()) {
+    	if(!parcel.hasInstanceIdentifier()) {
     		return;
     	}
     	petasosParcelCache.remove(parcel.getIdentifier());

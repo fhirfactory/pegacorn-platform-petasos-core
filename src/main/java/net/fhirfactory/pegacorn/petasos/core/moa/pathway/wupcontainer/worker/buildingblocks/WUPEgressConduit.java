@@ -28,6 +28,7 @@ import java.util.Date;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.PetasosPathwayExchangePropertyNames;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
@@ -53,6 +54,9 @@ public class WUPEgressConduit {
     
     @Inject
     DeploymentTopologyIM topologyProxy;
+
+    @Inject
+    PetasosPathwayExchangePropertyNames exchangePropertyNames;
     
     /**
      * This function reconstitutes the WorkUnitTransportPacket by extracting the WUPJobCard and ParcelStatusElement
@@ -64,20 +68,10 @@ public class WUPEgressConduit {
      * @return A WorkUnitTransportPacket object for relay to the other
      */
     public WorkUnitTransportPacket receiveFromWUP(UoW incomingUoW, Exchange camelExchange, String wupInstanceKey) {
-        if(LOG.isDebugEnabled()) {
-        	LOG.debug(".receiveFromWUP(): Entry");
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).instanceID --> {}", incomingUoW.getInstanceID());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).typeID --> {}", incomingUoW.getTypeID());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).payloadTopicID --> {}", incomingUoW.getPayloadTopicID());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).ingresContent --> {}", incomingUoW.getIngresContent());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).egressContent --> {}", incomingUoW.getEgressContent());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).payloadTopicID --> {}", incomingUoW.getPayloadTopicID());
-    		LOG.debug(".receiveFromWUP(): unitOfWork (UoW).processingOutcome --> {}", incomingUoW.getProcessingOutcome());
-    		LOG.debug(".receiveFromWUP(): wupInstanceKey (String) --> {}", wupInstanceKey);
-        } 
+        LOG.debug(".receiveFromWUP(): Entry, incomingUoW (UoW) --> {}, wupInstanceKey (String) --> {}", incomingUoW, wupInstanceKey);
         // Get my Petasos Context
         if( topologyProxy == null ) {
-        	LOG.info("Warning Will Robinson!!!");
+        	LOG.error(".receiveFromWUP(): Guru Software Meditation Error: topologyProxy is null");
         }
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         LOG.trace(".receiveFromWUP(): Node Element retrieved --> {}", node);
@@ -86,8 +80,8 @@ public class WUPEgressConduit {
         // Now, continue with business logic
         RouteElementNames elementNames = new RouteElementNames(wupFunctionToken);
         // Retrieve the information from the CamelExchange
-        String jobcardPropertyKey = "WUPJobCard" + wupInstanceKey; // this value should match the one in WUPIngresConduit.java
-        String parcelStatusPropertyKey = "ParcelStatusElement" + wupInstanceKey; // this value should match the one in WUPIngresConduit.java
+        String jobcardPropertyKey = exchangePropertyNames.getExchangeJobCardPropertyName(wupInstanceKey); // this value should match the one in WUPIngresConduit.java
+        String parcelStatusPropertyKey = exchangePropertyNames.getExchangeStatusElementPropertyName(wupInstanceKey); // this value should match the one in WUPIngresConduit.java
         WUPJobCard jobCard = camelExchange.getProperty(jobcardPropertyKey, WUPJobCard.class);
         ParcelStatusElement statusElement = camelExchange.getProperty(parcelStatusPropertyKey, ParcelStatusElement.class);
         // Now process incoming content
@@ -115,34 +109,6 @@ public class WUPEgressConduit {
         }
         transportPacket.setCurrentJobCard(jobCard);
         transportPacket.setCurrentParcelStatus(statusElement);
-        if(LOG.isDebugEnabled()) {
-        	LOG.debug(".receiveFromWUP(): Exit"); 
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousParcelInstance -->{}", transportPacket.getCurrentJobCard().getCardID().getPreviousParcelIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousEpisodeIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPFunctionToken());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPreviousWUPIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", transportPacket.getCurrentJobCard().getCardID().getPresentParcelIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentEpisodeIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPFunctionToken());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", transportPacket.getCurrentJobCard().getCardID().getPresentWUPIdentifier());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", transportPacket.getCurrentJobCard().getCardID().getCreationDate());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", transportPacket.getCurrentJobCard().getClusterMode());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getCurrentStatus());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getGrantedStatus());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).toBeDiscarded (boolean) --> {}", transportPacket.getCurrentJobCard().getIsToBeDiscarded());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).requestedStatus (WUPActivityStatusEnum) --> {}", transportPacket.getCurrentJobCard().getRequestedStatus());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", transportPacket.getCurrentJobCard().getSystemMode());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentJobCard (WUPJobCard).updateDate (Date) --> {}", transportPacket.getCurrentJobCard().getUpdateDate());
-        	LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).currentParcelStatus (ParcelStatusElement).parcelStatus (ResilienceParcelProcessingStatusEnum) --> {}", transportPacket.getCurrentParcelStatus().getParcelStatus());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).instanceID --> {}", transportPacket.getPayload().getInstanceID());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).typeID --> {}", transportPacket.getPayload().getTypeID());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", transportPacket.getPayload().getPayloadTopicID());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).ingresContent --> {}", transportPacket.getPayload().getIngresContent());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).egressContent --> {}", transportPacket.getPayload().getEgressContent());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).payloadTopicID --> {}", transportPacket.getPayload().getPayloadTopicID());
-            LOG.debug(".receiveFromWUP(): transportPacket (WorkUnitTransportPacket).getPayload (UoW).processingOutcome --> {}", transportPacket.getPayload().getProcessingOutcome());
-        }
-        
-        return (transportPacket); 
+        return (transportPacket);
     }
 }

@@ -38,9 +38,8 @@ public class AuditTrailSynchronousWriter {
     @Inject
     HestiaAuditWriter hestiaAuditLog;
 
-    public boolean synchronousWrite(ResilienceParcel parcel){
-        PetasosParcelAuditTrailEntry newAuditEntry = new PetasosParcelAuditTrailEntry(parcel);
-        boolean success = hestiaAuditLog.writeAuditEntry(newAuditEntry);
+    public boolean synchronousWrite(PetasosParcelAuditTrailEntry parcel){
+        boolean success = hestiaAuditLog.writeAuditEntry(parcel);
         return(success);
     }
 }

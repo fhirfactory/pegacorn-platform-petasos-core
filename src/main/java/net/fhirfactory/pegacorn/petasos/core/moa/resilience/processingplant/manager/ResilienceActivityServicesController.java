@@ -28,7 +28,7 @@ import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cach
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.RegisterNewMOAWorkUnitActivityTask;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 
 import org.slf4j.Logger;

@@ -68,7 +68,7 @@ public class ProcessingPlantParcelCacheDM {
         if (parcel == null) {
             return;
         }
-        if (!parcel.hasInstanceID()) {
+        if (!parcel.hasInstanceIdentifier()) {
             return;
         }
         FDNToken parcelInstanceID = parcel.getIdentifier();
@@ -101,7 +101,7 @@ public class ProcessingPlantParcelCacheDM {
         if (parcel == null) {
             return;
         }
-        if (!parcel.hasInstanceID()) {
+        if (!parcel.hasInstanceIdentifier()) {
             return;
         }
         if(petasosParcelCache.containsKey(parcel.getIdentifier())) {
@@ -214,7 +214,7 @@ public class ProcessingPlantParcelCacheDM {
         Iterator<ResilienceParcel> parcelListIterator = getParcelSet().iterator();
         while (parcelListIterator.hasNext()) {
             ResilienceParcel currentParcel = parcelListIterator.next();
-            if (currentParcel.hasAssociatedWUPInstanceID()) {
+            if (currentParcel.hasAssociatedWUPIdentifier()) {
                 if (currentParcel.getAssociatedWUPIdentifier().equals(wupInstanceID)) {
                     if (currentParcel.hasActualUoW()) {
                         if (currentParcel.getActualUoW().getInstanceID().equals(uowInstanceID)) {

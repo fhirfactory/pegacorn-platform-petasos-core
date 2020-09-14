@@ -20,13 +20,14 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.brokers;
+package net.fhirfactory.pegacorn.petasos.core.sta.brokers;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.SOAResilienceParcelServicesIM;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache.STAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.STAResilienceParcelServicesIM;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.sta.STATransaction;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -43,63 +44,67 @@ import javax.inject.Inject;
 import java.util.Set;
 
 @ApplicationScoped
-public class PetasosSOAServicesBroker {
-    private static final Logger LOG = LoggerFactory.getLogger(PetasosSOAServicesBroker.class);
+public class PetasosSTAServicesBroker {
+    private static final Logger LOG = LoggerFactory.getLogger(PetasosSTAServicesBroker.class);
 
     @Inject
-    SOAResilienceParcelServicesIM parcelServicesIM;
+    STAResilienceParcelServicesIM parcelServicesIM;
 
     @Inject
-    SOAServiceModuleActivityMatrixDM rasController;
+    STAServiceModuleActivityMatrixDM rasController;
 
     @Inject
     TopicIM topicManager;
 
-    public ParcelStatusElement registerSOAWorkUnitActivity(WUPJobCard jobCard, UoW initialUoW){
+    public STATransaction registerSOAWorkUnitActivity(WUPJobCard jobCard, UoW initialUoW){
         if((jobCard == null) || (initialUoW == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or initialUoW are null"));
         }
         ResilienceParcel newParcel = parcelServicesIM.registerSOAParcel(jobCard.getCardID(), initialUoW );
         jobCard.getCardID().setPresentParcelIdentifier(newParcel.getIdentifier());
         ParcelStatusElement statusElement = rasController.startTransaction(jobCard.getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE );
-        return(statusElement);
+        STATransaction transaction = new STATransaction();
+        transaction.setUnitOfWork(initialUoW);
+        transaction.setStatusElement(statusElement);
+        transaction.setJobCard(jobCard);
+        return(transaction);
     }
 
-    public void notifyFinishOfWorkUnitActivity(WUPJobCard jobCard, UoW finishedUoW){
-        if((jobCard == null) || (finishedUoW == null)){
+    public void notifyFinishOfWorkUnitActivity(STATransaction transaction){
+        if((transaction == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel finishedParcel = parcelServicesIM.notifySOAParcelProcessingFinish(jobCard.getCardID().getPresentParcelIdentifier(), finishedUoW);
-        rasController.finishTransaction(jobCard.getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
+        ResilienceParcel finishedParcel = parcelServicesIM.notifySOAParcelProcessingFinish(transaction.getJobCard().getCardID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
+        rasController.finishTransaction(transaction.getJobCard().getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
     }
 
-    public void notifyFailureOfWorkUnitActivity(WUPJobCard jobCard, UoW failedUoW){
-        if((jobCard == null) || (failedUoW == null)){
+    public void notifyFailureOfWorkUnitActivity(STATransaction transaction){
+        if(transaction == null){
             throw( new IllegalArgumentException(".notifyFailureOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingFailure(jobCard.getCardID().getPresentParcelIdentifier(), failedUoW);
-        rasController.finishTransaction(jobCard.getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
+        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingFailure(transaction.getJobCard().getCardID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
+        rasController.finishTransaction(transaction.getJobCard().getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
     }
 
-    public void notifyCancellationOfWorkUnitActivity(WUPJobCard jobCard){
-        if(jobCard == null){
+    public void notifyCancellationOfWorkUnitActivity(STATransaction transaction){
+        if(transaction == null){
             throw( new IllegalArgumentException(".notifyCancellationOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingCancellation(jobCard.getCardID().getPresentParcelIdentifier());
-        rasController.finishTransaction(jobCard.getCardID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
+        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingCancellation(transaction.getJobCard().getCardID().getPresentParcelIdentifier());
+        rasController.finishTransaction(transaction.getJobCard().getCardID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
     }
 
-    public void notifyPurgeOfWorkUnitActivity(WUPJobCard jobCard){
-        if((jobCard == null)){
+    public void notifyPurgeOfWorkUnitActivity(STATransaction transaction){
+        if((transaction == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard is null"));
         }
-        if(!jobCard.hasCardID()) {
+        if(!transaction.getJobCard().hasCardID()) {
             return;
         }
-        if(!jobCard.getCardID().hasPresentParcelIdentifier()){
+        if(!transaction.getJobCard().getCardID().hasPresentParcelIdentifier()){
             return;
         }
-        parcelServicesIM.notifySOAParcelProcessingPurge(jobCard.getCardID().getPresentParcelIdentifier());
+        parcelServicesIM.notifySOAParcelProcessingPurge(transaction.getJobCard().getCardID().getPresentParcelIdentifier());
     }
 
     public ParcelStatusElement getCurrentParcelStatusElement(ResilienceParcelIdentifier parcelInstanceID){
@@ -115,7 +120,6 @@ public class PetasosSOAServicesBroker {
     
     public void registerWorkUnitProcessor( NodeElement newElement, Set<TopicToken> payloadTopicSet, WUPArchetypeEnum wupNature){
         LOG.debug(".registerWorkUnitProcessor(): Entry, newElement --> {}, payloadTopicSet --> {}", newElement, payloadTopicSet);
-        topicManager.initialiseServices();
         // wupFrameworkManager.buildWUPFramework(newElement, payloadTopicSet, wupNature);
         // interchangeManager.buildWUPInterchangeRoutes(newElement);
     }

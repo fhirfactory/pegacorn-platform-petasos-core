@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Mark A. Hunter
+ * Copyright (c) 2020 MAHun
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,42 +19,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import javax.enterprise.context.ApplicationScoped;
-
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class MOAStandardWUP extends GenericMOAWUPTemplate {
+import java.util.Set;
 
-    public MOAStandardWUP() {
+public abstract class InteractAPICamelRestClientGatewayWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractAPICamelRestClientGatewayWUP.class);
+
+    private Set<EndpointElement> egressEndpointElements;
+
+    public InteractAPICamelRestClientGatewayWUP() {
         super();
+//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
-    
+
+    protected abstract String specifyEgressEndpointName();
+    protected abstract String specifyEgressEndpointVersion();
+    protected abstract boolean isRemote();
+
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_WORKER);
-    }
-    
-    @Override
-    protected String specifyEgressEndpoint(){
-        return(this.getNameSet().getEndPointWUPEgress());
+        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT);
     }
     
     @Override
     protected String specifyIngresEndpoint(){
-        return(this.getNameSet().getEndPointWUPIngres());
+        LOG.debug(".specifyIngresEndpoint(): Entry");
+        String endpointName = this.getNameSet().getEndPointWUPIngres();
+        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", endpointName);
+        return(endpointName);
     }
+
+    abstract protected String specifyEgressEndpointRESTProviderComponent();
+    abstract protected String specifyEgressEndpointPayloadEncapsulationType();
+    abstract protected String specifyEgressEndpointScheme();
+    abstract protected String specifyEgressEndpointContextPath();
 
     @Override
     protected String specifyIngresTopologyEndpointName() {
-        return null;
+        return (null);
     }
 
     @Override
     protected String specifyIngresEndpointVersion() {
-        return null;
+        return (null);
     }
 
     @Override
@@ -63,17 +78,7 @@ public abstract class MOAStandardWUP extends GenericMOAWUPTemplate {
     }
 
     @Override
-    protected String specifyEgressTopologyEndpointName() {
-        return null;
-    }
-
-    @Override
-    protected String specifyEgressEndpointVersion() {
-        return null;
-    }
-
-    @Override
     protected boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint() {
-        return (true);
+        return (false);
     }
 }

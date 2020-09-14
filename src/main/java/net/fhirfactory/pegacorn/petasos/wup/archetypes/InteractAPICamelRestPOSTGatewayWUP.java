@@ -22,51 +22,30 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import java.util.HashSet;
+import java.util.Set;
 
-public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
-    
+public abstract class InteractAPICamelRestPOSTGatewayWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractAPICamelRestPOSTGatewayWUP.class);
 
-    public InteractIngresMessagingGatewayWUP() {
+    public InteractAPICamelRestPOSTGatewayWUP() {
         super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
-    protected abstract String specifyIngresTopologyEndpointName();
-    protected abstract String specifyIngresEndpointVersion();
+    abstract protected String specifyIngresEndpointRESTProviderComponent();
+    abstract protected String specifyIngresEndpointPayloadEncapsulationType();
+    abstract protected String specifyIngresEndpointScheme();
+    abstract protected String specifyIngresEndpointContextPath();
 
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
         return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT);
-    }
-    
-    @Override
-    protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyIngresEndpoint(): Entry");
-        String ingresEndPoint;
-        ingresEndPoint = specifyEndpointComponentDefinition();
-        ingresEndPoint = ingresEndPoint + ":";
-        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocol();
-        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocolLeadIn();
-        ingresEndPoint = ingresEndPoint + this.getIngresTopologyEndpointElement().getHostname();
-        ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
-        ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
-        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
-        return(ingresEndPoint);
     }
 
     @Override
@@ -83,7 +62,7 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTem
     protected String specifyEgressTopologyEndpointName() {
         return null;
     }
-    
+
     @Override
     protected String specifyEgressEndpoint(){
         LOG.debug(".specifyEgressEndpoint(): Entry");
@@ -91,12 +70,6 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTem
         LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
         return(endpoint);
     }
-
-    @Override
-    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint() {
-        return(false);
-    }
-
 
     /**
      * The Ingres Message Gateway doesn't subscribe to ANY topics as it receives it's 
@@ -109,9 +82,9 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTem
         HashSet<TopicToken> subTopics = new HashSet<TopicToken>();
         return(subTopics);
     }
-    
-    abstract protected String specifyEndpointComponentDefinition();
-    abstract protected String specifyEndpointProtocol();
-    abstract protected String specifyEndpointProtocolLeadIn();
-    abstract protected String specifyEndpointProtocolLeadout();
+
+    @Override
+    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint() {
+        return(false);
+    }
 }

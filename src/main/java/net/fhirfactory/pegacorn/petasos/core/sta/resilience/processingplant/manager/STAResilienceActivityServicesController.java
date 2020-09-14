@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager;
+package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager;
 
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache.SOAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks.FinaliseSOAWorkUnitActivityTask;
-import net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager.tasks.RegisterNewSOAWorkUnitActivityTask;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache.STAServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.tasks.FinaliseSOAWorkUnitActivityTask;
+import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.tasks.RegisterNewSOAWorkUnitActivityTask;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
@@ -37,11 +37,11 @@ import javax.inject.Inject;
 
 
 @ApplicationScoped
-public class SOAResilienceActivityServicesController {
-    private static final Logger LOG = LoggerFactory.getLogger(SOAResilienceActivityServicesController.class);
+public class STAResilienceActivityServicesController {
+    private static final Logger LOG = LoggerFactory.getLogger(STAResilienceActivityServicesController.class);
 
     @Inject
-    SOAServiceModuleActivityMatrixDM activityMatrixDM;
+    STAServiceModuleActivityMatrixDM activityMatrixDM;
 
     @Inject
     TopologyIM topologyServer;

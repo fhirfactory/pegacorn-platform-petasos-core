@@ -73,6 +73,8 @@ public class WorkUnitProcessorFrameworkManager {
                     break;
                 case WUP_NATURE_API_PUSH:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_PUSH route");
+                    ExternalIngresWUPContainerRoute ingresRouteForAPIPush = new ExternalIngresWUPContainerRoute(camelctx, wupNode);
+                    camelctx.addRoutes(ingresRouteForAPIPush);
                     break;
                 case WUP_NATURE_API_ANSWER:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_ANSWER route");
@@ -112,7 +114,7 @@ public class WorkUnitProcessorFrameworkManager {
         while(topicIterator.hasNext()) {
             TopicToken currentTopicID = topicIterator.next();
             LOG.trace(".uowTopicSubscribe(): wupNode --> {} is subscribing to UoW Content Topic --> {}", wupNode, currentTopicID);
-            topicServer.addTopicSubscriber(currentTopicID, wupNode.getIdentifier() );
+            topicServer.addTopicSubscriber(currentTopicID, wupNode.getNodeInstanceID() );
         }
         LOG.debug(".uowTopicSubscribe(): Exit");
     }

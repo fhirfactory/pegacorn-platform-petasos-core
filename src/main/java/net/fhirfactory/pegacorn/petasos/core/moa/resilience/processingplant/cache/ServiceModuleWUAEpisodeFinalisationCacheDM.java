@@ -24,8 +24,8 @@ package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cac
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.WUAEpisodeFinalisationRegistrationStatus;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.WUAEpisodeFinalisationRegistrationStatusEnum;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatus;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

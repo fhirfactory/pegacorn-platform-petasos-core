@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.cache;
+package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache;
 
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
@@ -49,9 +49,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2020-08-26
  */
 @ApplicationScoped
-public class SOAServiceModuleActivityMatrixDM {
+public class STAServiceModuleActivityMatrixDM {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SOAServiceModuleActivityMatrixDM.class);
+    private static final Logger LOG = LoggerFactory.getLogger(STAServiceModuleActivityMatrixDM.class);
 
     private ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement> parcelStatusElementCache;
     private ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>> wuaEpisode2ParcelInstanceMap;
@@ -62,7 +62,7 @@ public class SOAServiceModuleActivityMatrixDM {
     @Inject
     TopologyIM moduleIM;
 
-    public SOAServiceModuleActivityMatrixDM() {
+    public STAServiceModuleActivityMatrixDM() {
         parcelStatusElementCache = new ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement>();
         wuaEpisode2ParcelInstanceMap = new ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>>();
     }

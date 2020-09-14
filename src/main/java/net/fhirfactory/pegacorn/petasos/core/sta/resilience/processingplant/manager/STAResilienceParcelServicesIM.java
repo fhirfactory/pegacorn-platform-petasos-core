@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package net.fhirfactory.pegacorn.petasos.core.soa.resilience.processingplant.manager;
+package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
-import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.EpisodeIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelFinalisationStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
@@ -45,8 +45,8 @@ import java.util.Date;
  * @author Mark A. Hunter
  */
 @ApplicationScoped
-public class SOAResilienceParcelServicesIM {
-    private static final Logger LOG = LoggerFactory.getLogger(SOAResilienceParcelServicesIM.class);
+public class STAResilienceParcelServicesIM {
+    private static final Logger LOG = LoggerFactory.getLogger(STAResilienceParcelServicesIM.class);
 //    private FDN nodeInstanceFDN;
 
     @Inject
@@ -87,7 +87,7 @@ public class SOAResilienceParcelServicesIM {
         	FDN uowTypeFDN = new FDN(unitOfWork.getTypeID());
         	newWUAFDN.appendFDN(uowTypeFDN);
         	EpisodeIdentifier wuaEpisodeToken = new EpisodeIdentifier(newWUAFDN.getToken());
-        	activityID.setPresentWUAEpisodeID(wuaEpisodeToken);
+        	activityID.setPresentEpisodeIdentifier(wuaEpisodeToken);
         }
         // 1st, lets register the parcel
         LOG.trace(".registerSOAParcel(): check for existing ResilienceParcel instance for this WUP/UoW combination");
