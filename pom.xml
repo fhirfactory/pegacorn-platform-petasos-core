@@ -107,14 +107,14 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
-        <!-- Pegacorn Customised Resources -->
+        <!-- Pegacorn Customised Resources
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-fhir-r4-model</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
             <type>jar</type>
-        </dependency>
+        </dependency> -->
         <!-- Pegacorn Petasos Information Model -->
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>

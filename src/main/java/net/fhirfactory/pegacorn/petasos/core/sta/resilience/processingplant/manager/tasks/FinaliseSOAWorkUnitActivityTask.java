@@ -23,7 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.tasks;
 
 import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache.STAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
@@ -55,15 +55,15 @@ public class FinaliseSOAWorkUnitActivityTask {
 			throw (new IllegalArgumentException(".doTask(): submittedJobCard is null"));
 		}
         if(LOG.isDebugEnabled()) {
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).previousParcelIdentifier -->{}", submittedJobCard.getCardID().getPreviousParcelIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).previousEpisodeIdentifier --> {}", submittedJobCard.getCardID().getPreviousEpisodeIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).previousWUPFunctionTokan --> {}", submittedJobCard.getCardID().getPreviousWUPFunctionToken());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).perviousWUPIdentifier --> {}", submittedJobCard.getCardID().getPreviousWUPIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).presentParcelIdentifier -->{}", submittedJobCard.getCardID().getPresentParcelIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).presentEpisodeIdentifier --> {}", submittedJobCard.getCardID().getPresentEpisodeIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).presentWUPFunctionTokan --> {}", submittedJobCard.getCardID().getPresentWUPFunctionToken());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContinuityID).presentWUPIdentifier --> {}", submittedJobCard.getCardID().getPresentWUPIdentifier());
-        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", submittedJobCard.getCardID().getCreationDate());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).previousParcelIdentifier -->{}", submittedJobCard.getActivityID().getPreviousParcelIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).previousEpisodeIdentifier --> {}", submittedJobCard.getActivityID().getPreviousEpisodeIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).previousWUPFunctionTokan --> {}", submittedJobCard.getActivityID().getPreviousWUPFunctionToken());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).perviousWUPIdentifier --> {}", submittedJobCard.getActivityID().getPreviousWUPIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).presentParcelIdentifier -->{}", submittedJobCard.getActivityID().getPresentParcelIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).presentEpisodeIdentifier --> {}", submittedJobCard.getActivityID().getPresentEpisodeIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).presentWUPFunctionTokan --> {}", submittedJobCard.getActivityID().getPresentWUPFunctionToken());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ActivityID).presentWUPIdentifier --> {}", submittedJobCard.getActivityID().getPresentWUPIdentifier());
+        	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).cardID (ContunuityID).createDate --> {}", submittedJobCard.getActivityID().getCreationDate());
         	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).clusterMode (ConcurrencyModeEnum) -->{}", submittedJobCard.getClusterMode());
         	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).currentStatus (WUPActivityStatusEnum) --> {}", submittedJobCard.getCurrentStatus());
         	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).grantedStatus (WUPActivityStatusEnum) --> {}", submittedJobCard.getGrantedStatus());
@@ -72,7 +72,7 @@ public class FinaliseSOAWorkUnitActivityTask {
         	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).systemMode (ResilienceModeEnum) --> {}", submittedJobCard.getSystemMode());
         	LOG.debug(".synchroniseJobCard(): submittedJobCard (WUPJobCard).updateDate (Date) --> {}", submittedJobCard.getUpdateDate());
         }
-		ContinuityID activityID = submittedJobCard.getCardID();
+		ActivityID activityID = submittedJobCard.getActivityID();
         NodeElementIdentifier nodeID = new NodeElementIdentifier(activityID.getPresentWUPIdentifier());
 		switch (topologyServer.getDeploymentResilienceMode(nodeID)) {
 		case RESILIENCE_MODE_MULTISITE:

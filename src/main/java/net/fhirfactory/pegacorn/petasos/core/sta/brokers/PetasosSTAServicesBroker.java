@@ -60,9 +60,9 @@ public class PetasosSTAServicesBroker {
         if((jobCard == null) || (initialUoW == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or initialUoW are null"));
         }
-        ResilienceParcel newParcel = parcelServicesIM.registerSOAParcel(jobCard.getCardID(), initialUoW );
-        jobCard.getCardID().setPresentParcelIdentifier(newParcel.getIdentifier());
-        ParcelStatusElement statusElement = rasController.startTransaction(jobCard.getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE );
+        ResilienceParcel newParcel = parcelServicesIM.registerSOAParcel(jobCard.getActivityID(), initialUoW );
+        jobCard.getActivityID().setPresentParcelIdentifier(newParcel.getIdentifier());
+        ParcelStatusElement statusElement = rasController.startTransaction(jobCard.getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE );
         STATransaction transaction = new STATransaction();
         transaction.setUnitOfWork(initialUoW);
         transaction.setStatusElement(statusElement);
@@ -74,37 +74,37 @@ public class PetasosSTAServicesBroker {
         if((transaction == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel finishedParcel = parcelServicesIM.notifySOAParcelProcessingFinish(transaction.getJobCard().getCardID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
-        rasController.finishTransaction(transaction.getJobCard().getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
+        ResilienceParcel finishedParcel = parcelServicesIM.notifySOAParcelProcessingFinish(transaction.getJobCard().getActivityID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
+        rasController.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
     }
 
     public void notifyFailureOfWorkUnitActivity(STATransaction transaction){
         if(transaction == null){
             throw( new IllegalArgumentException(".notifyFailureOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingFailure(transaction.getJobCard().getCardID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
-        rasController.finishTransaction(transaction.getJobCard().getCardID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
+        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingFailure(transaction.getJobCard().getActivityID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
+        rasController.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
     }
 
     public void notifyCancellationOfWorkUnitActivity(STATransaction transaction){
         if(transaction == null){
             throw( new IllegalArgumentException(".notifyCancellationOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingCancellation(transaction.getJobCard().getCardID().getPresentParcelIdentifier());
-        rasController.finishTransaction(transaction.getJobCard().getCardID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
+        ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingCancellation(transaction.getJobCard().getActivityID().getPresentParcelIdentifier());
+        rasController.finishTransaction(transaction.getJobCard().getActivityID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
     }
 
     public void notifyPurgeOfWorkUnitActivity(STATransaction transaction){
         if((transaction == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard is null"));
         }
-        if(!transaction.getJobCard().hasCardID()) {
+        if(!transaction.getJobCard().hasActivityID()) {
             return;
         }
-        if(!transaction.getJobCard().getCardID().hasPresentParcelIdentifier()){
+        if(!transaction.getJobCard().getActivityID().hasPresentParcelIdentifier()){
             return;
         }
-        parcelServicesIM.notifySOAParcelProcessingPurge(transaction.getJobCard().getCardID().getPresentParcelIdentifier());
+        parcelServicesIM.notifySOAParcelProcessingPurge(transaction.getJobCard().getActivityID().getPresentParcelIdentifier());
     }
 
     public ParcelStatusElement getCurrentParcelStatusElement(ResilienceParcelIdentifier parcelInstanceID){

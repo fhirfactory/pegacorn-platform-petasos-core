@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.archetypes.ExternalEgressWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.archetypes.ExternalIngresWUPContainerRoute;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.archetypes.StandardWUPContainerRoute;
 import org.apache.camel.CamelContext;
@@ -62,7 +63,34 @@ public class WorkUnitProcessorFrameworkManager {
         LOG.debug(".buildWUPFramework(): Entry, wupNode --> {}, subscribedTopics --> {}, wupArchetype --> {}", wupNode, subscribedTopics, wupArchetype);
         try {
             switch (wupArchetype) {
-                case WUP_NATURE_MESSAGE_WORKER:
+                case WUP_NATURE_LAODN_STIMULI_TRIGGERED_BEHAVIOUR: {
+                    LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_STIMULI_TRIGGERED_BEHAVIOUR route");
+                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode, true);
+                    LOG.trace(".buildWUPFramework(): Route created, now adding it to he CamelContext!");
+                    camelctx.addRoutes(standardWUPRoute);
+                    LOG.trace(".buildWUPFramework(): Now subscribing this WUP/Route to UoW Content Topics");
+                    uowTopicSubscribe(subscribedTopics, wupNode);
+                    LOG.trace(".buildWUPFramework(): Subscribed to Topics, work is done!");
+                    break;
+                }
+                case WUP_NATURE_LADON_TIMER_TRIGGERED_BEHAVIOUR: {
+                    LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_LADON_TIMER_TRIGGERED_BEHAVIOUR route");
+                    ExternalIngresWUPContainerRoute ingresRoute = new ExternalIngresWUPContainerRoute(camelctx, wupNode);
+                    camelctx.addRoutes(ingresRoute);
+                    LOG.trace(".buildWUPFramework(): Note, this type of WUP/Route does not subscribe to Topics (it is purely a producer)");
+                    break;
+                }
+                case WUP_NATURE_LADON_STANDARD_MOA: {
+                    LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_LADON_STANDARD_MOA route");
+                    StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode, true);
+                    LOG.trace(".buildWUPFramework(): Route created, now adding it to he CamelContext!");
+                    camelctx.addRoutes(standardWUPRoute);
+                    LOG.trace(".buildWUPFramework(): Now subscribing this WUP/Route to UoW Content Topics");
+                    uowTopicSubscribe(subscribedTopics, wupNode);
+                    LOG.trace(".buildWUPFramework(): Subscribed to Topics, work is done!");
+                    break;
+                }
+                case WUP_NATURE_MESSAGE_WORKER: {
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_WORKER route");
                     StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode);
                     LOG.trace(".buildWUPFramework(): Route created, now adding it to he CamelContext!");
@@ -71,6 +99,7 @@ public class WorkUnitProcessorFrameworkManager {
                     uowTopicSubscribe(subscribedTopics, wupNode);
                     LOG.trace(".buildWUPFramework(): Subscribed to Topics, work is done!");
                     break;
+                }
                 case WUP_NATURE_API_PUSH:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_PUSH route");
                     ExternalIngresWUPContainerRoute ingresRouteForAPIPush = new ExternalIngresWUPContainerRoute(camelctx, wupNode);
@@ -84,6 +113,8 @@ public class WorkUnitProcessorFrameworkManager {
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT route");
+                    ExternalEgressWUPContainerRoute egressRoute = new ExternalEgressWUPContainerRoute(camelctx, wupNode);
+                    camelctx.addRoutes(egressRoute);
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT route");
@@ -94,9 +125,8 @@ public class WorkUnitProcessorFrameworkManager {
                 case WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT route");
             }
-//            camelCTX.start();
         } catch(Exception Ex){
-
+            // TODO We really must handle this exception, either by cancelling the whole Processing Plant or, at least, raising an alarm
         }
 
     }

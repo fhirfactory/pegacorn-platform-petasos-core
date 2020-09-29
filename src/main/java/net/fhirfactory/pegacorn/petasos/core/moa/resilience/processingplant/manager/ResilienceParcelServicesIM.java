@@ -25,9 +25,9 @@ package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.man
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelFinalisationStatusEnum;
@@ -57,20 +57,20 @@ public class ResilienceParcelServicesIM {
     
 
     @Transactional
-    public ResilienceParcel registerParcel(ContinuityID activityID, UoW unitOfWork, boolean synchronousWriteToAudit) {
+    public ResilienceParcel registerParcel(ActivityID activityID, UoW unitOfWork, boolean synchronousWriteToAudit) {
         LOG.debug(".registerParcel(): Entry"); 
         if ((unitOfWork == null) || (activityID == null)) {
             throw (new IllegalArgumentException("unitOfWork, wupTypeID or wupInstanceID are null in method invocation"));
         }
         if(LOG.isDebugEnabled()) {
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousWUPFunctionTokan --> {}", activityID.getPreviousWUPFunctionToken());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).previousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
-    		LOG.debug(".registerParcel(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).previousWUPFunctionTokan --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).previousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".registerParcel(): activityID (ActivityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
     		LOG.debug(".registerParcel(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
     		LOG.debug(".registerParcel(): unitOfWork (UoW).instanceID --> {}", unitOfWork.getInstanceID());
     		LOG.debug(".registerParcel(): unitOfWork (UoW).typeID --> {}", unitOfWork.getTypeID());
@@ -98,7 +98,7 @@ public class ResilienceParcelServicesIM {
             LOG.trace(".registerParcel(): Attempted to retrieve existing ResilienceParcel, and there wasn't one, so let's create it!");
             parcelInstance = new ResilienceParcel(activityID, unitOfWork);
             parcelCacheDM.addParcel(parcelInstance);
-            LOG.trace(".registerParcel(): Set the PresentParcelInstanceID in the ActivityID (ContinuityID), ParcelInstanceID --> {}", parcelInstance.getIdentifier());
+            LOG.trace(".registerParcel(): Set the PresentParcelInstanceID in the ActivityID (ActivityID), ParcelInstanceID --> {}", parcelInstance.getIdentifier());
             activityID.setPresentParcelIdentifier(parcelInstance.getIdentifier());
             Date registrationDate = Date.from(Instant.now());
             LOG.trace(".registerParcel(): Set the Registration Date --> {}", registrationDate);

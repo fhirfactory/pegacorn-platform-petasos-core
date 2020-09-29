@@ -22,26 +22,20 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import java.util.HashSet;
+import java.util.Set;
 
-public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
-    
+public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(EdgeIngresMessagingGatewayWUP.class);
 
-    public InteractIngresMessagingGatewayWUP() {
+
+    public EdgeIngresMessagingGatewayWUP() {
         super();
 //        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }

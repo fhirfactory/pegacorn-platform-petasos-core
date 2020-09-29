@@ -24,8 +24,12 @@ package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cac
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatus;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatusEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionTokenSet;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +61,8 @@ import javax.enterprise.context.ApplicationScoped;
 public class ServiceModuleWUAEpisodeFinalisationCacheDM {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleWUAEpisodeFinalisationCacheDM.class);
 
-    private ConcurrentHashMap<FDNToken, WUAEpisodeFinalisationRegistrationStatus> downstreamRegistrationStatusSet;
-    private ConcurrentHashMap<FDNToken, FDNTokenSet> downstreamWUPRegistrationMap;
+    private ConcurrentHashMap<EpisodeIdentifier, WUAEpisodeFinalisationRegistrationStatus> downstreamRegistrationStatusSet;
+    private ConcurrentHashMap<EpisodeIdentifier, WUPFunctionTokenSet> downstreamWUPRegistrationMap;
     private Object wupRegistrationSetLock;
 
     /**
@@ -66,8 +70,8 @@ public class ServiceModuleWUAEpisodeFinalisationCacheDM {
      * including instantiation of the ConcurrentHashMaps used for caching the data.
      */
     public ServiceModuleWUAEpisodeFinalisationCacheDM() {
-        downstreamRegistrationStatusSet = new ConcurrentHashMap<FDNToken, WUAEpisodeFinalisationRegistrationStatus>();
-        downstreamWUPRegistrationMap = new ConcurrentHashMap<FDNToken, FDNTokenSet>();
+        downstreamRegistrationStatusSet = new ConcurrentHashMap<EpisodeIdentifier, WUAEpisodeFinalisationRegistrationStatus>();
+        downstreamWUPRegistrationMap = new ConcurrentHashMap<EpisodeIdentifier, WUPFunctionTokenSet>();
         wupRegistrationSetLock = new Object();
     }
 
@@ -84,24 +88,24 @@ public class ServiceModuleWUAEpisodeFinalisationCacheDM {
      * of Egress from the WUP processing is it known if a particular UoW is (successfully produced) by a WUP Instance.
      *
      * @param wuaEpisodeID            The WUA Episode ID (that generates the output UoW which we are tracking the finalisation of the associated parcel of)
-     * @param downstreamWUPInstanceID The WUP Instance that will consuming the UoW and, therefore, is a downstream consumer of the output of this WUA Episode.
+     * @param downstreamWUPFunctionId The WUP Function that will consuming the UoW and, therefore, is a downstream consumer of the output of this WUA Episode.
      */
-    public void registerDownstreamWUPInterest(FDNToken wuaEpisodeID, FDNToken downstreamWUPInstanceID) {
-        LOG.debug(".registerDownstreamWUPInterest(): Entry, wuaEpisodeID --> {}, downstreamWUPInstanceID --> {}", wuaEpisodeID, downstreamWUPInstanceID);
-        if ((wuaEpisodeID == null) || (downstreamWUPInstanceID == null)) {
-            throw (new IllegalArgumentException(".registerDownstreamWUPInterest(): wuaEpisodeID or downstreamWUPInstanceID are null"));
+    public void registerDownstreamWUPInterest(EpisodeIdentifier wuaEpisodeID, WUPFunctionToken downstreamWUPFunctionId) {
+        LOG.debug(".registerDownstreamWUPInterest(): Entry, wuaEpisodeID --> {}, downstreamWUPFunctionId --> {}", wuaEpisodeID, downstreamWUPFunctionId);
+        if ((wuaEpisodeID == null) || (downstreamWUPFunctionId == null)) {
+            throw (new IllegalArgumentException(".registerDownstreamWUPInterest(): wuaEpisodeID or downstreamWUPFunctionId are null"));
         }
         synchronized (wupRegistrationSetLock) {
-            if(!downstreamRegistrationStatusSet.containsKey(downstreamWUPInstanceID)) {
-                WUAEpisodeFinalisationRegistrationStatus newRegistrationStatusElement = new WUAEpisodeFinalisationRegistrationStatus(downstreamWUPInstanceID);
-                downstreamRegistrationStatusSet.put(downstreamWUPInstanceID,newRegistrationStatusElement );
+            if(!downstreamRegistrationStatusSet.containsKey(wuaEpisodeID)) {
+                WUAEpisodeFinalisationRegistrationStatus newRegistrationStatusElement = new WUAEpisodeFinalisationRegistrationStatus(downstreamWUPFunctionId);
+                downstreamRegistrationStatusSet.put(wuaEpisodeID,newRegistrationStatusElement );
             }
             if (downstreamWUPRegistrationMap.containsKey(wuaEpisodeID)) {
-                FDNTokenSet downstreamEpisode2WUPSet = downstreamWUPRegistrationMap.get(wuaEpisodeID);
-                downstreamEpisode2WUPSet.addElement(downstreamWUPInstanceID);
+                WUPFunctionTokenSet downstreamEpisode2WUPSet = downstreamWUPRegistrationMap.get(wuaEpisodeID);
+                downstreamEpisode2WUPSet.addElement(downstreamWUPFunctionId);
             } else {
-                FDNTokenSet downstreamEpisode2WUPSet = new FDNTokenSet();
-                downstreamEpisode2WUPSet.addElement(downstreamWUPInstanceID);
+                WUPFunctionTokenSet downstreamEpisode2WUPSet = new WUPFunctionTokenSet();
+                downstreamEpisode2WUPSet.addElement(downstreamWUPFunctionId);
                 downstreamWUPRegistrationMap.put(wuaEpisodeID, downstreamEpisode2WUPSet);
             }
         }
@@ -115,19 +119,19 @@ public class ServiceModuleWUAEpisodeFinalisationCacheDM {
      * "Finalised".
      *
      * @param originalEpisodeID       The WUA Episode ID (that generates the output UoW which we are tracking the finalisation of the associated parcel of)
-     * @param downstreamWUPInstanceID The WUP Instance that will consuming the UoW and, therefore, is a downstream consumer of the output of this WUA Episode.
+     * @param downstreamWUPFunctionID The WUP Instance that will consuming the UoW and, therefore, is a downstream consumer of the output of this WUA Episode.
      * @param downstreamEpisodeID     The new WUA Episode ID creating by the WUP (and, therefore, synchronised across the WHOLE deployment).
      */
-    public void registerDownstreamEpisodeID(FDNToken originalEpisodeID, FDNToken downstreamWUPInstanceID, FDNToken downstreamEpisodeID) {
-        LOG.debug(".registerDownstreamEpisodeID(): Entry, originalEpisodeID --> {}, downstreamWUPInstanceID --> {}, downstreamEpisodeID --> {} ", originalEpisodeID, downstreamWUPInstanceID, downstreamEpisodeID);
-        if ((originalEpisodeID == null) || (downstreamWUPInstanceID == null) || (downstreamEpisodeID == null)) {
+    public void registerDownstreamEpisodeID(EpisodeIdentifier originalEpisodeID, WUPFunctionToken downstreamWUPFunctionID, EpisodeIdentifier downstreamEpisodeID) {
+        LOG.debug(".registerDownstreamEpisodeID(): Entry, originalEpisodeID --> {}, downstreamWUPInstanceID --> {}, downstreamEpisodeID --> {} ", originalEpisodeID, downstreamWUPFunctionID, downstreamEpisodeID);
+        if ((originalEpisodeID == null) || (downstreamWUPFunctionID == null) || (downstreamEpisodeID == null)) {
             throw (new IllegalArgumentException(".registerDownstreamEpisodeID(): originalEpisodeID, downstreamWUPInstanceID, downstreamEpisodeID are null"));
         }
         WUAEpisodeFinalisationRegistrationStatus wupInstanceFinalisationStatus;
-        if (!downstreamRegistrationStatusSet.containsKey(downstreamWUPInstanceID)) {
-            registerDownstreamWUPInterest(originalEpisodeID, downstreamWUPInstanceID);
+        if (!downstreamRegistrationStatusSet.containsKey(downstreamWUPFunctionID)) {
+            registerDownstreamWUPInterest(originalEpisodeID, downstreamWUPFunctionID);
         }
-        wupInstanceFinalisationStatus = downstreamRegistrationStatusSet.get(downstreamWUPInstanceID);
+        wupInstanceFinalisationStatus = downstreamRegistrationStatusSet.get(downstreamWUPFunctionID);
         wupInstanceFinalisationStatus.setActualDownstreamEpisodeID(downstreamEpisodeID);
     }
 
@@ -144,14 +148,14 @@ public class ServiceModuleWUAEpisodeFinalisationCacheDM {
             LOG.debug(".checkForEpisodeFinalisation(): wuaEpisodeID parameter is null, returning false");
             return(false);
         }
-        FDNTokenSet downstreamEpisode2WUPSet = downstreamWUPRegistrationMap.get(wuaEpisodeID);
+        WUPFunctionTokenSet downstreamEpisode2WUPSet = downstreamWUPRegistrationMap.get(wuaEpisodeID);
         if(downstreamEpisode2WUPSet.isEmpty()){
             LOG.debug(".checkForEpisodeFinalisation(): If there are no registered downstream WUPs, then - by default - it's finalised! Returning -true-");
             return(true);
         }
-        Iterator<FDNToken> wupInstanceIDIterator = downstreamEpisode2WUPSet.getElements().iterator();
+        Iterator<WUPFunctionToken> wupInstanceIDIterator = downstreamEpisode2WUPSet.getElements().iterator();
         while(wupInstanceIDIterator.hasNext()){
-            FDNToken wupInstanceID = wupInstanceIDIterator.next();
+            WUPFunctionToken wupInstanceID = wupInstanceIDIterator.next();
             if(downstreamRegistrationStatusSet.containsKey(wupInstanceID)) {
                 WUAEpisodeFinalisationRegistrationStatus finalisationRegistrationStatus = downstreamRegistrationStatusSet.get(wupInstanceID);
                 if (finalisationRegistrationStatus.getRegistrationStatus() == WUAEpisodeFinalisationRegistrationStatusEnum.DOWNSTREAM_EPISODE_ID_NOT_REGISTERED) {

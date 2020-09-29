@@ -50,10 +50,10 @@ public class ExternalIngresWUPContainerRoute extends RouteBuilder {
     @Override
     public void configure() {
         LOG.debug(".configure(): Entry!, for wupNodeElement --> {}", this.wupNodeElement);
-        LOG.info("ExternalIngresWUPContainerRoute :: EndPointWUPIngres --> Per Implementation Specified");
-        LOG.info("ExternalIngresWUPContainerRoute :: EndPointWUPEgress --> {}", nameSet.getEndPointWUPEgress() );
-        LOG.info("ExternalIngresWUPContainerRoute :: EndPointWUPEgressConduitEgress --> {}", nameSet.getEndPointWUPEgressConduitEgress());
-        LOG.info("ExternalIngresWUPContainerRoute :: EndPointWUPContainerEgressProcessorEgress --> {}", nameSet.getEndPointWUPContainerEgressProcessorEgress());
+        LOG.debug("ExternalIngresWUPContainerRoute :: EndPointWUPIngres --> Per Implementation Specified");
+        LOG.debug("ExternalIngresWUPContainerRoute :: EndPointWUPEgress --> {}", nameSet.getEndPointWUPEgress() );
+        LOG.debug("ExternalIngresWUPContainerRoute :: EndPointWUPEgressConduitEgress --> {}", nameSet.getEndPointWUPEgressConduitEgress());
+        LOG.debug("ExternalIngresWUPContainerRoute :: EndPointWUPContainerEgressProcessorEgress --> {}", nameSet.getEndPointWUPContainerEgressProcessorEgress());
         
       
         from(nameSet.getEndPointWUPEgress())
@@ -63,11 +63,19 @@ public class ExternalIngresWUPContainerRoute extends RouteBuilder {
                 .to(nameSet.getEndPointWUPEgressConduitEgress());
 
         from(nameSet.getEndPointWUPEgressConduitEgress())
+                .routeId(nameSet.getRouteWUPEgressConduitEgress2WUPEgressProcessorIngres())
+                .to(nameSet.getEndPointWUPContainerEgressProcessorIngres());
+
+        from(nameSet.getEndPointWUPContainerEgressProcessorIngres())
                 .routeId(nameSet.getRouteWUPContainerEgressProcessor())
                 .bean(WUPContainerEgressProcessor.class, "egressContentProcessor(*, Exchange," + this.wupNodeElement.extractNodeKey() + ")")
                 .to(nameSet.getEndPointWUPContainerEgressProcessorEgress());
 
         from(nameSet.getEndPointWUPContainerEgressProcessorEgress())
+                .routeId(nameSet.getRouteWUPEgressProcessorEgress2WUPEgressGatekeeperIngres())
+                .to(nameSet.getEndPointWUPContainerEgressGatekeeperIngres());
+
+        from(nameSet.getEndPointWUPContainerEgressGatekeeperIngres())
                 .routeId(nameSet.getRouteWUPContainerEgressGateway())
                 .bean(WUPContainerEgressGatekeeper.class, "egressGatekeeper(*, Exchange," + this.wupNodeElement.extractNodeKey() + ")");
 

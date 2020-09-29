@@ -6,6 +6,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ import javax.inject.Inject;
 public abstract class GenericSTAWUPTemplate {
     private static final Logger LOG = LoggerFactory.getLogger(GenericSTAWUPTemplate.class);
 
-    private NodeElementFunctionToken wupFunctionToken;
+    private WUPFunctionToken wupFunctionToken;
     private WUPIdentifier wupIdentifier;
     private String wupInstanceName;
     private WUPJobCard wupInstanceJobCard;
@@ -63,9 +64,9 @@ public abstract class GenericSTAWUPTemplate {
     abstract String specifyWUPVersion();
     abstract String specifyWUPInstanceName();
 
-    public NodeElementFunctionToken specifyFunctionToken() {
+    public WUPFunctionToken specifyFunctionToken() {
         LOG.debug(".specifyFunctionToken(): Entry, wupInstanceID --> {}", this.wupIdentifier);
-        NodeElementFunctionToken functionToken = wupTopologyProxy.getWUPFunctionToken(this.wupIdentifier);
+        WUPFunctionToken functionToken = wupTopologyProxy.getWUPFunctionToken(this.wupIdentifier);
         LOG.debug(".specifyFunctionToken(): Exit, retrieved functionToken --> {}", functionToken);
         return(functionToken);
     }
@@ -119,7 +120,11 @@ public abstract class GenericSTAWUPTemplate {
         return wupFunctionToken;
     }
 
-    public void setWupFunctionToken(NodeElementFunctionToken wupFunctionToken) {
+    public void setWupFunctionToken(NodeElementFunctionToken nodeFunctionToken) {
+        this.wupFunctionToken = new WUPFunctionToken(nodeFunctionToken);
+    }
+
+    public void setWupFunctionToken(WUPFunctionToken wupFunctionToken) {
         this.wupFunctionToken = wupFunctionToken;
     }
 

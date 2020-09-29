@@ -31,21 +31,36 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class InteractAPICamelRestPOSTGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractAPICamelRestPOSTGatewayWUP.class);
+public abstract class LadonTimerTriggeredBehaviourWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(LadonTimerTriggeredBehaviourWUP.class);
 
-    public InteractAPICamelRestPOSTGatewayWUP() {
+
+    public LadonTimerTriggeredBehaviourWUP() {
         super();
+//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
-    abstract protected String specifyIngresEndpointRESTProviderComponent();
-    abstract protected String specifyIngresEndpointPayloadEncapsulationType();
-    abstract protected String specifyIngresEndpointScheme();
-    abstract protected String specifyIngresEndpointContextPath();
+    protected abstract String specifyIngresTopologyEndpointName();
+    protected abstract String specifyIngresEndpointVersion();
 
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT);
+        return(WUPArchetypeEnum.WUP_NATURE_LADON_TIMER_TRIGGERED_BEHAVIOUR);
+    }
+    
+    @Override
+    protected String specifyIngresEndpoint(){
+        LOG.debug(".specifyIngresEndpoint(): Entry");
+        String ingresEndPoint;
+        ingresEndPoint = specifyEndpointComponentDefinition();
+        ingresEndPoint = ingresEndPoint + ":";
+        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocol();
+        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocolLeadIn();
+        ingresEndPoint = ingresEndPoint + this.getIngresTopologyEndpointElement().getHostname();
+        ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
+        ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
+        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
+        return(ingresEndPoint);
     }
 
     @Override
@@ -62,7 +77,7 @@ public abstract class InteractAPICamelRestPOSTGatewayWUP extends GenericMOAWUPTe
     protected String specifyEgressTopologyEndpointName() {
         return null;
     }
-
+    
     @Override
     protected String specifyEgressEndpoint(){
         LOG.debug(".specifyEgressEndpoint(): Entry");
@@ -70,6 +85,12 @@ public abstract class InteractAPICamelRestPOSTGatewayWUP extends GenericMOAWUPTe
         LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
         return(endpoint);
     }
+
+    @Override
+    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint() {
+        return(false);
+    }
+
 
     /**
      * The Ingres Message Gateway doesn't subscribe to ANY topics as it receives it's 
@@ -82,9 +103,9 @@ public abstract class InteractAPICamelRestPOSTGatewayWUP extends GenericMOAWUPTe
         HashSet<TopicToken> subTopics = new HashSet<TopicToken>();
         return(subTopics);
     }
-
-    @Override
-    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint() {
-        return(false);
-    }
+    
+    abstract protected String specifyEndpointComponentDefinition();
+    abstract protected String specifyEndpointProtocol();
+    abstract protected String specifyEndpointProtocolLeadIn();
+    abstract protected String specifyEndpointProtocolLeadout();
 }

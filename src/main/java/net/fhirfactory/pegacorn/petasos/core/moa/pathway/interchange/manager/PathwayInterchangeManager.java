@@ -25,6 +25,7 @@ package net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.manager;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import org.apache.camel.CamelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,17 +52,33 @@ public class PathwayInterchangeManager {
      * @param nodeElement the WUP's NodeElement we are building the Interchange routes for
      */
 
-    public void buildWUPInterchangeRoutes(NodeElement nodeElement){
+    public void buildWUPInterchangeRoutes(NodeElement nodeElement, WUPArchetypeEnum wupType) {
         LOG.debug(".buildWUPInterchangeRoutes(): Entry, nodeElement --> {}", nodeElement);
-        InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camelctx,nodeElement);
-        LOG.trace(".buildWUPInterchangeRoutes(): Attempting to install new Route");
-        try{
-            camelctx.addRoutes(newRoute);
-            LOG.trace(".buildWUPInterchangeRoutes(): Route installation successful");
+
+        switch (wupType) {
+            case WUP_NATURE_API_ANSWER:
+            case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT: {
+                // do nothing, as these WUPs do not require egress content routing
+                LOG.trace(".buildWUPInterchangeRoutes(): This WUP does not require an Interchange service");
+                break;
+            }
+            case WUP_NATURE_API_PUSH:
+            case WUP_NATURE_API_RECEIVE:
+            case WUP_NATURE_MESSAGE_WORKER:
+            case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
+            case WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT:
+            default: {
+                LOG.trace(".buildWUPInterchangeRoutes(): This WUP requires an Interchange service");
+                try {
+                    InterchangeExtractAndRouteTemplate newRoute = new InterchangeExtractAndRouteTemplate(camelctx, nodeElement);
+                    LOG.trace(".buildWUPInterchangeRoutes(): Attempting to install new Route");
+                    camelctx.addRoutes(newRoute);
+                    LOG.trace(".buildWUPInterchangeRoutes(): Route installation successful");
+                } catch (Exception Ex) {
+                    LOG.debug(".buildWUPInterchangeRoutes(): Route install failed! Exception --> {}", Ex);
+                }
+            }
+            LOG.debug(".buildWUPInterchangeRoutes(): Exit - All good it seems!");
         }
-        catch(Exception Ex){
-            LOG.debug(".buildWUPInterchangeRoutes(): Route install failed! Exception --> {}", Ex);
-        }
-        LOG.debug(".buildWUPInterchangeRoutes(): Exit - All good it seems!");
     }
 }

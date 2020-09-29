@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
@@ -45,7 +46,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
  * @author Mark A. Hunter
  * @since 2020-07-01
  */
-@ApplicationScoped
+@Dependent
 public class WUPContainerEgressGatekeeper {
     private static final Logger LOG = LoggerFactory.getLogger(WUPContainerEgressGatekeeper.class);
     private static final String EGRESS_GATEKEEPER_PROCESSED_PROPERTY = "EgressGatekeeperSemaphore";

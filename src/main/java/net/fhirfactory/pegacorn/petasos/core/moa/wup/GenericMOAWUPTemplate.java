@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.deployment.datasets.systems.fhir.FHIRElementTopicIDBuilder;
 import net.fhirfactory.pegacorn.deployment.properties.PegacornCoreSubsystemComponentNames;
 import net.fhirfactory.pegacorn.petasos.model.processingplant.ProcessingPlantServicesInterface;
 import net.fhirfactory.pegacorn.petasos.model.topology.*;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
+import net.fhirfactory.pegacorn.datasets.fhir.r4.internal.topics.FHIRElementTopicIDBuilder;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
@@ -133,6 +133,7 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
         LOG.trace(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
         LOG.trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
         buildWUPFramework(this.getContext());
+        LOG.debug(".initialise(): Exit");
     }
     
     // To be implemented methods (in Specialisations)

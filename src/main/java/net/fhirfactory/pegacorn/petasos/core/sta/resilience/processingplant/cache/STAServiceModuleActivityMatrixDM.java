@@ -22,7 +22,7 @@
 package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache;
 
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
@@ -81,18 +81,18 @@ public class STAServiceModuleActivityMatrixDM {
      * @param initialProcessingStatus The initial (provided) Processing Status of the ResilienceParcel
      * @return A ParcelStatusElement which is used by the WUP Components to determine execution & status privileges.
      */
-    public ParcelStatusElement startTransaction(ContinuityID activityID, ResilienceParcelProcessingStatusEnum initialProcessingStatus) {
+    public ParcelStatusElement startTransaction(ActivityID activityID, ResilienceParcelProcessingStatusEnum initialProcessingStatus) {
     	if(LOG.isDebugEnabled()) {
     		// There's just too much information in this object to have it print on a single line and be able to debug with it!!!
     		LOG.debug(".startTransaction(): Entry");
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
-    		LOG.debug(".startTransaction(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".startTransaction(): activityID (ActivityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
     		LOG.debug(".startTransaction(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
     		LOG.debug(".startTransaction(): initialProcessingStatus (ResilienceParcelProcessingStatusEnum) --> {}", initialProcessingStatus);
     	}
@@ -177,21 +177,21 @@ public class STAServiceModuleActivityMatrixDM {
      * @param activityID The unique Identifier that distinctly represents this work/resilience activity function
      * @param status     The new status to be applied to the WUA Element
      */
-    public void finishTransaction(ContinuityID activityID, ResilienceParcelProcessingStatusEnum status) {
+    public void finishTransaction(ActivityID activityID, ResilienceParcelProcessingStatusEnum status) {
         if (activityID == null) {
-            throw (new IllegalArgumentException(".updateParcelActivity(): ContinuityID (activityID) Processing Status (status) is null"));
+            throw (new IllegalArgumentException(".updateParcelActivity(): ActivityID (activityID) Processing Status (status) is null"));
         }
         if(LOG.isDebugEnabled()) {
             // There's just too much information in this object to have it print on a single line and be able to debug with it!!!
             LOG.debug(".startTransaction(): Entry");
-            LOG.debug(".startTransaction(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
-            LOG.debug(".startTransaction(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
+            LOG.debug(".startTransaction(): activityID (ActivityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+            LOG.debug(".startTransaction(): activityID (ActivityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+            LOG.debug(".startTransaction(): activityID (ActivityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
             LOG.debug(".startTransaction(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
             LOG.debug(".startTransaction(): initialProcessingStatus (ResilienceParcelProcessingStatusEnum) --> {}", status);
         }

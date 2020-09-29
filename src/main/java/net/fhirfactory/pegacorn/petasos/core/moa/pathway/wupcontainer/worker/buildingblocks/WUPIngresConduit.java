@@ -22,22 +22,21 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.buildingblocks;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.PetasosPathwayExchangePropertyNames;
+import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
+import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
-import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 
 /**
  * @author Mark A. Hunter
  * @since 2020-07-05
  */
-@ApplicationScoped
+@Dependent
 public class WUPIngresConduit {
 
     @Inject

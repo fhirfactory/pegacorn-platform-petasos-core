@@ -21,20 +21,18 @@
  */
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import javax.enterprise.context.ApplicationScoped;
-
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
-public abstract class MOAStandardWUP extends GenericMOAWUPTemplate {
+public abstract class LadonStandardMOAWUP extends GenericMOAWUPTemplate {
 
-    public MOAStandardWUP() {
+    public LadonStandardMOAWUP() {
         super();
     }
     
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_WORKER);
+        return(WUPArchetypeEnum.WUP_NATURE_LADON_STANDARD_MOA);
     }
     
     @Override
@@ -76,6 +74,4 @@ public abstract class MOAStandardWUP extends GenericMOAWUPTemplate {
     protected boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint() {
         return (true);
     }
-
-
 }

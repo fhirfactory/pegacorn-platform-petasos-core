@@ -25,7 +25,7 @@ package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.man
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelFinalisationStatusEnum;
@@ -57,20 +57,20 @@ public class STAResilienceParcelServicesIM {
     
 
     @Transactional
-    public ResilienceParcel registerSOAParcel(ContinuityID activityID, UoW unitOfWork) {
+    public ResilienceParcel registerSOAParcel(ActivityID activityID, UoW unitOfWork) {
         LOG.debug(".registerSOAParcel(): Entry");
         if ((unitOfWork == null) || (activityID == null)) {
             throw (new IllegalArgumentException("unitOfWork, wupTypeID or wupInstanceID are null in method invocation"));
         }
         if(LOG.isDebugEnabled()) {
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).previousWUPFunctionTokan --> {}", activityID.getPreviousWUPFunctionToken());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).previousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
-    		LOG.debug(".registerSOAParcel(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).previousWUPFunctionTokan --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).previousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".registerSOAParcel(): activityID (ActivityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
     		LOG.debug(".registerSOAParcel(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
     		LOG.debug(".registerSOAParcel(): unitOfWork (UoW).instanceID --> {}", unitOfWork.getInstanceID());
     		LOG.debug(".registerSOAParcel(): unitOfWork (UoW).typeID --> {}", unitOfWork.getTypeID());
@@ -98,7 +98,7 @@ public class STAResilienceParcelServicesIM {
             LOG.trace(".registerSOAParcel(): Attempted to retrieve existing ResilienceParcel, and there wasn't one, so let's create it!");
             parcelInstance = new ResilienceParcel(activityID, unitOfWork);
             parcelCacheDM.addParcel(parcelInstance);
-            LOG.trace(".registerSOAParcel(): Set the PresentParcelInstanceID in the ActivityID (ContinuityID), ParcelInstanceID --> {}", parcelInstance.getIdentifier());
+            LOG.trace(".registerSOAParcel(): Set the PresentParcelInstanceID in the ActivityID (ActivityID), ParcelInstanceID --> {}", parcelInstance.getIdentifier());
             activityID.setPresentParcelIdentifier(parcelInstance.getIdentifier());
             Date registrationDate = Date.from(Instant.now());
             LOG.trace(".registerSOAParcel(): Set the Registration Date --> {}", registrationDate);

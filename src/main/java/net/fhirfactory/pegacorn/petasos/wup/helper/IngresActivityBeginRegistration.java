@@ -29,12 +29,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.PetasosPathwayExchangePropertyNames;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
@@ -78,10 +78,10 @@ public class IngresActivityBeginRegistration {
         LOG.trace(".registerActivityStart(): wupFunctionToken (NodeElementFunctionToken) for this activity --> {}", wupFunctionToken);        
         LOG.trace(".registerActivityStart(): Building the ActivityID for this activity");
         NodeElementIdentifier wupNodeID = node.getNodeInstanceID();
-        ContinuityID newActivityID = new ContinuityID();
+        ActivityID newActivityID = new ActivityID();
         newActivityID.setPresentWUPFunctionToken(wupFunctionToken);
         newActivityID.setPresentWUPIdentifier(new WUPIdentifier(node.getNodeInstanceID()));
-        LOG.trace(".registerActivityStart(): newActivityID (ContinuityID) --> {}", newActivityID);
+        LOG.trace(".registerActivityStart(): newActivityID (ActivityID) --> {}", newActivityID);
         LOG.trace(".registerActivityStart(): Creating new JobCard");
         WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, topologyProxy.getConcurrencyMode(wupNodeID), topologyProxy.getDeploymentResilienceMode(wupNodeID),  Date.from(Instant.now()));
         LOG.trace(".registerActivityStart(): Registering the Work Unit Activity using the activityJobCard --> {} and UoW --> {}", activityJobCard, theUoW);

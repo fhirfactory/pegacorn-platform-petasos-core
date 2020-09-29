@@ -22,6 +22,7 @@
 package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache;
 
 import net.fhirfactory.pegacorn.petasos.core.common.resilience.processingplant.cache.ProcessingPlantParcelCacheDM;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -36,8 +37,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConstants;
-
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
 
 /**
  * This is the re-factored Resilience framework ActivityMatrix for
@@ -81,18 +80,18 @@ public class ServiceModuleActivityMatrixDM {
      * @param initialProcessingStatus The initial (provided) Processing Status of the ResilienceParcel
      * @return A ParcelStatusElement which is used by the WUP Components to determine execution & status privileges.
      */
-    public ParcelStatusElement addWUA(ContinuityID activityID, ResilienceParcelProcessingStatusEnum initialProcessingStatus) {
+    public ParcelStatusElement addWUA(ActivityID activityID, ResilienceParcelProcessingStatusEnum initialProcessingStatus) {
     	if(LOG.isDebugEnabled()) {
     		// There's just too much information in this object to have it print on a single line and be able to debug with it!!!
     		LOG.debug(".addWUA(): Entry");
-    		LOG.debug(".addWUA(): activityID (ContinuityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
-    		LOG.debug(".addWUA(): activityID (ContinuityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).previousParcelIdentifier -->{}", activityID.getPreviousParcelIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).previousEpisodeIdentifier --> {}", activityID.getPreviousEpisodeIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).previousWUPFunctionToken --> {}", activityID.getPreviousWUPFunctionToken());
+    		LOG.debug(".addWUA(): activityID (ActivityID).perviousWUPIdentifier --> {}", activityID.getPreviousWUPIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).presentParcelIdentifier -->{}", activityID.getPresentParcelIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).presentEpisodeIdentifier --> {}", activityID.getPresentEpisodeIdentifier());
+    		LOG.debug(".addWUA(): activityID (ActivityID).presentWUPFunctionTokan --> {}", activityID.getPresentWUPFunctionToken());
+    		LOG.debug(".addWUA(): activityID (ActivityID).presentWUPIdentifier --> {}", activityID.getPresentWUPIdentifier());
     		LOG.debug(".addWUA(): activityID (ContunuityID).createDate --> {}", activityID.getCreationDate());
     		LOG.debug(".addWUA(): initialProcessingStatus (ResilienceParcelProcessingStatusEnum) --> {}", initialProcessingStatus);
     	}
@@ -177,10 +176,10 @@ public class ServiceModuleActivityMatrixDM {
      * @param activityID The unique Identifier that distinctly represents this work/resilience activity function
      * @param status     The new status to be applied to the WUA Element
      */
-    public void updateWUA(ContinuityID activityID, ResilienceParcelProcessingStatusEnum status) {
+    public void updateWUA(ActivityID activityID, ResilienceParcelProcessingStatusEnum status) {
         LOG.debug(".updateWUA(): Entry, activityID --> {}, status --> {}", activityID, status);
         if (activityID == null) {
-            throw (new IllegalArgumentException(".updateParcelActivity(): ContinuityID (activityID) Processing Status (status) is null"));
+            throw (new IllegalArgumentException(".updateParcelActivity(): ActivityID (activityID) Processing Status (status) is null"));
         }
         LOG.trace(".updateWUA(): Get the current ParcelStatusElement");
         ResilienceParcelIdentifier parcelInstanceID = activityID.getPresentParcelIdentifier();

@@ -23,7 +23,7 @@
 package net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.manager.tasks;
 
 import net.fhirfactory.pegacorn.petasos.core.sta.resilience.processingplant.cache.STAServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
@@ -51,7 +51,7 @@ public class RegisterNewSOAWorkUnitActivityTask {
 		if (submittedJobCard == null) {
 			throw (new IllegalArgumentException(".doTask(): submittedJobCard is null"));
 		}
-		ContinuityID activityID = submittedJobCard.getCardID();
+		ActivityID activityID = submittedJobCard.getActivityID();
 		ParcelStatusElement newStatusElement;
 		NodeElementIdentifier nodeID = new NodeElementIdentifier(activityID.getPresentWUPIdentifier());
 		switch (topologerServer.getDeploymentResilienceMode(nodeID)) {

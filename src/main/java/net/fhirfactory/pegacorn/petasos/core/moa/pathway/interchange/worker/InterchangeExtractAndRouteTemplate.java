@@ -46,8 +46,8 @@ public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
     @Override
     public void configure() {
         LOG.debug(".configure(): Entry!, for wupNodeElement --> {}", this.wupNodeElement);
-        LOG.info("InterchangeExtractAndRouteTemplate :: EndPointInterchangePayloadTransformerIngres --> {}", nameSet.getEndPointInterchangePayloadTransformerIngres());
-        LOG.info("InterchangeExtractAndRouteTemplate :: EndPointInterchangeRouterIngres --> {}", nameSet.getEndPointInterchangeRouterIngres());
+        LOG.debug("InterchangeExtractAndRouteTemplate :: EndPointInterchangePayloadTransformerIngres --> {}", nameSet.getEndPointInterchangePayloadTransformerIngres());
+        LOG.debug("InterchangeExtractAndRouteTemplate :: EndPointInterchangeRouterIngres --> {}", nameSet.getEndPointInterchangeRouterIngres());
 
         from(nameSet.getEndPointInterchangePayloadTransformerIngres())
                 .routeId(nameSet.getRouteInterchangePayloadTransformer())

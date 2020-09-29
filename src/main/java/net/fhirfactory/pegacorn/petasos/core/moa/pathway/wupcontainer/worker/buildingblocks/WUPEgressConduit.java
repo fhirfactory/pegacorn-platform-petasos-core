@@ -22,19 +22,9 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.buildingblocks;
 
-import java.time.Instant;
-import java.util.Date;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.PetasosPathwayExchangePropertyNames;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
-import org.apache.camel.Exchange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -43,12 +33,20 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPActivityStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Date;
 
 /**
  * @author Mark A. Hunter
  * @since 2020-07-05
  */
-@ApplicationScoped
+@Dependent
 public class WUPEgressConduit {
     private static final Logger LOG = LoggerFactory.getLogger(WUPEgressConduit.class);
     
@@ -85,7 +83,7 @@ public class WUPEgressConduit {
         WUPJobCard jobCard = camelExchange.getProperty(jobcardPropertyKey, WUPJobCard.class);
         ParcelStatusElement statusElement = camelExchange.getProperty(parcelStatusPropertyKey, ParcelStatusElement.class);
         // Now process incoming content
-        WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(jobCard.getCardID(), Date.from(Instant.now()), incomingUoW);
+        WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(jobCard.getActivityID(), Date.from(Instant.now()), incomingUoW);
         LOG.trace(".receiveFromWUP(): We only want to check if the UoW was successful and modify the JobCard/StatusElement accordingly.");
         LOG.trace(".receiveFromWUP(): All detailed checking of the Cluster/SiteWide details is done in the WUPContainerEgressProcessor");
         switch (incomingUoW.getProcessingOutcome()) {

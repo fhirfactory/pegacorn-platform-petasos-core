@@ -23,12 +23,15 @@
 package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
+import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.RegisterNewMOAWorkUnitActivityTask;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 
 import org.slf4j.Logger;
@@ -45,9 +48,6 @@ public class ResilienceActivityServicesController {
 
     @Inject
     ServiceModuleActivityMatrixDM activityMatrixDM;
-
-    @Inject
-    TopologyIM topologyServer;
 
     @Inject
     ServiceModuleWUAEpisodeFinalisationCacheDM finalisationCacheDM;     
@@ -88,7 +88,7 @@ public class ResilienceActivityServicesController {
         return(retrievedElement);
     }
 
-    public void registerWUAEpisodeDownstreamWUPInterest(FDNToken wuaEpisodeID, FDNToken downstreamWUPInstanceID) {
+    public void registerWUAEpisodeDownstreamWUPInterest(EpisodeIdentifier wuaEpisodeID, WUPFunctionToken downstreamWUPInstanceID) {
         finalisationCacheDM.registerDownstreamWUPInterest(wuaEpisodeID,downstreamWUPInstanceID);
     }
 

@@ -22,41 +22,28 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+public abstract class InteractEgressMessagingGatewayWUP extends GenericMOAWUPTemplate {
+    private static final Logger LOG = LoggerFactory.getLogger(InteractEgressMessagingGatewayWUP.class);
 
-public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(InteractIngresMessagingGatewayWUP.class);
-    
 
-    public InteractIngresMessagingGatewayWUP() {
+    public InteractEgressMessagingGatewayWUP() {
         super();
 //        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
-    protected abstract String specifyIngresTopologyEndpointName();
-    protected abstract String specifyIngresEndpointVersion();
-
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
-        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT);
+        return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT);
     }
     
     @Override
-    protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyIngresEndpoint(): Entry");
+    protected String specifyEgressEndpoint(){
+        LOG.debug(".specifyEgressEndpoint(): Entry");
         String ingresEndPoint;
         ingresEndPoint = specifyEndpointComponentDefinition();
         ingresEndPoint = ingresEndPoint + ":";
@@ -70,22 +57,22 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTem
     }
 
     @Override
-    protected boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint(){
+    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint(){
         return(true);
     }
 
     @Override
-    protected String specifyEgressEndpointVersion() {
+    protected String specifyIngresEndpointVersion() {
         return null;
     }
 
     @Override
-    protected String specifyEgressTopologyEndpointName() {
+    protected String specifyIngresTopologyEndpointName() {
         return null;
     }
-    
+
     @Override
-    protected String specifyEgressEndpoint(){
+    protected String specifyIngresEndpoint(){
         LOG.debug(".specifyEgressEndpoint(): Entry");
         String endpoint = this.getNameSet().getEndPointWUPEgress();
         LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
@@ -93,25 +80,14 @@ public abstract class InteractIngresMessagingGatewayWUP extends GenericMOAWUPTem
     }
 
     @Override
-    protected boolean specifyUsesWUPFrameworkGeneratedIngresEndpoint() {
+    protected boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint() {
         return(false);
     }
 
-
-    /**
-     * The Ingres Message Gateway doesn't subscribe to ANY topics as it receives it's 
-     * input from an external system.
-     * 
-     * @return An empty Set<TopicToken>
-     */
-    @Override
-    protected Set<TopicToken> specifySubscriptionTopics() {
-        HashSet<TopicToken> subTopics = new HashSet<TopicToken>();
-        return(subTopics);
-    }
-    
     abstract protected String specifyEndpointComponentDefinition();
     abstract protected String specifyEndpointProtocol();
     abstract protected String specifyEndpointProtocolLeadIn();
     abstract protected String specifyEndpointProtocolLeadout();
+    abstract protected String specifyEgressTopologyEndpointName();
+    abstract protected String specifyEgressEndpointVersion();
 }

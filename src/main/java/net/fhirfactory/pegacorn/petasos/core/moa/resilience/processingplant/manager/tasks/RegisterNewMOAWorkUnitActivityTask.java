@@ -29,7 +29,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
@@ -52,7 +52,7 @@ public class RegisterNewMOAWorkUnitActivityTask {
 		if (submittedJobCard == null) {
 			throw (new IllegalArgumentException(".doTask(): submittedJobCard is null"));
 		}
-		ContinuityID activityID = submittedJobCard.getCardID();
+		ActivityID activityID = submittedJobCard.getActivityID();
 		ParcelStatusElement newStatusElement;
 		NodeElementIdentifier nodeID = new NodeElementIdentifier(activityID.getPresentWUPIdentifier());
 		switch (topologerServer.getDeploymentResilienceMode(nodeID)) {

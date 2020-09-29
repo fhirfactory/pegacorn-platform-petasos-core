@@ -39,14 +39,23 @@ public class RouteElementNames {
     private static final Logger LOG = LoggerFactory.getLogger(RouteElementNames.class);
 
     private NodeElementFunctionToken nodeFunctionToken;
+    private boolean mustBeDirect;
     private String wupTypeName;
     private String wupVersion;
     private static final String INTRA_FUNCTION_DIRECT_TYPE = "direct:";
-    private static final String INTER_FUNCTION_DIRECT_TYPE = "seda:";
+    private static final String DIRECT_INTER_FUNCTION_DIRECT_TYPE = "direct:";
+    private static final String SEDA_INTER_FUNCTION_DIRECT_TYPE = "seda:";
+
+    public RouteElementNames(NodeElementFunctionToken functionToken, boolean mustBeDirect){
+        this.nodeFunctionToken = functionToken;
+        this.wupTypeName = simplifyName();
+        this.mustBeDirect = mustBeDirect;
+    }
 
     public RouteElementNames(NodeElementFunctionToken functionToken){
         this.nodeFunctionToken = functionToken;
         this.wupTypeName = simplifyName();
+        this.mustBeDirect = false;
     }
 
     public String simplifyName(){
@@ -64,8 +73,17 @@ public class RouteElementNames {
         return(wupName);
     }
 
+    public String getWupTypeName(){
+        return(this.wupTypeName);
+    }
+
     public String getEndPointWUPContainerIngresProcessorIngres() {
-        String endpointName = INTER_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Ingres";
+        String endpointName;
+        if(this.mustBeDirect){
+            endpointName = DIRECT_INTER_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Ingres";
+        } else {
+            endpointName = SEDA_INTER_FUNCTION_DIRECT_TYPE + wupTypeName + ".WUPContainer.IngresProcessor.Ingres";
+        }
         return(endpointName);
     }
 

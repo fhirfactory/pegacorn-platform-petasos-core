@@ -22,23 +22,12 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.buildingblocks;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.Iterator;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
-import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
-import org.apache.camel.Exchange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConstants;
-import net.fhirfactory.pegacorn.petasos.model.pathway.ContinuityID;
+import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
@@ -53,12 +42,20 @@ import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPActivityStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
+import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Date;
 
 /**
  * @author Mark A. Hunter
  * @since 2020-06-01
  */
-@ApplicationScoped
+@Dependent
 public class WUPContainerIngresProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(WUPContainerIngresProcessor.class);
     private RouteElementNames elementNames;
@@ -158,11 +155,11 @@ public class WUPContainerIngresProcessor {
     public WorkUnitTransportPacket standardIngresContentProcessor(WorkUnitTransportPacket transportPacket, Exchange camelExchange, NodeElementFunctionToken wupFunctionToken, NodeElementIdentifier nodeIdentifier) {
         LOG.debug(".standardIngresContentProcessor(): Enter, transportPacket (WorkUnitTransportPacket) --> {}, nodeIdentifier (NodeElementIdentifier) --> {}", transportPacket,nodeIdentifier );
         UoW theUoW = transportPacket.getPayload();
-        LOG.trace(".standardIngresContentProcessor(): Creating a new ContinuityID/ActivityID");
+        LOG.trace(".standardIngresContentProcessor(): Creating a new ActivityID/ActivityID");
         WUPIdentifier localWUPInstanceID = new WUPIdentifier(nodeIdentifier);
         NodeElementFunctionToken localWUPTypeID = new NodeElementFunctionToken(wupFunctionToken);
-        ContinuityID oldActivityID = transportPacket.getPacketID();
-        ContinuityID newActivityID = new ContinuityID();
+        ActivityID oldActivityID = transportPacket.getPacketID();
+        ActivityID newActivityID = new ActivityID();
         ResilienceParcelIdentifier previousPresentParcelInstanceID = oldActivityID.getPresentParcelIdentifier();
         EpisodeIdentifier previousPresentEpisodeID = oldActivityID.getPresentEpisodeIdentifier();
         WUPIdentifier previousPresentWUPInstanceID = oldActivityID.getPresentWUPIdentifier();
@@ -175,7 +172,7 @@ public class WUPContainerIngresProcessor {
         newActivityID.setPresentWUPIdentifier(localWUPInstanceID);
         LOG.trace(".standardIngresContentProcessor(): Creating new JobCard");
         WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_WAITING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, ConcurrencyModeEnum.CONCURRENCY_MODE_STANDALONE, ResilienceModeEnum.RESILIENCE_MODE_STANDALONE, Date.from(Instant.now()));
-        LOG.trace(".standardIngresContentProcessor(): Registering the Work Unit Activity using the ContinuityID --> {} and UoW --> {}", newActivityID, theUoW);
+        LOG.trace(".standardIngresContentProcessor(): Registering the Work Unit Activity using the ActivityID --> {} and UoW --> {}", newActivityID, theUoW);
         ParcelStatusElement statusElement = petasosMOAServicesBroker.registerStandardWorkUnitActivity(activityJobCard, theUoW);
         LOG.trace(".standardIngresContentProcessor(): Let's check the status of everything");
         switch (statusElement.getParcelStatus()) {

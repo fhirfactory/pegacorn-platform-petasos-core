@@ -21,34 +21,34 @@
  */
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.worker;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.apache.camel.Exchange;
-import org.apache.camel.RecipientList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceActivityServicesController;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
-import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
+import org.apache.camel.Exchange;
+import org.apache.camel.RecipientList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Mark A. Hunter
  */
 
-@ApplicationScoped
+@Dependent
 public class InterchangeTargetWUPTypeRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeTargetWUPTypeRouter.class);
@@ -58,6 +58,9 @@ public class InterchangeTargetWUPTypeRouter {
 
     @Inject
     DeploymentTopologyIM topologyProxy;
+
+    @Inject
+    ResilienceActivityServicesController activityServicesController;
 
     /**
      * Essentially, we get the set of WUPs subscribing to a particular UoW type,
@@ -108,6 +111,9 @@ public class InterchangeTargetWUPTypeRouter {
                 NodeElementFunctionToken currentNodeFunctionToken = currentNodeElement.getNodeFunctionToken();
                 RouteElementNames routeName = new RouteElementNames(currentNodeFunctionToken);
                 endpointList.add(routeName.getEndPointWUPContainerIngresProcessorIngres());
+                // Now add the downstream WUPFunction to the Parcel Finalisation Registry
+                WUPFunctionToken functionToken = new WUPFunctionToken(currentNodeFunctionToken);
+                activityServicesController.registerWUAEpisodeDownstreamWUPInterest(ingresPacket.getPacketID().getPresentEpisodeIdentifier(), functionToken);
             }
             LOG.debug(".forwardUoW2WUPs(): Exiting, returning registered/interested endpoints: endpointList -->{}", endpointList);
             return (endpointList);
