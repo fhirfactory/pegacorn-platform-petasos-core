@@ -25,6 +25,7 @@ package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+import org.apache.camel.spi.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -133,6 +133,8 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
         LOG.trace(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
         LOG.trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
         buildWUPFramework(this.getContext());
+        LOG.trace(".initialise(): Now invoking subclass initialising function(s)");
+        executePostInitialisationActivities();
         LOG.debug(".initialise(): Exit");
     }
     
@@ -152,6 +154,12 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
     protected abstract String specifyEgressTopologyEndpointName();
     protected abstract String specifyEgressEndpointVersion();
     protected abstract boolean specifyUsesWUPFrameworkGeneratedEgressEndpoint();
+
+    protected void executePostInitialisationActivities(){
+        // Subclasses can optionally override
+    }
+
+
 
 
     /**
