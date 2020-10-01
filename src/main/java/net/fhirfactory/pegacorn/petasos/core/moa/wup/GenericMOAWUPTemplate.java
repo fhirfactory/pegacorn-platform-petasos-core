@@ -27,9 +27,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.deployment.properties.PegacornCoreSubsystemComponentNames;
-import net.fhirfactory.pegacorn.petasos.model.processingplant.ProcessingPlantServicesInterface;
-import net.fhirfactory.pegacorn.petasos.model.topology.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
@@ -38,15 +35,23 @@ import org.slf4j.LoggerFactory;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.datasets.fhir.r4.internal.topics.FHIRElementTopicIDBuilder;
+import net.fhirfactory.pegacorn.deployment.properties.PegacornCoreSubsystemComponentNames;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.model.processingplant.ProcessingPlantServicesInterface;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.EndpointElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
 
 /**
+ * Generic Message Orientated Architecture (MOA) Work Unit Processor (WUP) Template
  * 
  * @author Mark A. Hunter
  * @since 2020-07-01
