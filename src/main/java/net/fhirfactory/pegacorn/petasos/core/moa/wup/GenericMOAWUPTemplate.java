@@ -59,7 +59,7 @@ import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 
 public abstract class GenericMOAWUPTemplate extends RouteBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GenericMOAWUPTemplate.class);
+    abstract protected Logger getLogger();
 
     private EndpointElement ingresTopologyEndpointElement;
     private EndpointElement egressTopologyEndpointElement;
@@ -74,9 +74,7 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
     private WUPArchetypeEnum wupArchetype;
     private Set<TopicToken> topicSubscriptionSet;
     private String version;
-    private boolean usesWUPFrameworkGeneratedEgressEndpoint;
-    private boolean usesWUPFrameworkGeneratedIngresEndpoint;
-    
+
     @Inject
     private PetasosMOAServicesBroker servicesBroker;
     
@@ -105,42 +103,40 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
      */
     @PostConstruct
     protected void initialise(){
-        LOG.debug(".initialise(): Entry, Default Post Constructor function to setup the WUP");
-        LOG.trace(".initialise(): Setting the Topic Subscription Set (i.e. the list of Data Sets we will process)");
+        getLogger().debug(".initialise(): Entry, Default Post Constructor function to setup the WUP");
+        getLogger().trace(".initialise(): Setting the Topic Subscription Set (i.e. the list of Data Sets we will process)");
         this.topicSubscriptionSet = specifySubscriptionTopics();
-        LOG.trace(".initialise(): Setting the WUP Instance Name - an unqualified (but system-module unique name) string to be used as part of the WUP FDN");
+        getLogger().trace(".initialise(): Setting the WUP Instance Name - an unqualified (but system-module unique name) string to be used as part of the WUP FDN");
         this.wupInstanceName = specifyWUPInstanceName();
-        LOG.trace(".initialise(): wupInstanceName --> {}", this.wupInstanceName);
-        LOG.trace(".initialise(): Setting the WUP Version - this allows us to support multiple variants of the same WUP function");
+        getLogger().trace(".initialise(): wupInstanceName --> {}", this.wupInstanceName);
+        getLogger().trace(".initialise(): Setting the WUP Version - this allows us to support multiple variants of the same WUP function");
         this.version = specifyWUPVersion();
-        LOG.trace(".initialise(): Setting if the WUP uses the Petasos generated Ingres/Egress Endpoints");
-        this.usesWUPFrameworkGeneratedIngresEndpoint = specifyUsesWUPFrameworkGeneratedIngresEndpoint();
-        this.usesWUPFrameworkGeneratedEgressEndpoint = specifyUsesWUPFrameworkGeneratedEgressEndpoint();
-        LOG.trace(".initialise(): Setting up the wupTopologyElement (NodeElement) instance, which is the Topology Server's representation of this WUP ");
+        getLogger().trace(".initialise(): Setting if the WUP uses the Petasos generated Ingres/Egress Endpoints");
+        getLogger().trace(".initialise(): Setting up the wupTopologyElement (NodeElement) instance, which is the Topology Server's representation of this WUP ");
         buildWUPNodeElement();
-        LOG.trace(".initialise(): Setting the actual WUP ID - this is an instance unique identifier for the WUP within the deployed solution");
+        getLogger().trace(".initialise(): Setting the actual WUP ID - this is an instance unique identifier for the WUP within the deployed solution");
         specifyInstanceID();
-        LOG.trace(".initialise(): Setting the WUP Archetype - which is used by the WUP Framework to ascertain what wrapping this WUP needs");
+        getLogger().trace(".initialise(): Setting the WUP Archetype - which is used by the WUP Framework to ascertain what wrapping this WUP needs");
         this.wupArchetype =  specifyWUPArchetype();
-        LOG.trace(".initialise(): Setting the WUP Function Token (Function ID + Version ID) which uniquely defines the functionality of this WUP");
+        getLogger().trace(".initialise(): Setting the WUP Function Token (Function ID + Version ID) which uniquely defines the functionality of this WUP");
         specifyFunctionToken();
-        LOG.trace(".initialise(): Setting the WUP nameSet, which is the set of Route EndPoints that the WUP Framework will use to link various enablers");
+        getLogger().trace(".initialise(): Setting the WUP nameSet, which is the set of Route EndPoints that the WUP Framework will use to link various enablers");
         nameSet = new RouteElementNames(getWUPFunctionToken());
-        LOG.trace(".initialise(): Setting the WUP Ingres Topology Element, which is used to generate the .from() for the contained WUP Camel Route");
+        getLogger().trace(".initialise(): Setting the WUP Ingres Topology Element, which is used to generate the .from() for the contained WUP Camel Route");
         specifyIngresTopologyEndpointElement();
-        LOG.trace(".initialise(): Setting the WUP Ingres Point, which is the .from() for the contained WUP Camel Route");
+        getLogger().trace(".initialise(): Setting the WUP Ingres Point, which is the .from() for the contained WUP Camel Route");
         this.wupIngresPoint = specifyIngresEndpoint();
-        LOG.trace(".initialise(): IngresPoint --> {}", this.wupIngresPoint);
-        LOG.trace(".initialise(): Setting the WUP Egress Topology Element, which is used to generate the .to() for the contained WUP Camel Route");
+        getLogger().trace(".initialise(): IngresPoint --> {}", this.wupIngresPoint);
+        getLogger().trace(".initialise(): Setting the WUP Egress Topology Element, which is used to generate the .to() for the contained WUP Camel Route");
         specifyEgressTopologyEndpointElement();
-        LOG.trace(".initialise(): Setting the WUP Egress Point, which is the .to() for the contained WUP Camel Route");
+        getLogger().trace(".initialise(): Setting the WUP Egress Point, which is the .to() for the contained WUP Camel Route");
         this.wupEgressPoint = specifyEgressEndpoint();
-        LOG.trace(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
-        LOG.trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
+        getLogger().trace(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
+        getLogger().trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
         buildWUPFramework(this.getContext());
-        LOG.trace(".initialise(): Now invoking subclass initialising function(s)");
+        getLogger().trace(".initialise(): Now invoking subclass initialising function(s)");
         executePostInitialisationActivities();
-        LOG.debug(".initialise(): Exit");
+        getLogger().debug(".initialise(): Exit");
     }
     
     // To be implemented methods (in Specialisations)
@@ -164,9 +160,6 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
         // Subclasses can optionally override
     }
 
-
-
-
     /**
      * This function goes to the Topology Server and extracts the NodeElementFunctionToken - which is a combination of
      * the Function ID (and FDNToken) and a Version qualifier (as a String).
@@ -176,29 +169,29 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
      * @return The function token representing the exact capability of the WUP
      */
     public void specifyFunctionToken() {
-        LOG.debug(".specifyFunctionToken(): Entry, wupInstanceID --> {}", this.wupIdentifier);
+        getLogger().debug(".specifyFunctionToken(): Entry, wupInstanceID --> {}", this.wupIdentifier);
         NodeElementFunctionToken functionToken = wupTopologyProxy.getWUPFunctionToken(this.wupIdentifier);
-        this.setWUPFunctionToken(functionToken);
-        LOG.debug(".specifyFunctionToken(): Exit, retrieved functionToken --> {}", this.getWUPFunctionToken());
+        this.wupFunctionToken = functionToken;
+        getLogger().debug(".specifyFunctionToken(): Exit, retrieved functionToken --> {}", this.getWUPFunctionToken());
     }
 
     public void specifyInstanceID() {
-        LOG.debug(".specifyInstanceID(): Entry, wupInstanceName --> {}, wupVersion --> {}", this.getWupInstanceName(), this.getVersion());
+        getLogger().debug(".specifyInstanceID(): Entry, wupInstanceName --> {}, wupVersion --> {}", this.getWupInstanceName(), this.getVersion());
         WUPIdentifier wupID = wupTopologyProxy.getWUPIdentifier(this.getWupInstanceName(), this.getVersion());
-        this.setWUPIdentifier(wupID);
-        LOG.debug(".specifyInstanceID(): Exit, extracted wupInstanceID --> {}", this.getWUPIdentifier());
+        this.wupIdentifier = wupID;
+        getLogger().debug(".specifyInstanceID(): Exit, extracted wupInstanceID --> {}", this.getWUPIdentifier());
     }
 
     public void registerNodeInstantiation(){
-        LOG.debug(".registerTopologyElementInstantiation(): Entry");
+        getLogger().debug(".registerTopologyElementInstantiation(): Entry");
         wupTopologyProxy.setNodeInstantiated(this.wupTopologyNodeElement.getNodeInstanceID(), true);
-        LOG.debug(".registerTopologyElementInstantiation(): Exit");
+        getLogger().debug(".registerTopologyElementInstantiation(): Exit");
     }
 
     public void buildWUPFramework(CamelContext routeContext) {
-        LOG.debug(".buildWUPFramework(): Entry");
+        getLogger().debug(".buildWUPFramework(): Entry");
         servicesBroker.registerWorkUnitProcessor(this.wupTopologyNodeElement, this.getTopicSubscriptionSet(), this.getWupArchetype());
-        LOG.debug(".buildWUPFramework(): Exit");
+        getLogger().debug(".buildWUPFramework(): Exit");
     }
     
     public String getEndpointHostName(){
@@ -220,15 +213,12 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
     public NodeElementFunctionToken getWUPFunctionToken() {
         return (this.wupFunctionToken);
     }
-    public void setWUPFunctionToken(NodeElementFunctionToken functionToken) {
-        this.wupFunctionToken = functionToken;
-    }
 
     public WUPIdentifier getWUPIdentifier() {
         return (this.wupIdentifier);
     }
     protected void setWUPIdentifier(WUPIdentifier newID){
-        LOG.debug(".setWUPIdentifier(): Entry, newID (WUPIdentifier) --> {}", newID);
+        getLogger().debug(".setWUPIdentifier(): Entry, newID (WUPIdentifier) --> {}", newID);
         this.wupIdentifier = newID;
     }
 
@@ -260,40 +250,20 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
         return nameSet;
     }
 
-    public void setNameSet(RouteElementNames nameSet) {
-        this.nameSet = nameSet;
-    }
-
     public String getWupEgressPoint() {
         return wupEgressPoint;
-    }
-
-    public void setWupEgressPoint(String wupEgressPoint) {
-        this.wupEgressPoint = wupEgressPoint;
     }
 
     public String getWupIngresPoint() {
         return wupIngresPoint;
     }
 
-    public void setWupIngresPoint(String wupIngresPoint) {
-        this.wupIngresPoint = wupIngresPoint;
-    }
-
     public String getWupInstanceName() {
         return wupInstanceName;
     }
 
-    public void setWupInstanceName(String wupInstanceName) {
-        this.wupInstanceName = wupInstanceName;
-    }
-
     public WUPArchetypeEnum getWupArchetype() {
         return wupArchetype;
-    }
-
-    public void setWupArchetype(WUPArchetypeEnum wupArchetype) {
-        this.wupArchetype = wupArchetype;
     }
 
     public Set<TopicToken> getTopicSubscriptionSet() {
@@ -308,10 +278,6 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public PegacornCoreSubsystemComponentNames getSubsystemComponentNamesService(){
         return(this.subsystemNames);
     }
@@ -323,24 +289,9 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
     public EndpointElement getIngresTopologyEndpointElement() {
         return ingresTopologyEndpointElement;
     }
-    protected void setIngresTopologyEndpointElement(EndpointElement ingresTopologyEndpointElement) {
-        this.ingresTopologyEndpointElement = ingresTopologyEndpointElement;
-    }
 
     public EndpointElement getEgressTopologyEndpointElement() {
-
         return this.egressTopologyEndpointElement;
-    }
-    protected void setEgressTopologyEndpointElement(EndpointElement egressTopologyEndpointElement) {
-        this.egressTopologyEndpointElement = egressTopologyEndpointElement;
-    }
-
-    protected boolean isUsesWUPFrameworkGeneratedEgressEndpoint() {
-        return usesWUPFrameworkGeneratedEgressEndpoint;
-    }
-
-    protected boolean isUsesWUPFrameworkGeneratedIngresEndpoint() {
-        return usesWUPFrameworkGeneratedIngresEndpoint;
     }
 
     /**
@@ -349,16 +300,16 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
      * break in later releases.
      */
     private void specifyEgressTopologyEndpointElement(){
-        LOG.debug(".specifyEgressTopologyEndpointElement(): Entry");
-        if(isUsesWUPFrameworkGeneratedEgressEndpoint()){
-            LOG.debug(".specifyEgressTopologyEndpointElement(): using WUPFramework, so nothing to do here!");
+        getLogger().debug(".specifyEgressTopologyEndpointElement(): Entry");
+        if(specifyUsesWUPFrameworkGeneratedEgressEndpoint()){
+            getLogger().debug(".specifyEgressTopologyEndpointElement(): using WUPFramework, so nothing to do here!");
             return;
         }
         NodeElementIdentifier nodeID = new NodeElementIdentifier(this.getWUPIdentifier());
         NodeElement node = this.getTopologyServer().getNode(nodeID);
         EndpointElement endpoint = this.getTopologyServer().getEndpoint(node, specifyEgressTopologyEndpointName(), specifyEgressEndpointVersion());
-        this.setEgressTopologyEndpointElement(endpoint);
-        LOG.debug(".specifyEgressTopologyEndpointElement(): Exit, endpoint --> {}", endpoint);
+        this.egressTopologyEndpointElement = endpoint;
+        getLogger().debug(".specifyEgressTopologyEndpointElement(): Exit, endpoint --> {}", endpoint);
     }
 
     /**
@@ -367,56 +318,57 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
      * break in later releases.
      */
     private void specifyIngresTopologyEndpointElement(){
-        LOG.debug(".specifyIngresTopologyEndpointElement(): Entry");
-        if(isUsesWUPFrameworkGeneratedIngresEndpoint()){
+        getLogger().debug(".specifyIngresTopologyEndpointElement(): Entry");
+        if(specifyUsesWUPFrameworkGeneratedIngresEndpoint()){
+            getLogger().debug(".specifyIngresTopologyEndpointElement(): using WUPFramework, so nothing to do here!");
             return;
         }
         NodeElementIdentifier nodeID = new NodeElementIdentifier(this.getWUPIdentifier());
         NodeElement node = this.getTopologyServer().getNode(nodeID);
         EndpointElement endpoint = this.getTopologyServer().getEndpoint(node, specifyIngresTopologyEndpointName(), specifyIngresEndpointVersion());
-        this.setIngresTopologyEndpointElement(endpoint);
-        LOG.debug(".specifyIngresTopologyEndpointElement(): Exit, endpoint --> {}", endpoint);
+        this.ingresTopologyEndpointElement = endpoint;
+        getLogger().debug(".specifyIngresTopologyEndpointElement(): Exit, endpoint --> {}", endpoint);
     }
 
     private void buildWUPNodeElement(){
-        LOG.debug(".buildWUPNodeElement(): Entry, Workshop --> {}", specifyWUPWorkshop());
+        getLogger().debug(".buildWUPNodeElement(): Entry, Workshop --> {}", specifyWUPWorkshop());
         NodeElement workshopNode = processingPlantServices.getWorkshop(specifyWUPWorkshop());
-        LOG.trace(".buildWUPNodeElement(): Entry, Workshop NodeElement--> {}", workshopNode);
+        getLogger().trace(".buildWUPNodeElement(): Entry, Workshop NodeElement--> {}", workshopNode);
         NodeElement newWUPNode = new NodeElement();
-        LOG.trace(".buildWUPNodeElement(): Create new FDN/Identifier for WUP");
+        getLogger().trace(".buildWUPNodeElement(): Create new FDN/Identifier for WUP");
         FDN newWUPNodeFDN = new FDN(workshopNode.getNodeInstanceID());
         newWUPNodeFDN.appendRDN(new RDN(NodeElementTypeEnum.WUP.getNodeElementType(), specifyWUPInstanceName()));
         NodeElementIdentifier newWUPNodeID = new NodeElementIdentifier(newWUPNodeFDN.getToken());
-        LOG.trace(".buildWUPNodeElement(): WUP NodeIdentifier --> {}", newWUPNodeID);
+        getLogger().trace(".buildWUPNodeElement(): WUP NodeIdentifier --> {}", newWUPNodeID);
         newWUPNode.setNodeInstanceID(newWUPNodeID);
-        LOG.trace(".buildWUPNodeElement(): Create new Function Identifier for WUP");
+        getLogger().trace(".buildWUPNodeElement(): Create new Function Identifier for WUP");
         FDN newWUPNodeFunctionFDN = new FDN(workshopNode.getNodeFunctionID());
         newWUPNodeFunctionFDN.appendRDN(new RDN(NodeElementTypeEnum.WUP.getNodeElementType(), specifyWUPInstanceName()));
-        LOG.trace(".buildWUPNodeElement(): WUP Function Identifier --> {}", newWUPNodeFunctionFDN.getToken());
+        getLogger().trace(".buildWUPNodeElement(): WUP Function Identifier --> {}", newWUPNodeFunctionFDN.getToken());
         newWUPNode.setNodeFunctionID(newWUPNodeFunctionFDN.getToken());
         newWUPNode.setVersion(specifyWUPVersion());
         newWUPNode.setConcurrencyMode(workshopNode.getConcurrencyMode());
         newWUPNode.setResilienceMode(workshopNode.getResilienceMode());
         newWUPNode.setInstanceInPlace(true);
         newWUPNode.setNodeArchetype(NodeElementTypeEnum.WUP);
-        LOG.trace(".buildWUPNodeElement(): Identify and assign associated endpoints");
+        getLogger().trace(".buildWUPNodeElement(): Identify and assign associated endpoints");
         EndpointElement associatedEndpoint = null;
         NodeElement processingPlantNode = processingPlantServices.getProcessingPlantNodeElement();
-        LOG.trace(".buildWUPNodeElement(): parent ProcessingPlant --> {}", processingPlantNode);
-        if(!isUsesWUPFrameworkGeneratedIngresEndpoint()) {
-            LOG.trace(".buildWUPNodeElement(): Capturing Ingres endpoint details");
+        getLogger().trace(".buildWUPNodeElement(): parent ProcessingPlant --> {}", processingPlantNode);
+        if(!specifyUsesWUPFrameworkGeneratedIngresEndpoint()) {
+            getLogger().trace(".buildWUPNodeElement(): Capturing Ingres endpoint details");
             associatedEndpoint = getTopologyServer().getEndpoint(processingPlantNode, specifyIngresTopologyEndpointName(), specifyIngresEndpointVersion());
             newWUPNode.getEndpoints().add(associatedEndpoint.getEndpointInstanceID());
-            LOG.trace(".buildWUPNodeElement(): Ingres endpoint --> {}", associatedEndpoint);
+            getLogger().trace(".buildWUPNodeElement(): Ingres endpoint --> {}", associatedEndpoint);
         }
-        if (!isUsesWUPFrameworkGeneratedEgressEndpoint()) {
-            LOG.trace(".buildWUPNodeElement(): Capturing Egress endpoint details");
+        if (!specifyUsesWUPFrameworkGeneratedEgressEndpoint()) {
+            getLogger().trace(".buildWUPNodeElement(): Capturing Egress endpoint details");
             associatedEndpoint = getTopologyServer().getEndpoint(processingPlantNode, specifyEgressTopologyEndpointName(), specifyEgressEndpointVersion());
             newWUPNode.getEndpoints().add(associatedEndpoint.getEndpointInstanceID());
-            LOG.trace(".buildWUPNodeElement(): Egress endpoint --> {}", associatedEndpoint);
+            getLogger().trace(".buildWUPNodeElement(): Egress endpoint --> {}", associatedEndpoint);
         }
         this.getTopologyServer().registerNode(newWUPNode);
-        LOG.debug(".buildWUPNodeElement(): Node Registered --> {}", newWUPNode);
+        getLogger().debug(".buildWUPNodeElement(): Node Registered --> {}", newWUPNode);
         this.getTopologyServer().addContainedNodeToNode(workshopNode.getNodeInstanceID(), newWUPNode);
         this.setWupTopologyNodeElement(newWUPNode);
     }

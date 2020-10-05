@@ -76,6 +76,10 @@ public class RouteElementNames {
     public String getWupTypeName(){
         return(this.wupTypeName);
     }
+    
+    public String getRouteCoreWUP(){
+        return(this.wupTypeName+".WUP.Core");
+    }
 
     public String getEndPointWUPContainerIngresProcessorIngres() {
         String endpointName;

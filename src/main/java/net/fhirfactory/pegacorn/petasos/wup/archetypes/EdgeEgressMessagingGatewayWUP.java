@@ -32,13 +32,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(EdgeEgressMessagingGatewayWUP.class);
-
-
-    public EdgeEgressMessagingGatewayWUP() {
-        super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
-    }
 
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
@@ -47,17 +40,16 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
     
     @Override
     protected String specifyEgressEndpoint(){
-        LOG.debug(".specifyEgressEndpoint(): Entry");
-        String ingresEndPoint;
-        ingresEndPoint = specifyEndpointComponentDefinition();
-        ingresEndPoint = ingresEndPoint + ":";
-        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocol();
-        ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocolLeadIn();
-        ingresEndPoint = ingresEndPoint + this.getIngresTopologyEndpointElement().getHostname();
-        ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
-        ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
-        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
-        return(ingresEndPoint);
+        getLogger().debug(".specifyEgressEndpoint(): Entry");
+        String egressEndPointString;
+        egressEndPointString = specifyEndpointComponentDefinition();
+        egressEndPointString = egressEndPointString + ":";
+        egressEndPointString = egressEndPointString + this.specifyEndpointProtocol();
+        egressEndPointString = egressEndPointString + this.specifyEndpointProtocolLeadIn();
+        egressEndPointString = egressEndPointString + deriveTargetEndpointDetails();
+        egressEndPointString = egressEndPointString + specifyEndpointProtocolLeadout();
+        getLogger().debug(".specifyEgressEndpoint(): Exit, egressEndPointString --> {}", egressEndPointString);
+        return(egressEndPointString);
     }
 
     @Override
@@ -77,9 +69,9 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
 
     @Override
     protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyEgressEndpoint(): Entry");
-        String endpoint = this.getNameSet().getEndPointWUPEgress();
-        LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
+        getLogger().debug(".specifyIngresEndpoint(): Entry");
+        String endpoint = this.getNameSet().getEndPointWUPIngres();
+        getLogger().debug(".specifyIngresEndpoint(): Exit, ingresPoint --> {}", endpoint);
         return(endpoint);
     }
 
@@ -94,4 +86,5 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
     abstract protected String specifyEndpointProtocolLeadout();
     abstract protected String specifyEgressTopologyEndpointName();
     abstract protected String specifyEgressEndpointVersion();
+    abstract protected String deriveTargetEndpointDetails();
 }

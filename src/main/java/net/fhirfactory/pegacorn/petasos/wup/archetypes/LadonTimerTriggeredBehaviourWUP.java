@@ -32,12 +32,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class LadonTimerTriggeredBehaviourWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(LadonTimerTriggeredBehaviourWUP.class);
-
-
+    
     public LadonTimerTriggeredBehaviourWUP() {
         super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
+//        getLogger().debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
     protected abstract String specifyIngresTopologyEndpointName();
@@ -50,7 +48,7 @@ public abstract class LadonTimerTriggeredBehaviourWUP extends GenericMOAWUPTempl
     
     @Override
     protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyIngresEndpoint(): Entry");
+        getLogger().debug(".specifyIngresEndpoint(): Entry");
         String ingresEndPoint;
         ingresEndPoint = specifyEndpointComponentDefinition();
         ingresEndPoint = ingresEndPoint + ":";
@@ -59,7 +57,7 @@ public abstract class LadonTimerTriggeredBehaviourWUP extends GenericMOAWUPTempl
         ingresEndPoint = ingresEndPoint + this.getIngresTopologyEndpointElement().getHostname();
         ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
         ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
-        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
+        getLogger().debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
         return(ingresEndPoint);
     }
 
@@ -80,9 +78,9 @@ public abstract class LadonTimerTriggeredBehaviourWUP extends GenericMOAWUPTempl
     
     @Override
     protected String specifyEgressEndpoint(){
-        LOG.debug(".specifyEgressEndpoint(): Entry");
+        getLogger().debug(".specifyEgressEndpoint(): Entry");
         String endpoint = this.getNameSet().getEndPointWUPEgress();
-        LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
+        getLogger().debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
         return(endpoint);
     }
 

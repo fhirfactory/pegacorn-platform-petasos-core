@@ -136,6 +136,9 @@ public class PetasosParcelAuditTrailEntry {
         if(theParcel.hasFinalisationStatus()){
             this.parcelFinalsationStatus = theParcel.getFinalisationStatus();
         }
+        if(theParcel.hasAssociatedWUPIdentifier()){
+            this.primaryWUPIdentifier = theParcel.getAssociatedWUPIdentifier();
+        }
     }
 
     //

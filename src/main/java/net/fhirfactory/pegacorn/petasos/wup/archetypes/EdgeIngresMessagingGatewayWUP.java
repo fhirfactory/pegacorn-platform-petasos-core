@@ -33,12 +33,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
-    private static final Logger LOG = LoggerFactory.getLogger(EdgeIngresMessagingGatewayWUP.class);
-
-
+    
     public EdgeIngresMessagingGatewayWUP() {
         super();
-//        LOG.debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
+//        getLogger().debug(".MessagingIngresGatewayWUP(): Entry, Default constructor");
     }
 
     protected abstract String specifyIngresTopologyEndpointName();
@@ -51,16 +49,16 @@ public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplat
     
     @Override
     protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyIngresEndpoint(): Entry");
+        getLogger().debug(".specifyIngresEndpoint(): Entry");
         String ingresEndPoint;
         ingresEndPoint = specifyEndpointComponentDefinition();
         ingresEndPoint = ingresEndPoint + ":";
         ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocol();
         ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocolLeadIn();
-        ingresEndPoint = ingresEndPoint + this.getIngresTopologyEndpointElement().getHostname();
+        ingresEndPoint = ingresEndPoint + "0.0.0.0"; // TODO need to look into why Wildfly wont bind....
         ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
         ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
-        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
+        getLogger().debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
         return(ingresEndPoint);
     }
 
@@ -81,9 +79,9 @@ public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplat
     
     @Override
     protected String specifyEgressEndpoint(){
-        LOG.debug(".specifyEgressEndpoint(): Entry");
+        getLogger().debug(".specifyEgressEndpoint(): Entry");
         String endpoint = this.getNameSet().getEndPointWUPEgress();
-        LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
+        getLogger().debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
         return(endpoint);
     }
 

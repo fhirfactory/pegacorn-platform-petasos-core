@@ -28,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
 public class PetasosPathwayExchangePropertyNames {
     private static final String JOB_CARD_PREFIX = "WUPJobCard";
     private static final String STATUS_ELEMENT_PREFIX = "StatusElement";
+    private static final String UOW_PREFIX = "UoW";
 
     public String getExchangeJobCardPropertyName(String wupKey){
         return(JOB_CARD_PREFIX+wupKey);
@@ -35,5 +36,9 @@ public class PetasosPathwayExchangePropertyNames {
 
     public String getExchangeStatusElementPropertyName(String wupKey){
         return(STATUS_ELEMENT_PREFIX+wupKey);
+    }
+    
+    public String getExchangeUoWPropertyName(String wupKey){
+        return(UOW_PREFIX+wupKey);
     }
 }
