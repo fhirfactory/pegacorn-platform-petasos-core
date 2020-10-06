@@ -57,7 +57,8 @@ public class PathwayInterchangeManager {
 
         switch (wupType) {
             case WUP_NATURE_API_ANSWER:
-            case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT: {
+            case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT:
+            case WUP_NATURE_API_CLIENT:{
                 // do nothing, as these WUPs do not require egress content routing
                 LOG.trace(".buildWUPInterchangeRoutes(): This WUP does not require an Interchange service");
                 break;

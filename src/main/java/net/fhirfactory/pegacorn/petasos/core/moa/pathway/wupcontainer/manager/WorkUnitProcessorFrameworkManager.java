@@ -112,6 +112,7 @@ public class WorkUnitProcessorFrameworkManager {
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_API_RECEIVE route");
                     break;
                 case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT:
+                case WUP_NATURE_API_CLIENT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT route");
                     ExternalEgressWUPContainerRoute egressRoute = new ExternalEgressWUPContainerRoute(camelctx, wupNode);
                     camelctx.addRoutes(egressRoute);
