@@ -73,9 +73,9 @@ public abstract class InteractEgressAPIClientGatewayWUP extends GenericMOAWUPTem
 
     @Override
     protected String specifyIngresEndpoint(){
-        LOG.debug(".specifyEgressEndpoint(): Entry");
-        String endpoint = this.getNameSet().getEndPointWUPEgress();
-        LOG.debug(".specifyEgressEndpoint(): Exit, egressEndPoint --> {}", endpoint);
+        LOG.debug(".specifyIngresEndpoint(): Entry");
+        String endpoint = this.getNameSet().getEndPointWUPIngres();
+        LOG.debug(".specifyIngresEndpoint(): Exit, ingresEndpoint --> {}", endpoint);
         return(endpoint);
     }
 

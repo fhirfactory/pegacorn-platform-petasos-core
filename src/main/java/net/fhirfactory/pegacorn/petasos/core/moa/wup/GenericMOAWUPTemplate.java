@@ -316,6 +316,7 @@ public abstract class GenericMOAWUPTemplate extends RouteBuilder {
      * Get's the Ingress Topology Endpoint associated with the WUP. The assumption is that
      * there is only ever a single endpoint associated with a WUP. This may
      * break in later releases.
+     *
      */
     private void specifyIngresTopologyEndpointElement(){
         getLogger().debug(".specifyIngresTopologyEndpointElement(): Entry");

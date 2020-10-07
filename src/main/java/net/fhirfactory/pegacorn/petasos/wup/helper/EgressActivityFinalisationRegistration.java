@@ -38,6 +38,7 @@ import org.apache.camel.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
@@ -53,6 +54,7 @@ import java.util.Date;
  *
  */
 
+@ApplicationScoped
 public class EgressActivityFinalisationRegistration {
     private static final Logger LOG = LoggerFactory.getLogger(EgressActivityFinalisationRegistration.class);
 
@@ -67,28 +69,26 @@ public class EgressActivityFinalisationRegistration {
 
     public UoW registerActivityFinishAndFinalisation(UoW theUoW, Exchange camelExchange, String wupInstanceKey){
         LOG.debug(".registerActivityFinishAndFinalisation(): Entry, payload --> {}, wupInstanceKey --> {}", theUoW, wupInstanceKey);
-        LOG.trace(".registerActivityFinishAndFinalisation(): reconstituted token, now attempting to retrieve NodeElement");
-        NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
-        LOG.trace(".registerActivityFinishAndFinalisation(): Node Element retrieved --> {}", node);
-        NodeElementFunctionToken wupFunctionToken = node.getNodeFunctionToken();
-        LOG.trace(".registerActivityFinishAndFinalisation(): wupFunctionToken (NodeElementFunctionToken) for this activity --> {}", wupFunctionToken);
-        LOG.trace(".registerActivityFinishAndFinalisation(): Building the ActivityID for this activity");
-        NodeElementIdentifier wupNodeID = node.getNodeInstanceID();
-        ActivityID newActivityID = new ActivityID();
-        newActivityID.setPresentWUPFunctionToken(wupFunctionToken);
-        newActivityID.setPresentWUPIdentifier(new WUPIdentifier(node.getNodeInstanceID()));
-        LOG.trace(".registerActivityFinishAndFinalisation(): newActivityID (ActivityID) --> {}", newActivityID);
-        LOG.trace(".registerActivityFinishAndFinalisation(): Creating new JobCard");
-        WUPJobCard activityJobCard = new WUPJobCard(newActivityID, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING, topologyProxy.getConcurrencyMode(wupNodeID), topologyProxy.getDeploymentResilienceMode(wupNodeID),  Date.from(Instant.now()));
-        LOG.trace(".registerActivityFinishAndFinalisation(): Registering the Work Unit Activity using the activityJobCard --> {} and UoW --> {}", activityJobCard, theUoW);
-        ParcelStatusElement statusElement = servicesBroker.registerSystemEdgeWUA(activityJobCard, theUoW);
-        LOG.trace(".registerActivityFinishAndFinalisation(): Registration aftermath: statusElement --> {}", statusElement);
-        // Now we have to Inject some details into the Exchange so that the WUPEgressConduit can extract them as per standard practice
-        LOG.trace(".registerActivityFinishAndFinalisation(): Injecting Job Card and Status Element into Exchange for extraction by the WUP Egress Conduit");
+        LOG.trace(".registerActivityFinishAndFinalisation(): Get Job Card and Status Element from Exchange for extraction by the WUP Egress Conduit");
         String jobcardPropertyKey = exchangePropertyNames.getExchangeJobCardPropertyName(wupInstanceKey); // this value should match the one in WUPIngresConduit.java/WUPEgressConduit.java
-        String parcelStatusPropertyKey = exchangePropertyNames.getExchangeJobCardPropertyName(wupInstanceKey); // this value should match the one in WUPIngresConduit.java/WUPEgressConduit.java
-        camelExchange.setProperty(jobcardPropertyKey, activityJobCard); // <-- Note the "WUPJobCard" property name, make sure this is aligned with the code in the WUPEgressConduit.java file
-        camelExchange.setProperty(parcelStatusPropertyKey, statusElement); // <-- Note the "ParcelStatusElement" property name, make sure this is aligned with the code in the WUPEgressConduit.java file
+        String parcelStatusPropertyKey = exchangePropertyNames.getExchangeStatusElementPropertyName(wupInstanceKey); // this value should match the one in WUPIngresConduit.java/WUPEgressConduit.java
+        WUPJobCard activityJobCard = camelExchange.getProperty(jobcardPropertyKey, WUPJobCard.class); // <-- Note the "WUPJobCard" property name, make sure this is aligned with the code in the WUPEgressConduit.java file
+        ParcelStatusElement statusElement = camelExchange.getProperty(parcelStatusPropertyKey, ParcelStatusElement.class); // <-- Note the "ParcelStatusElement" property name, make sure this is aligned with the code in the WUPEgressConduit.java file
+        LOG.trace(".registerActivityFinishAndFinalisation(): Extract the UoW");
+        switch(theUoW.getProcessingOutcome()){
+            case UOW_OUTCOME_SUCCESS:{
+                activityJobCard.setCurrentStatus(WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_FINISHED);
+                servicesBroker.notifyFinishOfWorkUnitActivity(activityJobCard, theUoW);
+                servicesBroker.notifyFinalisationOfWorkUnitActivity(activityJobCard);
+                break;
+            }
+            case UOW_OUTCOME_INCOMPLETE:
+            case UOW_OUTCOME_NOTSTARTED:
+            case UOW_OUTCOME_FAILED:{
+                activityJobCard.setCurrentStatus(WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_FAILED);
+                servicesBroker.notifyFailureOfWorkUnitActivity(activityJobCard, theUoW);
+            }
+        }
         LOG.debug(".registerActivityFinishAndFinalisation(): exit, my work is done!");
         return(theUoW);
     }
