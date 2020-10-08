@@ -56,7 +56,7 @@ public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplat
         ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocol();
         ingresEndPoint = ingresEndPoint + this.specifyEndpointProtocolLeadIn();
         ingresEndPoint = ingresEndPoint + "0.0.0.0"; // TODO need to look into why Wildfly wont bind....
-        ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getExposedPort();
+        ingresEndPoint = ingresEndPoint + ":" + this.getIngresTopologyEndpointElement().getInternalPort();
         ingresEndPoint = ingresEndPoint + specifyEndpointProtocolLeadout();
         getLogger().debug(".specifyIngresEndpoint(): Exit, ingresEndPoint --> {}", ingresEndPoint);
         return(ingresEndPoint);
