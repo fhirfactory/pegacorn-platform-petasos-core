@@ -22,14 +22,14 @@
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.worker;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
+import net.fhirfactory.pegacorn.camel.BaseRouteBuilder;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
+import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 
-public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
+public class InterchangeExtractAndRouteTemplate extends BaseRouteBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterchangeExtractAndRouteTemplate.class);
 
@@ -49,16 +49,16 @@ public class InterchangeExtractAndRouteTemplate extends RouteBuilder {
         LOG.debug("InterchangeExtractAndRouteTemplate :: EndPointInterchangePayloadTransformerIngres --> {}", nameSet.getEndPointInterchangePayloadTransformerIngres());
         LOG.debug("InterchangeExtractAndRouteTemplate :: EndPointInterchangeRouterIngres --> {}", nameSet.getEndPointInterchangeRouterIngres());
 
-        from(nameSet.getEndPointInterchangePayloadTransformerIngres())
+        fromWithStandardExceptionHandling(nameSet.getEndPointInterchangePayloadTransformerIngres())
                 .routeId(nameSet.getRouteInterchangePayloadTransformer())
                 .split().method(InterchangeUoWPayload2NewUoWProcessor.class, "extractUoWPayloadAndCreateNewUoWSet(*, Exchange," + this.wupNodeElement.extractNodeKey() + ")")
                 .to(nameSet.getEndPointInterchangePayloadTransformerEgress());
 
-        from(nameSet.getEndPointInterchangePayloadTransformerEgress())
+        fromWithStandardExceptionHandling(nameSet.getEndPointInterchangePayloadTransformerEgress())
                 .routeId(nameSet.getRouteInterchangePayloadTransformerEgress2InterchangePayloadRouterIngres())
                 .to(nameSet.getEndPointInterchangeRouterIngres());
 
-        from(nameSet.getEndPointInterchangeRouterIngres())
+        fromWithStandardExceptionHandling(nameSet.getEndPointInterchangeRouterIngres())
                 .routeId(nameSet.getRouteInterchangeRouter())
                 .bean(InterchangeTargetWUPTypeRouter.class, "forwardUoW2WUPs(*, Exchange," +  this.wupNodeElement.extractNodeKey() + ")");
     }

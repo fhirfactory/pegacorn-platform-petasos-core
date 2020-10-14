@@ -23,16 +23,17 @@
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
 import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplate {
 
+    protected static final String IPC_FRAME_DECODER = "ipcFrameDecoder";
+    protected static final String IPC_STRING_DECODER = "ipcStringDecoder";
+    protected static final String IPC_STRING_ENCODER = "ipcStringEncoder";
+    private static final String DEFAULT_NETTY_PARAMS = 
+            "?allowDefaultCodec=false&decoders=#" + IPC_FRAME_DECODER + "&encoders=#" + IPC_STRING_ENCODER + 
+            "&keepAlive=false&clientMode=true&sync=true";
+        
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
         return(WUPArchetypeEnum.WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT);
@@ -80,10 +81,23 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
         return(false);
     }
 
-    abstract protected String specifyEndpointComponentDefinition();
-    abstract protected String specifyEndpointProtocol();
-    abstract protected String specifyEndpointProtocolLeadIn();
-    abstract protected String specifyEndpointProtocolLeadout();
+
+    protected String specifyEndpointComponentDefinition() {
+        return ("netty");
+    }
+
+    protected String specifyEndpointProtocol() {
+        return ("tcp");
+    }
+
+    protected String specifyEndpointProtocolLeadIn() {
+        return ("://");
+    }
+
+    protected String specifyEndpointProtocolLeadout() {
+        return (DEFAULT_NETTY_PARAMS);
+    }
+
     abstract protected String specifyEgressTopologyEndpointName();
     abstract protected String specifyEgressEndpointVersion();
     abstract protected String deriveTargetEndpointDetails();

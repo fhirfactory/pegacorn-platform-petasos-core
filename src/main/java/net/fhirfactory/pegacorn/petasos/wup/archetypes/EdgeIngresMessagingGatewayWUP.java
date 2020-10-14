@@ -22,17 +22,16 @@
 
 package net.fhirfactory.pegacorn.petasos.wup.archetypes;
 
-import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
-import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
-import org.apache.camel.spi.Registry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import net.fhirfactory.pegacorn.petasos.core.moa.wup.GenericMOAWUPTemplate;
+import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
+import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
+
 public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
+    
+    private static final String DEFAULT_NETTY_PARAMS_POSTFIX = "&sync=true&disconnect=true&keepAlive=false";
     
     public EdgeIngresMessagingGatewayWUP() {
         super();
@@ -103,8 +102,25 @@ public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplat
         return(subTopics);
     }
     
-    abstract protected String specifyEndpointComponentDefinition();
-    abstract protected String specifyEndpointProtocol();
-    abstract protected String specifyEndpointProtocolLeadIn();
-    abstract protected String specifyEndpointProtocolLeadout();
+    protected String specifyEndpointComponentDefinition() {
+        return ("netty");
+    }
+
+    protected String specifyEndpointProtocol() {
+        return ("tcp");
+    }
+
+    protected String specifyEndpointProtocolLeadIn() {
+        return ("://");
+    }
+
+    protected String specifyEndpointProtocolLeadout() {
+        return specifyEndpointProtocolLeadout(specifyServerInitializerFactoryName());
+    }
+
+    public static String specifyEndpointProtocolLeadout(String serverInitializerFactoryName) {
+        return "?serverInitializerFactory=#" + serverInitializerFactoryName + DEFAULT_NETTY_PARAMS_POSTFIX;
+    }
+    
+    abstract protected String specifyServerInitializerFactoryName();
 }
