@@ -28,10 +28,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import net.fhirfactory.pegacorn.camel.BaseRouteBuilder;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.datasets.fhir.r4.internal.topics.FHIRElementTopicIDBuilder;
@@ -57,7 +56,7 @@ import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
  * @since 2020-07-01
  */
 
-public abstract class GenericMOAWUPTemplate extends RouteBuilder {
+public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
 
     abstract protected Logger getLogger();
 
