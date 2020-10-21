@@ -103,8 +103,6 @@ public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
     @PostConstruct
     protected void initialise(){
         getLogger().debug(".initialise(): Entry, Default Post Constructor function to setup the WUP");
-        getLogger().trace(".initialise(): Setting the Topic Subscription Set (i.e. the list of Data Sets we will process)");
-        this.topicSubscriptionSet = specifySubscriptionTopics();
         getLogger().trace(".initialise(): Setting the WUP Instance Name - an unqualified (but system-module unique name) string to be used as part of the WUP FDN");
         this.wupInstanceName = specifyWUPInstanceName();
         getLogger().trace(".initialise(): wupInstanceName --> {}", this.wupInstanceName);
@@ -131,10 +129,13 @@ public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
         getLogger().trace(".initialise(): Setting the WUP Egress Point, which is the .to() for the contained WUP Camel Route");
         this.wupEgressPoint = specifyEgressEndpoint();
         getLogger().trace(".initialise(): EgressPoint --> {}", this.wupEgressPoint);
-        getLogger().trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
-        buildWUPFramework(this.getContext());
+
         getLogger().trace(".initialise(): Now invoking subclass initialising function(s)");
         executePostInitialisationActivities();
+        getLogger().trace(".initialise(): Setting the Topic Subscription Set (i.e. the list of Data Sets we will process)");
+        this.topicSubscriptionSet = specifySubscriptionTopics();
+        getLogger().trace(".initialise(): Now call the WUP Framework constructure - which builds the Petasos framework around this WUP");
+        buildWUPFramework(this.getContext());
         getLogger().debug(".initialise(): Exit");
     }
     

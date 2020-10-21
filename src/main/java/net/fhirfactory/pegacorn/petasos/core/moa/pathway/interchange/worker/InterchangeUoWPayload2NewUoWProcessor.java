@@ -88,9 +88,8 @@ public class InterchangeUoWPayload2NewUoWProcessor {
             WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(ingresPacket.getPacketID(), Date.from(Instant.now()), newUoW);
             newEgressTransportPacketSet.add(transportPacket);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new WorkUnitTransportPackets created, number --> {} ", newEgressTransportPacketSet.size());
-        }
+        LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new WorkUnitTransportPackets created, number --> {} ", newEgressTransportPacketSet.size());
+
         return (newEgressTransportPacketSet);
     }
 }

@@ -77,9 +77,8 @@ public class InterchangeTargetWUPTypeRouter {
      */
     @RecipientList
     public List<String> forwardUoW2WUPs(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
-        if(LOG.isDebugEnabled()) {
-            LOG.debug(".forwardUoW2WUPs(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
-        }
+        LOG.debug(".forwardUoW2WUPs(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
+
         // Get my Petasos Context
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         if(LOG.isTraceEnabled()) {
@@ -92,6 +91,7 @@ public class InterchangeTargetWUPTypeRouter {
         TopicToken uowTopicID = null;
         if(ingresPacket.getPayload().hasIngresContent()){
             uowTopicID = ingresPacket.getPayload().getIngresContent().getPayloadTopicID();
+            LOG.trace(".forwardUoW2WUPs(): uowTopicId --> {}", uowTopicID);
         } else {
             LOG.debug(".forwardUoW2WUPs(): Exit, there's no payload (UoW), so return an empty list (and end this route).");
             return(new ArrayList<String>());
