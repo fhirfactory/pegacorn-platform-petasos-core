@@ -22,7 +22,7 @@
 
 package net.fhirfactory.pegacorn.petasos.audit.forwarder.asynchronous;
 
-import net.fhirfactory.pegacorn.petasos.audit.forwarder.integration.HestiaAuditWriter;
+import net.fhirfactory.pegacorn.petasos.audit.forwarder.integration.synchronous.HestiaAuditWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

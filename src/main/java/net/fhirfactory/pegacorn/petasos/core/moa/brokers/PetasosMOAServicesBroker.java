@@ -70,7 +70,7 @@ public class PetasosMOAServicesBroker {
     WorkUnitProcessorFrameworkManager wupFrameworkManager;
 
     @Inject
-    PathwayInterchangeManager interchangeManager;
+    PathwayInterchangeManager wupInterchangeManager;
 
     @Inject
     TopicIM topicManager;
@@ -110,7 +110,8 @@ public class PetasosMOAServicesBroker {
         if ((jobCard == null) || (finishedUoW == null)) {
             throw (new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel finishedParcel = parcelServicesIM.notifyParcelProcessingFinish(jobCard.getActivityID().getPresentParcelIdentifier(), finishedUoW);
+        ResilienceParcel finishedParcel = parcelServicesIM
+                .notifyParcelProcessingFinish(jobCard.getActivityID().getPresentParcelIdentifier(), finishedUoW);
         rasController.synchroniseJobCard(jobCard);
     }
 
@@ -118,7 +119,8 @@ public class PetasosMOAServicesBroker {
         if ((jobCard == null)) {
             throw (new IllegalArgumentException(".registerWorkUnitActivity(): jobCard is null"));
         }
-        ResilienceParcel finishedParcel = parcelServicesIM.notifyParcelProcessingFinalisation(jobCard.getActivityID().getPresentParcelIdentifier());
+        ResilienceParcel finishedParcel = parcelServicesIM
+                .notifyParcelProcessingFinalisation(jobCard.getActivityID().getPresentParcelIdentifier());
         rasController.synchroniseJobCard(jobCard);
     }
 
@@ -126,15 +128,18 @@ public class PetasosMOAServicesBroker {
         if ((jobCard == null) || (failedUoW == null)) {
             throw (new IllegalArgumentException(".notifyFailureOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifyParcelProcessingFinish(jobCard.getActivityID().getPresentParcelIdentifier(), failedUoW);
+        ResilienceParcel failedParcel = parcelServicesIM
+                .notifyParcelProcessingFinish(jobCard.getActivityID().getPresentParcelIdentifier(), failedUoW);
         rasController.synchroniseJobCard(jobCard);
     }
 
     public void notifyCancellationOfWorkUnitActivity(WUPJobCard jobCard) {
         if (jobCard == null) {
-            throw (new IllegalArgumentException(".notifyCancellationOfWorkUnitActivity(): jobCard or finishedUoW are null"));
+            throw (new IllegalArgumentException(
+                    ".notifyCancellationOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
-        ResilienceParcel failedParcel = parcelServicesIM.notifyParcelProcessingCancellation(jobCard.getActivityID().getPresentParcelIdentifier());
+        ResilienceParcel failedParcel = parcelServicesIM
+                .notifyParcelProcessingCancellation(jobCard.getActivityID().getPresentParcelIdentifier());
     }
 
     public void notifyPurgeOfWorkUnitActivity(WUPJobCard jobCard) {
@@ -164,14 +169,36 @@ public class PetasosMOAServicesBroker {
     }
 
     public ResilienceParcel getUnprocessedParcel(FDNToken wupTypeID) {
-        // TODO - this is the mechanism to re-start on failure, not currently implemented.
+        // TODO - this is the mechanism to re-start on failure, not currently
+        // implemented.
         return (null);
     }
 
-    public void registerWorkUnitProcessor(NodeElement newElement, Set<TopicToken> payloadTopicSet, WUPArchetypeEnum wupNature) {
-        LOG.debug(".registerWorkUnitProcessor(): Entry, newElement --> {}, payloadTopicSet --> {}", newElement, payloadTopicSet);
-        wupFrameworkManager.buildWUPFramework(newElement, payloadTopicSet, wupNature);
-        interchangeManager.buildWUPInterchangeRoutes(newElement, wupNature);
+    public void registerWorkUnitProcessor(NodeElement newElement, Set<TopicToken> payloadTopicSet,
+                                          WUPArchetypeEnum wupNature) {
+        LOG.debug(".registerWorkUnitProcessor(): Entry, newElement --> {}, payloadTopicSet --> {}", newElement,
+                payloadTopicSet);
+        switch (wupNature) {
+            case WUP_NATURE_LADON_TIMER_TRIGGERED_BEHAVIOUR:
+            case WUP_NATURE_LAODN_STIMULI_TRIGGERED_BEHAVIOUR:
+                // Do nothing, as the above WUPs are handled by their own specific frameworks.
+                break;
+            case WUP_NATURE_LADON_BEHAVIOUR_WRAPPER:
+                wupInterchangeManager.buildWUPInterchangeRoutes(newElement, wupNature);
+                break;
+            case WUP_NATURE_API_ANSWER:
+            case WUP_NATURE_API_CLIENT:
+            case WUP_NATURE_API_PUSH:
+            case WUP_NATURE_API_RECEIVE:
+            case WUP_NATURE_LADON_STANDARD_MOA:
+            case WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT:
+            case WUP_NATURE_MESSAGE_EXTERNAL_EGRESS_POINT:
+            case WUP_NATURE_MESSAGE_EXTERNAL_INGRES_POINT:
+            case WUP_NATURE_MESSAGE_WORKER:
+            default:
+                wupFrameworkManager.buildWUPFramework(newElement, payloadTopicSet, wupNature);
+                wupInterchangeManager.buildWUPInterchangeRoutes(newElement, wupNature);
+        }
     }
 
     public PetasosParcelAuditTrailEntry transactionFailedPriorOnInitialValidation(WUPIdentifier wup, String action, UoW theUoW) {

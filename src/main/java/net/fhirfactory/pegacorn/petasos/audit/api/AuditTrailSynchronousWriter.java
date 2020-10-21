@@ -22,9 +22,8 @@
 
 package net.fhirfactory.pegacorn.petasos.audit.api;
 
-import net.fhirfactory.pegacorn.petasos.audit.forwarder.integration.HestiaAuditWriter;
+import net.fhirfactory.pegacorn.petasos.audit.forwarder.integration.synchronous.HestiaAuditWriter;
 import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelAuditTrailEntry;
-import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

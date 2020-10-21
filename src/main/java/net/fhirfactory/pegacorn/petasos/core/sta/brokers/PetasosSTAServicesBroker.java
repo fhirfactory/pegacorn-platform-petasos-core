@@ -121,7 +121,7 @@ public class PetasosSTAServicesBroker {
     public void registerWorkUnitProcessor( NodeElement newElement, Set<TopicToken> payloadTopicSet, WUPArchetypeEnum wupNature){
         LOG.debug(".registerWorkUnitProcessor(): Entry, newElement --> {}, payloadTopicSet --> {}", newElement, payloadTopicSet);
         // wupFrameworkManager.buildWUPFramework(newElement, payloadTopicSet, wupNature);
-        // interchangeManager.buildWUPInterchangeRoutes(newElement);
+        // wupInterchangeManager.buildWUPInterchangeRoutes(newElement);
     }
 
 }
