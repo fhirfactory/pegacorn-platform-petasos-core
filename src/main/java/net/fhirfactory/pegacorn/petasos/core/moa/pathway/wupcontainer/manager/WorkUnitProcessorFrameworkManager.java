@@ -42,14 +42,13 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
 /**
- *
  * @author Mark A. Hunter
  */
 
 @ApplicationScoped
 public class WorkUnitProcessorFrameworkManager {
     private static final Logger LOG = LoggerFactory.getLogger(WorkUnitProcessorFrameworkManager.class);
-    
+
     @Inject
     CamelContext camelctx;
 
@@ -58,11 +57,12 @@ public class WorkUnitProcessorFrameworkManager {
 
     @Inject
     TopicIM topicServer;
-    
-    public void buildWUPFramework( NodeElement wupNode, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype){
+
+    public void buildWUPFramework(NodeElement wupNode, Set<TopicToken> subscribedTopics, WUPArchetypeEnum wupArchetype) {
         LOG.debug(".buildWUPFramework(): Entry, wupNode --> {}, subscribedTopics --> {}, wupArchetype --> {}", wupNode, subscribedTopics, wupArchetype);
         try {
             switch (wupArchetype) {
+
                 case WUP_NATURE_LAODN_STIMULI_TRIGGERED_BEHAVIOUR: {
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_STIMULI_TRIGGERED_BEHAVIOUR route");
                     StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode, true);
@@ -80,6 +80,7 @@ public class WorkUnitProcessorFrameworkManager {
                     LOG.trace(".buildWUPFramework(): Note, this type of WUP/Route does not subscribe to Topics (it is purely a producer)");
                     break;
                 }
+                case WUP_NATURE_LADON_BEHAVIOUR_WRAPPER:
                 case WUP_NATURE_LADON_STANDARD_MOA: {
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_LADON_STANDARD_MOA route");
                     StandardWUPContainerRoute standardWUPRoute = new StandardWUPContainerRoute(camelctx, wupNode, true);
@@ -129,15 +130,15 @@ public class WorkUnitProcessorFrameworkManager {
                 case WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT:
                     LOG.trace(".buildWUPFramework(): Building a WUP_NATURE_MESSAGE_EXTERNAL_CONCURRENT_INGRES_POINT route");
             }
-        } catch(Exception Ex){
+        } catch (Exception Ex) {
             // TODO We really must handle this exception, either by cancelling the whole Processing Plant or, at least, raising an alarm
         }
 
     }
 
-    public void uowTopicSubscribe(Set<TopicToken> subscribedTopics, NodeElement wupNode){
-        LOG.debug(".uowTopicSubscribe(): Entry, subscribedTopics --> {}, wupNode --> {}", subscribedTopics, wupNode );
-        if(subscribedTopics.isEmpty()){
+    public void uowTopicSubscribe(Set<TopicToken> subscribedTopics, NodeElement wupNode) {
+        LOG.debug(".uowTopicSubscribe(): Entry, subscribedTopics --> {}, wupNode --> {}", subscribedTopics, wupNode);
+        if (subscribedTopics.isEmpty()) {
             LOG.debug(".uowTopicSubscribe(): Something's wrong, no Topics are subscribed for this WUP");
             return;
         }
@@ -145,10 +146,10 @@ public class WorkUnitProcessorFrameworkManager {
         wupFunctionToken.setFunctionID(wupNode.getNodeFunctionID());
         wupFunctionToken.setVersion(wupNode.getVersion());
         Iterator<TopicToken> topicIterator = subscribedTopics.iterator();
-        while(topicIterator.hasNext()) {
+        while (topicIterator.hasNext()) {
             TopicToken currentTopicID = topicIterator.next();
             LOG.trace(".uowTopicSubscribe(): wupNode --> {} is subscribing to UoW Content Topic --> {}", wupNode, currentTopicID);
-            topicServer.addTopicSubscriber(currentTopicID, wupNode.getNodeInstanceID() );
+            topicServer.addTopicSubscriber(currentTopicID, wupNode.getNodeInstanceID());
         }
         LOG.debug(".uowTopicSubscribe(): Exit");
     }

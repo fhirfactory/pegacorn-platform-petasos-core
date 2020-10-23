@@ -77,9 +77,8 @@ public class InterchangeTargetWUPTypeRouter {
      */
     @RecipientList
     public List<String> forwardUoW2WUPs(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
-        if(LOG.isDebugEnabled()) {
-            LOG.debug(".forwardUoW2WUPs(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
-        }
+        LOG.debug(".forwardUoW2WUPs(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
+
         // Get my Petasos Context
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         if(LOG.isTraceEnabled()) {
@@ -92,15 +91,16 @@ public class InterchangeTargetWUPTypeRouter {
         TopicToken uowTopicID = null;
         if(ingresPacket.getPayload().hasIngresContent()){
             uowTopicID = ingresPacket.getPayload().getIngresContent().getPayloadTopicID();
+            LOG.trace(".forwardUoW2WUPs(): uowTopicId --> {}", uowTopicID);
         } else {
             LOG.debug(".forwardUoW2WUPs(): Exit, there's no payload (UoW), so return an empty list (and end this route).");
             return(new ArrayList<String>());
         }
         Set<NodeElementIdentifier> nodeSet = topicServer.getSubscriberSet(uowTopicID);
-        ArrayList<String> endpointList = new ArrayList<String>();
+        List<String> targetSubscriberSet = new ArrayList<String>();
         if( nodeSet == null ){
             LOG.debug(".forwardUoW2WUPs(): Exiting, nothing subscribed to that topic, returning empty set");
-            return(endpointList);
+            return(targetSubscriberSet);
         } else {
             if (LOG.isTraceEnabled()) {tracePrintSubscribedWUPSet(nodeSet);}
             Iterator<NodeElementIdentifier> nodeIterator = nodeSet.iterator();
@@ -110,13 +110,13 @@ public class InterchangeTargetWUPTypeRouter {
                 NodeElement currentNodeElement = topologyProxy.getNode(currentNodeIdentifier);
                 NodeElementFunctionToken currentNodeFunctionToken = currentNodeElement.getNodeFunctionToken();
                 RouteElementNames routeName = new RouteElementNames(currentNodeFunctionToken);
-                endpointList.add(routeName.getEndPointWUPContainerIngresProcessorIngres());
+                targetSubscriberSet.add(routeName.getEndPointWUPContainerIngresProcessorIngres());
                 // Now add the downstream WUPFunction to the Parcel Finalisation Registry
                 WUPFunctionToken functionToken = new WUPFunctionToken(currentNodeFunctionToken);
                 activityServicesController.registerWUAEpisodeDownstreamWUPInterest(ingresPacket.getPacketID().getPresentEpisodeIdentifier(), functionToken);
             }
-            LOG.debug(".forwardUoW2WUPs(): Exiting, returning registered/interested endpoints: endpointList -->{}", endpointList);
-            return (endpointList);
+            LOG.debug(".forwardUoW2WUPs(): Exiting, returning registered/interested endpoints: endpointList -->{}", targetSubscriberSet);
+            return (targetSubscriberSet);
         }
     }
 

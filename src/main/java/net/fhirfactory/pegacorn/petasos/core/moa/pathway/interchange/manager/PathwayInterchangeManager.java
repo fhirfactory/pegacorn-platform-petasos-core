@@ -76,7 +76,7 @@ public class PathwayInterchangeManager {
                     camelctx.addRoutes(newRoute);
                     LOG.trace(".buildWUPInterchangeRoutes(): Route installation successful");
                 } catch (Exception Ex) {
-                    LOG.debug(".buildWUPInterchangeRoutes(): Route install failed! Exception --> {}", Ex);
+                    LOG.error(".buildWUPInterchangeRoutes(): Route install failed! Exception", Ex);
                 }
             }
             LOG.debug(".buildWUPInterchangeRoutes(): Exit - All good it seems!");

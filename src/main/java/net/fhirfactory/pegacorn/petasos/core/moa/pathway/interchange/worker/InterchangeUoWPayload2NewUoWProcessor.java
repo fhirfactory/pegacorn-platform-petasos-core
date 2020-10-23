@@ -46,6 +46,22 @@ public class InterchangeUoWPayload2NewUoWProcessor {
 
     @Inject
     DeploymentTopologyIM topologyProxy;
+    
+    /**
+     * This method performs tree key tasks:
+     * 
+     * 1. It extracts each UoWPayload from the egressPayloadSet within the incomingUoW and creates a 
+     * new UoW (and, subsequently, a new WorkUnitTransportPacket) based on the content of those egress 
+     * UoWPayload elements. 
+     * 2. As part of the WorkUnitTransportPacket creation, it embeds the current ActivityID.
+     * 3. It then returns a List<> of these new WorkUnitTransportPackets for distribution.
+     * 
+     * It generates the 
+     * @param ingresPacket
+     * @param camelExchange
+     * @param wupInstanceKey
+     * @return A List<> of WorkUnitTransportPackets - one for each egress UoWPayload element within the incoming UoW.
+     */
 
     public List<WorkUnitTransportPacket> extractUoWPayloadAndCreateNewUoWSet(WorkUnitTransportPacket ingresPacket, Exchange camelExchange, String wupInstanceKey) {
         LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Entry, ingresPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", ingresPacket, wupInstanceKey);
@@ -72,9 +88,8 @@ public class InterchangeUoWPayload2NewUoWProcessor {
             WorkUnitTransportPacket transportPacket = new WorkUnitTransportPacket(ingresPacket.getPacketID(), Date.from(Instant.now()), newUoW);
             newEgressTransportPacketSet.add(transportPacket);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new WorkUnitTransportPackets created, number --> {} ", newEgressTransportPacketSet.size());
-        }
+        LOG.debug(".extractUoWPayloadAndCreateNewUoWSet(): Exit, new WorkUnitTransportPackets created, number --> {} ", newEgressTransportPacketSet.size());
+
         return (newEgressTransportPacketSet);
     }
 }

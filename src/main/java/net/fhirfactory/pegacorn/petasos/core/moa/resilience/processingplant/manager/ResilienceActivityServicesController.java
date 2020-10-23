@@ -22,7 +22,6 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager;
 
-import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
@@ -31,7 +30,6 @@ import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.mana
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 
 import org.slf4j.Logger;
@@ -39,9 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 
-
+/**
+ *
+ */
 @ApplicationScoped
 public class ResilienceActivityServicesController {
     private static final Logger LOG = LoggerFactory.getLogger(ResilienceActivityServicesController.class);
@@ -55,7 +54,7 @@ public class ResilienceActivityServicesController {
     //task Specific Classes
 
     @Inject
-    RegisterNewMOAWorkUnitActivityTask taskRegisterWUA;
+    RegisterNewMOAWorkUnitActivityTask wuaRegistry;
 
     @Inject
     SynchroniseMOAWorkUnitActivityJobCardTask taskSynchroniseWUA;
@@ -66,7 +65,7 @@ public class ResilienceActivityServicesController {
         if (jobCard == null) {
             return (null);
         }
-        ParcelStatusElement parcelStatusElement = taskRegisterWUA.registerNewWUA(jobCard);
+        ParcelStatusElement parcelStatusElement = wuaRegistry.registerNewWUA(jobCard);
         synchroniseJobCard(jobCard);
         LOG.debug(".registerNewWorkUnitActivity(): Exit, parcelStatusElement --> {}", parcelStatusElement);
         return (parcelStatusElement);
