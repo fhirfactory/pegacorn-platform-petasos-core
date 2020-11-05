@@ -32,7 +32,7 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
     protected static final String IPC_STRING_ENCODER = "ipcStringEncoder";
     private static final String DEFAULT_NETTY_PARAMS = 
             "?allowDefaultCodec=false&decoders=#" + IPC_FRAME_DECODER + "&encoders=#" + IPC_STRING_ENCODER + 
-            "&keepAlive=false&clientMode=true&sync=true";
+            "&keepAlive=false&clientMode=true&sync=true&sendBufferSize=26214400";  // 25mb.  //TODO Mark will centralise buffer size management
         
     @Override
     protected WUPArchetypeEnum specifyWUPArchetype(){
@@ -98,7 +98,9 @@ public abstract class EdgeEgressMessagingGatewayWUP extends GenericMOAWUPTemplat
         return (DEFAULT_NETTY_PARAMS);
     }
 
+    @Override
     abstract protected String specifyEgressTopologyEndpointName();
+    @Override
     abstract protected String specifyEgressEndpointVersion();
     abstract protected String deriveTargetEndpointDetails();
 }
