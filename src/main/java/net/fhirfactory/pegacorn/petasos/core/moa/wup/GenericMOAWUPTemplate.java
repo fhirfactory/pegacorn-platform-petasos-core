@@ -58,6 +58,8 @@ import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
 
 public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
 
+    public static final Integer IPC_PACKET_MAXIMUM_FRAME_SIZE = 25 * 1024 * 1024; // 25 MB
+    
     abstract protected Logger getLogger();
 
     private EndpointElement ingresTopologyEndpointElement;

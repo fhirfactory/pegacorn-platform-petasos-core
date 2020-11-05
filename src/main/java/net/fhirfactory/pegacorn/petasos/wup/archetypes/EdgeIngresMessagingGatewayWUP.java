@@ -31,7 +31,7 @@ import net.fhirfactory.pegacorn.petasos.model.wup.WUPArchetypeEnum;
 
 public abstract class EdgeIngresMessagingGatewayWUP extends GenericMOAWUPTemplate {
     
-    private static final String DEFAULT_NETTY_PARAMS_POSTFIX = "&sync=true&disconnect=true&keepAlive=false&receiveBufferSize=26214400"; //25 mb TODO Mark will centralise buffer size management
+    private static final String DEFAULT_NETTY_PARAMS_POSTFIX = "&sync=true&disconnect=true&keepAlive=false&receiveBufferSize=" + IPC_PACKET_MAXIMUM_FRAME_SIZE;
     
     public EdgeIngresMessagingGatewayWUP() {
         super();
