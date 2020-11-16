@@ -34,7 +34,7 @@ import net.fhirfactory.pegacorn.camel.BaseRouteBuilder;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.RDN;
 import net.fhirfactory.pegacorn.datasets.fhir.r4.internal.topics.FHIRElementTopicIDBuilder;
-import net.fhirfactory.pegacorn.deployment.properties.PegacornCoreSubsystemComponentNames;
+import net.fhirfactory.pegacorn.deployment.names.PegacornLadonComponentNames;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
@@ -83,7 +83,7 @@ public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
     private DeploymentTopologyIM wupTopologyProxy;
 
     @Inject
-    private PegacornCoreSubsystemComponentNames subsystemNames;
+    private PegacornLadonComponentNames subsystemNames;
 
     @Inject
     private FHIRElementTopicIDBuilder fhirTopicIDBuilder;
@@ -280,7 +280,7 @@ public abstract class GenericMOAWUPTemplate extends BaseRouteBuilder {
         return version;
     }
 
-    public PegacornCoreSubsystemComponentNames getSubsystemComponentNamesService(){
+    public PegacornLadonComponentNames getSubsystemComponentNamesService(){
         return(this.subsystemNames);
     }
 

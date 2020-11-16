@@ -30,6 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.transaction.Transactional;
 
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcel;
+import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ import net.fhirfactory.pegacorn.common.model.FDNToken;
 
 /**
  * This class acts as the Data Manager for the Parcel Cache within the local
- * ServiceModule. That is, it is the single management point for the
+ * ProcessingPlant. That is, it is the single management point for the
  * Parcel element set itself. It does not implement business logic associated
  * with the surrounding activity associated with each Parcel beyond provision
  * of helper methods associated with search-set and status-set collection
@@ -51,10 +52,10 @@ import net.fhirfactory.pegacorn.common.model.FDNToken;
 public class ProcessingPlantParcelCacheDM {
     private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantParcelCacheDM.class);
 
-    private ConcurrentHashMap<FDNToken, ResilienceParcel> petasosParcelCache;
+    private ConcurrentHashMap<ResilienceParcelIdentifier, ResilienceParcel> petasosParcelCache;
 
     public ProcessingPlantParcelCacheDM() {
-        petasosParcelCache = new ConcurrentHashMap<FDNToken, ResilienceParcel>();
+        petasosParcelCache = new ConcurrentHashMap<ResilienceParcelIdentifier, ResilienceParcel>();
     }
 
     /**
@@ -71,7 +72,7 @@ public class ProcessingPlantParcelCacheDM {
         if (!parcel.hasInstanceIdentifier()) {
             return;
         }
-        FDNToken parcelInstanceID = parcel.getIdentifier();
+        ResilienceParcelIdentifier parcelInstanceID = parcel.getIdentifier();
         if(petasosParcelCache.containsKey(parcelInstanceID)){
             petasosParcelCache.remove(parcelInstanceID);
         }
@@ -114,7 +115,7 @@ public class ProcessingPlantParcelCacheDM {
      * @param parcelInstanceID The Identifier (FDNToken) of the ResilienceParcel to be removed
      */
     @Transactional
-    public void removeParcel(FDNToken parcelInstanceID) {
+    public void removeParcel(ResilienceParcelIdentifier parcelInstanceID) {
         LOG.debug(".removeParcel(): Entry, parcelInstanceID --> {}", parcelInstanceID);
         if (parcelInstanceID == null) {
             return;

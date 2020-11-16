@@ -51,18 +51,18 @@ public class PetasosSTAServicesBroker {
     STAResilienceParcelServicesIM parcelServicesIM;
 
     @Inject
-    STAServiceModuleActivityMatrixDM rasController;
+    STAServiceModuleActivityMatrixDM activityMatrixDM;
 
     @Inject
     TopicIM topicManager;
 
-    public STATransaction registerSOAWorkUnitActivity(WUPJobCard jobCard, UoW initialUoW){
+    public STATransaction registerSTAWorkUnitActivity(WUPJobCard jobCard, UoW initialUoW){
         if((jobCard == null) || (initialUoW == null)){
             throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or initialUoW are null"));
         }
         ResilienceParcel newParcel = parcelServicesIM.registerSOAParcel(jobCard.getActivityID(), initialUoW );
         jobCard.getActivityID().setPresentParcelIdentifier(newParcel.getIdentifier());
-        ParcelStatusElement statusElement = rasController.startTransaction(jobCard.getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE );
+        ParcelStatusElement statusElement = activityMatrixDM.startTransaction(jobCard.getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_ACTIVE );
         STATransaction transaction = new STATransaction();
         transaction.setUnitOfWork(initialUoW);
         transaction.setStatusElement(statusElement);
@@ -72,10 +72,10 @@ public class PetasosSTAServicesBroker {
 
     public void notifyFinishOfWorkUnitActivity(STATransaction transaction){
         if((transaction == null)){
-            throw( new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or finishedUoW are null"));
+            throw( new IllegalArgumentException(".notifyFinishOfWorkUnitActivity(): transaction is null"));
         }
         ResilienceParcel finishedParcel = parcelServicesIM.notifySOAParcelProcessingFinish(transaction.getJobCard().getActivityID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
-        rasController.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
+        activityMatrixDM.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FINISHED);
     }
 
     public void notifyFailureOfWorkUnitActivity(STATransaction transaction){
@@ -83,7 +83,7 @@ public class PetasosSTAServicesBroker {
             throw( new IllegalArgumentException(".notifyFailureOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
         ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingFailure(transaction.getJobCard().getActivityID().getPresentParcelIdentifier(), transaction.getUnitOfWork());
-        rasController.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
+        activityMatrixDM.finishTransaction(transaction.getJobCard().getActivityID(), ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_FAILED);
     }
 
     public void notifyCancellationOfWorkUnitActivity(STATransaction transaction){
@@ -91,7 +91,7 @@ public class PetasosSTAServicesBroker {
             throw( new IllegalArgumentException(".notifyCancellationOfWorkUnitActivity(): jobCard or finishedUoW are null"));
         }
         ResilienceParcel failedParcel = parcelServicesIM.notifySOAParcelProcessingCancellation(transaction.getJobCard().getActivityID().getPresentParcelIdentifier());
-        rasController.finishTransaction(transaction.getJobCard().getActivityID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
+        activityMatrixDM.finishTransaction(transaction.getJobCard().getActivityID(),ResilienceParcelProcessingStatusEnum.PARCEL_STATUS_CANCELLED);
     }
 
     public void notifyPurgeOfWorkUnitActivity(STATransaction transaction){
@@ -108,7 +108,7 @@ public class PetasosSTAServicesBroker {
     }
 
     public ParcelStatusElement getCurrentParcelStatusElement(ResilienceParcelIdentifier parcelInstanceID){
-        ParcelStatusElement statusElement = rasController.getTransactionElement(parcelInstanceID);
+        ParcelStatusElement statusElement = activityMatrixDM.getTransactionElement(parcelInstanceID);
         return(statusElement);
     }
 

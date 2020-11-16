@@ -23,13 +23,11 @@
 package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache;
 
 import net.fhirfactory.pegacorn.common.model.FDNToken;
-import net.fhirfactory.pegacorn.common.model.FDNTokenSet;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatus;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.WUAEpisodeFinalisationRegistrationStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPFunctionTokenSet;
-import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +56,8 @@ import javax.enterprise.context.ApplicationScoped;
  */
 
 @ApplicationScoped
-public class ServiceModuleWUAEpisodeFinalisationCacheDM {
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleWUAEpisodeFinalisationCacheDM.class);
+public class ProcessingPlantWUAEpisodeFinalisationCacheDM {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantWUAEpisodeFinalisationCacheDM.class);
 
     private ConcurrentHashMap<EpisodeIdentifier, WUAEpisodeFinalisationRegistrationStatus> downstreamRegistrationStatusSet;
     private ConcurrentHashMap<EpisodeIdentifier, WUPFunctionTokenSet> downstreamWUPRegistrationMap;
@@ -69,7 +67,7 @@ public class ServiceModuleWUAEpisodeFinalisationCacheDM {
      * The default constructor. This function merely initialises all the various to non-null states,
      * including instantiation of the ConcurrentHashMaps used for caching the data.
      */
-    public ServiceModuleWUAEpisodeFinalisationCacheDM() {
+    public ProcessingPlantWUAEpisodeFinalisationCacheDM() {
         downstreamRegistrationStatusSet = new ConcurrentHashMap<EpisodeIdentifier, WUAEpisodeFinalisationRegistrationStatus>();
         downstreamWUPRegistrationMap = new ConcurrentHashMap<EpisodeIdentifier, WUPFunctionTokenSet>();
         wupRegistrationSetLock = new Object();

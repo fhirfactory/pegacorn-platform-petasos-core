@@ -35,8 +35,8 @@ import net.fhirfactory.pegacorn.petasos.audit.api.PetasosAuditWriter;
 import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelAuditTrailEntry;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.manager.PathwayInterchangeManager;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.manager.WorkUnitProcessorFrameworkManager;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceActivityServicesController;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceParcelServicesIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ProcessingPlantResilienceActivityServicesController;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ProcessingPlantResilienceParcelServicesIM;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelFinalisationStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
@@ -61,10 +61,10 @@ public class PetasosMOAServicesBroker {
     private static final Logger LOG = LoggerFactory.getLogger(PetasosMOAServicesBroker.class);
 
     @Inject
-    ResilienceParcelServicesIM parcelServicesIM;
+    ProcessingPlantResilienceParcelServicesIM parcelServicesIM;
 
     @Inject
-    ResilienceActivityServicesController rasController;
+    ProcessingPlantResilienceActivityServicesController rasController;
 
     @Inject
     WorkUnitProcessorFrameworkManager wupFrameworkManager;
@@ -88,7 +88,7 @@ public class PetasosMOAServicesBroker {
         return (statusElement);
     }
 
-    public ParcelStatusElement registerSystemEdgeWUA(WUPJobCard jobCard, UoW initialUoW) {
+    public ParcelStatusElement registerSystemEdgeWorkUnitActivity(WUPJobCard jobCard, UoW initialUoW) {
         if ((jobCard == null) || (initialUoW == null)) {
             throw (new IllegalArgumentException(".registerWorkUnitActivity(): jobCard or initialUoW are null"));
         }

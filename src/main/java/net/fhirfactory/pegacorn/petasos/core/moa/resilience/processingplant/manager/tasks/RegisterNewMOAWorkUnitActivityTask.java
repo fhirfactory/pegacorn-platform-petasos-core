@@ -33,7 +33,7 @@ import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelProcessingStatusEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ProcessingPlantWUAEpisodeActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.topology.manager.TopologyIM;
 
 @ApplicationScoped
@@ -41,7 +41,7 @@ public class RegisterNewMOAWorkUnitActivityTask {
 	private static final Logger LOG = LoggerFactory.getLogger(RegisterNewMOAWorkUnitActivityTask.class);
 
 	@Inject
-	ServiceModuleActivityMatrixDM activityMatrixDM;
+	ProcessingPlantWUAEpisodeActivityMatrixDM activityMatrixDM;
 
 	@Inject
 	TopologyIM topologerServer;
