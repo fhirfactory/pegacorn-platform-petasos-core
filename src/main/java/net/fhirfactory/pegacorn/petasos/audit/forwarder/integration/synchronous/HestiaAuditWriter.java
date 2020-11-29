@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelAuditTrailEntry;
+import net.fhirfactory.pegacorn.petasos.audit.model.PetasosParcelSimpleAuditDisplayEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,14 +55,21 @@ public class HestiaAuditWriter {
     }
 
     private void prettyPrintAuditEntry(PetasosParcelAuditTrailEntry auditTrailEntry){
+        PetasosParcelSimpleAuditDisplayEntry simplyAuditEntry = new PetasosParcelSimpleAuditDisplayEntry(auditTrailEntry);
         ObjectMapper entryObjectMapper = new ObjectMapper();
         entryObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String auditEntryString = new String();
         String cleanUpString = null;
         try {
-            auditEntryString = entryObjectMapper.writeValueAsString(auditTrailEntry);
+            auditEntryString = entryObjectMapper.writeValueAsString(simplyAuditEntry);
             String cleanUpString1 = auditEntryString.replace("\\\\\"","\"");
-            cleanUpString = cleanUpString1.replace("\\\"","\"");
+            String cleanUpString2 = cleanUpString1.replace("\\\"","\"");
+            String cleanUpString3 = cleanUpString2.replace("\\\"","\"");
+            String cleanUpString4 = cleanUpString3.replace("\\\"","\"");
+            String cleanUpString5 = cleanUpString4.replace("\\\"","\"");
+            String cleanUpString6 = cleanUpString5.replace("\\\"","");
+            String cleanUpBackSlashNs = cleanUpString6.replace("\\n","");
+            cleanUpString = cleanUpBackSlashNs.replace("  ", "");
         } catch (JsonProcessingException jsonException ){
             auditEntryString = "Can't Decode. Error --> " + jsonException.getMessage();
         }
