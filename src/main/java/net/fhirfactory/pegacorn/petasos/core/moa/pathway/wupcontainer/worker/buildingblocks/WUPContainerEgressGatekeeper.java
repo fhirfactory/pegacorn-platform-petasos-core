@@ -25,11 +25,9 @@ package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.bu
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
 import org.apache.camel.Exchange;
 import org.apache.camel.RecipientList;
 import org.slf4j.Logger;
@@ -38,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import net.fhirfactory.pegacorn.common.model.FDN;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
+import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
@@ -74,7 +73,7 @@ public class WUPContainerEgressGatekeeper {
      */
     @RecipientList
     public List<String> egressGatekeeper(WorkUnitTransportPacket transportPacket, Exchange camelExchange, String wupInstanceKey) {
-        LOG.debug(".egressGatekeeper(): Enter, transportPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", transportPacket,wupInstanceKey );
+        LOG.info(".egressGatekeeper(): Enter, transportPacket (WorkUnitTransportPacket) --> {}, wupInstanceKey (String) --> {}", transportPacket,wupInstanceKey );
         // Get my Petasos Context
         NodeElement node = topologyProxy.getNodeByKey(wupInstanceKey);
         LOG.trace(".egressGatekeeper(): Node Element retrieved --> {}", node);
@@ -83,6 +82,9 @@ public class WUPContainerEgressGatekeeper {
         // Now, continue with business logic
         RouteElementNames nameSet = new RouteElementNames(wupFunctionToken);
         ArrayList<String> targetList = new ArrayList<String>();
+        if(!transportPacket.hasCurrentJobCard()) {
+            LOG.error(".egressGatekeeper(): CurrentJobCard is null!");
+        }
         if (transportPacket.getCurrentJobCard().getIsToBeDiscarded()) {
             LOG.trace(".egressGatekeeper(): The isToBeDiscarded attribute is true, so we return null (and discard the packet");
             LOG.debug(".egressGatekeeper(): Returning null, as message is to be discarded (isToBeDiscarded == true)");

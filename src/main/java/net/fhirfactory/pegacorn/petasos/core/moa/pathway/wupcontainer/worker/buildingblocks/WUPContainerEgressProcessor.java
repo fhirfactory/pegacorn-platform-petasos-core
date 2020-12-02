@@ -22,6 +22,15 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.pathway.wupcontainer.worker.buildingblocks;
 
+import java.util.Iterator;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
+import org.apache.camel.Exchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.core.moa.brokers.PetasosMOAServicesBroker;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
@@ -32,13 +41,6 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElement;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementFunctionToken;
 import net.fhirfactory.pegacorn.petasos.model.uow.UoW;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import org.apache.camel.Exchange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.util.Iterator;
 
 /**
  * @author Mark A. Hunter
@@ -73,10 +75,13 @@ public class WUPContainerEgressProcessor {
         WorkUnitTransportPacket egressPacket = null;
         switch (node.getResilienceMode()) {
             case RESILIENCE_MODE_MULTISITE:
+            case RESILIENCE_MODE_KUBERNETES_MULTISITE:
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_MULTISITE");
             case RESILIENCE_MODE_CLUSTERED:
+            case RESILIENCE_MODE_KUBERNETES_CLUSTERED:
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_CLUSTERED");
             case RESILIENCE_MODE_STANDALONE:
+            case RESILIENCE_MODE_KUBERNETES_STANDALONE:
                 LOG.trace(".egressContentProcessor(): Deployment Mode --> PETASOS_MODE_STANDALONE");
                 egressPacket = standaloneDeploymentModeECP(ingresPacket, camelExchange,node);
         }

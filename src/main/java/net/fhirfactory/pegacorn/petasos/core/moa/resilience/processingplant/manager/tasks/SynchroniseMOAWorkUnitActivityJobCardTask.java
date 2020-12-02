@@ -22,7 +22,7 @@
 
 package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks;
 
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ProcessingPlantWUAEpisodeActivityMatrixDM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.ActivityID;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
@@ -45,7 +45,7 @@ public class SynchroniseMOAWorkUnitActivityJobCardTask {
 	private static final Logger LOG = LoggerFactory.getLogger(SynchroniseMOAWorkUnitActivityJobCardTask.class);
 
 	@Inject
-    ServiceModuleActivityMatrixDM activityMatrixDM;
+	ProcessingPlantWUAEpisodeActivityMatrixDM activityMatrixDM;
 
 	@Inject
 	TopologyIM topologyServer;

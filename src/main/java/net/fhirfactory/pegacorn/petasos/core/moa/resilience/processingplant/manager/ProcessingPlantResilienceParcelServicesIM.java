@@ -45,8 +45,8 @@ import javax.transaction.Transactional;
  * @author Mark A. Hunter
  */
 @ApplicationScoped
-public class ResilienceParcelServicesIM {
-    private static final Logger LOG = LoggerFactory.getLogger(ResilienceParcelServicesIM.class);
+public class ProcessingPlantResilienceParcelServicesIM {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantResilienceParcelServicesIM.class);
 //    private FDN nodeInstanceFDN;
 
     @Inject

@@ -24,7 +24,7 @@ package net.fhirfactory.pegacorn.petasos.core.moa.pathway.interchange.worker;
 import net.fhirfactory.pegacorn.common.model.FDNToken;
 import net.fhirfactory.pegacorn.deployment.topology.manager.DeploymentTopologyIM;
 import net.fhirfactory.pegacorn.petasos.core.moa.pathway.naming.RouteElementNames;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ResilienceActivityServicesController;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.ProcessingPlantResilienceActivityServicesController;
 import net.fhirfactory.pegacorn.petasos.datasets.manager.TopicIM;
 import net.fhirfactory.pegacorn.petasos.model.pathway.WorkUnitTransportPacket;
 import net.fhirfactory.pegacorn.petasos.model.topics.TopicToken;
@@ -60,7 +60,7 @@ public class InterchangeTargetWUPTypeRouter {
     DeploymentTopologyIM topologyProxy;
 
     @Inject
-    ResilienceActivityServicesController activityServicesController;
+    ProcessingPlantResilienceActivityServicesController activityServicesController;
 
     /**
      * Essentially, we get the set of WUPs subscribing to a particular UoW type,

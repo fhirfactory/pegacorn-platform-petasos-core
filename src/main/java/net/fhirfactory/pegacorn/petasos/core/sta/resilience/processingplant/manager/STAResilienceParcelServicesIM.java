@@ -47,7 +47,6 @@ import java.util.Date;
 @ApplicationScoped
 public class STAResilienceParcelServicesIM {
     private static final Logger LOG = LoggerFactory.getLogger(STAResilienceParcelServicesIM.class);
-//    private FDN nodeInstanceFDN;
 
     @Inject
     ProcessingPlantParcelCacheDM parcelCacheDM;

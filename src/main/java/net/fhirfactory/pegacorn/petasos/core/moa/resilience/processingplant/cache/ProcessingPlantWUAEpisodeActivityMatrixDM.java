@@ -48,9 +48,9 @@ import net.fhirfactory.pegacorn.petasos.model.configuration.PetasosPropertyConst
  * @since 2020-06-01
  */
 @ApplicationScoped
-public class ServiceModuleActivityMatrixDM {
+public class ProcessingPlantWUAEpisodeActivityMatrixDM {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceModuleActivityMatrixDM.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantWUAEpisodeActivityMatrixDM.class);
 
     private ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement> parcelStatusElementCache;
     private ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>> wuaEpisode2ParcelInstanceMap;
@@ -61,7 +61,7 @@ public class ServiceModuleActivityMatrixDM {
     @Inject
     TopologyIM moduleIM;
 
-    public ServiceModuleActivityMatrixDM() {
+    public ProcessingPlantWUAEpisodeActivityMatrixDM() {
         parcelStatusElementCache = new ConcurrentHashMap<ResilienceParcelIdentifier, ParcelStatusElement>();
         wuaEpisode2ParcelInstanceMap = new ConcurrentHashMap<EpisodeIdentifier, HashSet<ResilienceParcelIdentifier>>();
     }

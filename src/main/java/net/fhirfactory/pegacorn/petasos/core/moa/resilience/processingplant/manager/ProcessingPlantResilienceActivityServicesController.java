@@ -24,8 +24,8 @@ package net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.man
 
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.EpisodeIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.resilience.parcel.ResilienceParcelIdentifier;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleActivityMatrixDM;
-import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ServiceModuleWUAEpisodeFinalisationCacheDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ProcessingPlantWUAEpisodeActivityMatrixDM;
+import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.cache.ProcessingPlantWUAEpisodeFinalisationCacheDM;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.RegisterNewMOAWorkUnitActivityTask;
 import net.fhirfactory.pegacorn.petasos.core.moa.resilience.processingplant.manager.tasks.SynchroniseMOAWorkUnitActivityJobCardTask;
 import net.fhirfactory.pegacorn.petasos.model.resilience.activitymatrix.moa.ParcelStatusElement;
@@ -42,14 +42,14 @@ import javax.inject.Inject;
  *
  */
 @ApplicationScoped
-public class ResilienceActivityServicesController {
-    private static final Logger LOG = LoggerFactory.getLogger(ResilienceActivityServicesController.class);
+public class ProcessingPlantResilienceActivityServicesController {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingPlantResilienceActivityServicesController.class);
 
     @Inject
-    ServiceModuleActivityMatrixDM activityMatrixDM;
+    ProcessingPlantWUAEpisodeActivityMatrixDM activityMatrixDM;
 
     @Inject
-    ServiceModuleWUAEpisodeFinalisationCacheDM finalisationCacheDM;     
+    ProcessingPlantWUAEpisodeFinalisationCacheDM finalisationCacheDM;
     
     //task Specific Classes
 

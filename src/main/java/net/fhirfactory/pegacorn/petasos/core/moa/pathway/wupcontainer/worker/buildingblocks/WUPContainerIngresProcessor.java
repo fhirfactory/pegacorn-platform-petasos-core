@@ -119,6 +119,7 @@ public class WUPContainerIngresProcessor {
                     petasosMOAServicesBroker.synchroniseJobCard(jobCard);
                     if (jobCard.getGrantedStatus() == WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING) {
                         jobCard.setCurrentStatus(WUPActivityStatusEnum.WUP_ACTIVITY_STATUS_EXECUTING);
+                        petasosMOAServicesBroker.notifyStartOfWorkUnitActivity(jobCard);
                         LOG.trace(".ingresContentProcessor(): We've been granted execution privileges!");
                         waitState = false;
                         break;
