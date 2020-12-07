@@ -22,7 +22,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.6.0</version>
+                <version>${version-org.junit5}</version>
             </dependency>
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
@@ -173,21 +173,21 @@
             <groupId>org.jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <scope>compile</scope>
-            <version>4.2.3.Final</version>
+            <version>${version-org.jgroups-jgroups}</version>
         </dependency>
 
         <!-- logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>${version-ch.qos.logback-classic}</version>
         </dependency>
 		
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.0.0-M4</version>
+            <version>${version-org.apache.maven-surefire-plugin}</version>
             <type>maven-plugin</type>
         </dependency>
         <dependency>
@@ -203,13 +203,13 @@
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-deployment-properties</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.fhirfactory.pegacorn</groupId>
             <artifactId>pegacorn-deployment-properties</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -242,11 +242,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>${version-org.apache.maven-surefire-plugin}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${version-org.apache.maven-failsafe-plugin}</version>
             </plugin>
         </plugins>
     </build>
