@@ -12,7 +12,7 @@ import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.topology.NodeElementTypeEnum;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPIdentifier;
 import net.fhirfactory.pegacorn.petasos.model.wup.WUPJobCard;
-import net.fhirfactory.pegacorn.util.FhirUtil;
+import net.fhirfactory.pegacorn.util.FHIRContextUtility;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +35,9 @@ public abstract class GenericSTAClientWUPTemplate {
     @Inject
     private DeploymentTopologyIM deploymentTopologyIM;
 
+    @Inject
+    private FHIRContextUtility fhirContextUtility;
+
     public GenericSTAClientWUPTemplate() {
         isInitialised = false;
         this.apiClientName = specifyAPIClientName();
@@ -51,7 +54,7 @@ public abstract class GenericSTAClientWUPTemplate {
         getLogger().debug(".initialise(): Entry");
         if (!isInitialised) {
             getLogger().trace(".initialise(): AccessBase is NOT initialised");
-            this.parserR4 = FhirUtil.getInstance().getJsonParser();
+            this.parserR4 = fhirContextUtility.getJsonParser();
             this.isInitialised = true;
             getProcessingPlant().initialisePlant();
             this.apiClientNode = buildPersistenceServiceNode();
